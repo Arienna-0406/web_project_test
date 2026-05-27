@@ -4,13 +4,12 @@
 // ================= 00c. 更新通知器 =================
 const UpdateNotifier = {
   // >>> 每次发布新版本时修改这里的版本号和内容 <<<
-  CURRENT: '2.3',
-  TITLE: 'v2.3 更新内容',
+  CURRENT: '2.4',
+  TITLE: 'v2.4 更新内容',
   _key() { return SiteManager.PREFIX + (SiteManager.getActive() || 'default') + '_last_version'; },
   CHANGES: [
-    { icon: '📱', text: '修复手机端编辑小球点击无反应的问题，现在手机也能正常打开编辑面板了。' },
-    { icon: '🆓', text: '所有模板和特效全部免费！导出展示版无需付费，直接导出即可。' },
-    { icon: '📥', text: '新增「导入展示版」功能！导出后可在任意设备导入恢复数据，替代登录注册。注意：每次只能导出一个粉丝站，图片需重新上传。' }
+    { icon: '🔧', text: '修复编辑小球点击无反应的问题，现在手机端和电脑端都能正常打开编辑面板了。' },
+    { icon: '📦', text: '导出展示版全面优化！图片完整嵌入页面，导出后发给朋友也能看到美美的偶像照片啦~' }
   ],
   init() {
     var last = localStorage.getItem(this._key());
