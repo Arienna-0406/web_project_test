@@ -1,0 +1,250 @@
+<!-- 
+  📦 StarFan Studio v2.3 | 内部开发注释
+  💡 更新的内容设置在 UpdateNotifier 模块，每次发布新版本时改：CURRENT / TITLE / CHANGES
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StarFan Studio</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<!-- 实时特效预览层 -->
+<div class="live-fx-layer" id="liveFxLayer"></div>
+<!-- 主题装饰图案层 -->
+<div class="theme-deco-layer" id="themeDecoLayer"></div>
+<!-- 新手教程：欢迎弹窗（第0步） -->
+<div class="tut-welcome" id="tutWelcome">
+  <div class="tut-welcome-card">
+    <div class="tut-welcome-hero">
+      <span class="tut-welcome-icon">🎉</span>
+      <h2>欢迎来到 StarFan Studio</h2>
+      <p>为你的偶像打造一个专属的精美粉丝站 ✨</p>
+    </div>
+    <div class="tut-welcome-body">
+      <p>接下来将带你快速认识页面上的各个功能区域，只需 1 分钟~</p>
+      <div class="tut-welcome-list">
+        <div class="tut-welcome-item"><span class="wi-icon">🗂</span><div class="wi-text"><b>6 大内容板块</b><span>资料、追忆、画廊、心语、日历、周边</span></div></div>
+        <div class="tut-welcome-item"><span class="wi-icon">📦</span><div class="wi-text"><b>顶部功能按钮</b><span>导出展示版、预览外观</span></div></div>
+        <div class="tut-welcome-item"><span class="wi-icon">⚙️</span><div class="wi-text"><b>编辑控制台入口</b><span>右下角紫色小球</span></div></div>
+      </div>
+    </div>
+    <div class="tut-welcome-footer">
+      <button style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;padding:4px 8px;width:auto;margin:0;" onclick="Tutorial.close()">跳过教程</button>
+      <button class="tut-btn-next" onclick="Tutorial.next()"><span>开始引导</span><span style="font-size:15px;">→</span></button>
+    </div>
+  </div>
+</div>
+<!-- 新手教程：遮罩层（步骤1-8） -->
+<div class="tut-mask" id="tutMask">
+  <div class="tut-mask-top" id="tutMaskTop"></div>
+  <div class="tut-mask-bottom" id="tutMaskBottom"></div>
+  <div class="tut-mask-left" id="tutMaskLeft"></div>
+  <div class="tut-mask-right" id="tutMaskRight"></div>
+</div>
+<!-- 高亮边框 -->
+<div class="tut-highlight-ring" id="tutRing"></div>
+<!-- 气泡说明卡 -->
+<div class="tut-bubble" id="tutBubble">
+  <div class="tut-bubble-head">
+    <span class="tut-bubble-icon" id="tutBubbleIcon"></span>
+    <span class="tut-bubble-title" id="tutBubbleTitle"></span>
+    <span class="tut-bubble-step" id="tutBubbleStep"></span>
+  </div>
+  <div class="tut-bubble-body" id="tutBubbleBody"></div>
+  <div class="tut-bubble-footer">
+    <div class="tut-dots" id="tutDots"></div>
+    <button class="tut-btn-next" id="tutBtnNext" onclick="Tutorial.next()"><span>下一步</span><span style="font-size:14px;">→</span></button>
+  </div>
+</div>
+<!-- 右上角跳出按钮 -->
+<button class="tut-exit-btn" id="tutExitBtn" onclick="Tutorial.close()">✕ 跳出教程</button>
+<!-- 操作栏 -->
+<div class="action-bar" id="mainActionBar">
+  <button class="switch-site-btn" onclick="SiteUI.toggle()">🔄 切换粉丝站</button>
+<button class="export-btn" onclick="Exporter.exportReadOnly()">📦 导出展示版</button>
+<button class="preview-btn" onclick="TemplateStore.previewStyle()">👁 预览外观</button>
+</div>
+</div>
+<!-- 站点列表面板 -->
+<div class="site-list-panel" id="sitePanel"></div>
+<!-- 更新通知弹窗 -->
+<div class="update-notice" id="updateNotice"></div>
+<!-- 费用清单弹窗（导出前） -->
+<div class="bill-overlay" id="billOverlay">
+  <div class="bill-modal">
+    <div class="bill-header">
+      <h3>📋 导出费用清单</h3>
+      <p>请确认以下费用后前往支付</p>
+    </div>
+    <div class="bill-body" id="billBody"></div>
+    <div class="bill-easter-egg">
+      <div class="bill-easter-egg-text">其实支付多少都行，因为看不到，一个笨蛋本科生不想搞那么麻烦，想躺平 😌</div>
+    </div>
+    <div class="bill-footer">
+      <button class="bill-cancel" onclick="TemplateStore.cancelBill()">取消</button>
+      <button class="bill-go" id="billGoBtn" onclick="TemplateStore.goToPay()">去支付</button>
+    </div>
+  </div>
+</div>
+<!-- 支付弹窗（微信/支付宝） -->
+<div class="pay-overlay" id="payOverlay">
+  <div class="pay-modal" id="payModal">
+    <!-- 头部 -->
+    <div class="pay-header">
+      <button class="pay-header-close" onclick="TemplateStore.cancelPay()" title="关闭">✕</button>
+      <h3>🎨 解锁精美外观</h3>
+      <p>选择支付方式，完成后点击"我已付款"</p>
+    </div>
+    <!-- 商品清单 -->
+    <div class="pay-body">
+      <div class="pay-item-list" id="payItemList"></div>
+      <div class="pay-total-row">
+        <span class="label">合计金额</span>
+        <span class="amount" id="payTotalAmount">¥0</span>
+      </div>
+    </div>
+    <!-- 支付方式 Tab -->
+    <div class="pay-method-tabs">
+      <div class="pay-method-tab wechat active" id="payTabWechat" onclick="TemplateStore.switchPayMethod('wechat')">
+        <span class="pm-icon">💚</span>
+        <span class="pm-label">微信支付</span>
+      </div>
+      <div class="pay-method-tab alipay" id="payTabAlipay" onclick="TemplateStore.switchPayMethod('alipay')">
+        <span class="pm-icon">💙</span>
+        <span class="pm-label">支付宝</span>
+      </div>
+    </div>
+    <!-- 二维码区域 -->
+    <div class="pay-qr-section">
+      <div class="pay-qr-wrap" id="payQrWrap">
+        <!-- QR 码图片，运营者替换为真实二维码 -->
+        <div class="pay-qr-placeholder" id="payQrPlaceholder">
+          <div class="qr-icon" id="payQrIcon">📱</div>
+          <svg id="payQrSvg" width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+            <!-- 微信二维码占位图案 -->
+            <rect width="140" height="140" fill="#fff"/>
+            <rect x="8" y="8" width="50" height="50" rx="6" fill="none" stroke="#07c160" stroke-width="4"/>
+            <rect x="18" y="18" width="30" height="30" rx="2" fill="#07c160"/>
+            <rect x="82" y="8" width="50" height="50" rx="6" fill="none" stroke="#07c160" stroke-width="4"/>
+            <rect x="92" y="18" width="30" height="30" rx="2" fill="#07c160"/>
+            <rect x="8" y="82" width="50" height="50" rx="6" fill="none" stroke="#07c160" stroke-width="4"/>
+            <rect x="18" y="92" width="30" height="30" rx="2" fill="#07c160"/>
+            <rect x="82" y="82" width="10" height="10" fill="#07c160"/>
+            <rect x="96" y="82" width="10" height="10" fill="#07c160"/>
+            <rect x="110" y="82" width="10" height="10" fill="#07c160"/>
+            <rect x="82" y="96" width="10" height="10" fill="#07c160"/>
+            <rect x="110" y="96" width="10" height="10" fill="#07c160"/>
+            <rect x="82" y="110" width="10" height="10" fill="#07c160"/>
+            <rect x="96" y="110" width="10" height="10" fill="#07c160"/>
+            <rect x="110" y="110" width="10" height="10" fill="#07c160"/>
+            <rect x="70" y="8" width="8" height="8" fill="#07c160"/>
+            <rect x="60" y="20" width="8" height="8" fill="#07c160"/>
+            <rect x="70" y="30" width="8" height="8" fill="#07c160"/>
+            <rect x="60" y="60" width="8" height="8" fill="#07c160"/>
+            <rect x="70" y="60" width="8" height="8" fill="#07c160"/>
+            <rect x="60" y="70" width="8" height="8" fill="#07c160"/>
+            <rect x="8" y="60" width="8" height="8" fill="#07c160"/>
+            <rect x="20" y="60" width="8" height="8" fill="#07c160"/>
+            <rect x="30" y="60" width="8" height="8" fill="#07c160"/>
+            <rect x="40" y="60" width="8" height="8" fill="#07c160"/>
+            <rect x="8" y="70" width="8" height="8" fill="#07c160"/>
+            <rect x="30" y="70" width="8" height="8" fill="#07c160"/>
+            <rect x="50" y="70" width="8" height="8" fill="#07c160"/>
+          </svg>
+          <div class="qr-tip" id="payQrTip">请将此处替换为<br>您的<b id="payQrLabel">微信</b>收款二维码</div>
+        </div>
+      </div>
+      <div class="pay-qr-hint wechat" id="payQrHint">
+        <b id="payQrHintTitle">微信扫码支付</b>
+        使用微信扫描二维码<br>完成支付后点击下方按钮
+      </div>
+    </div>
+    <div class="pay-paid-tip">⚠️ 点击"我已付款"视为确认交易完成，虚拟商品不支持退款</div>
+    <!-- 底部按钮 -->
+    <div class="pay-footer">
+      <button class="pay-cancel" onclick="TemplateStore.cancelPay()">取消</button>
+      <button class="pay-done-wechat" id="payConfirmBtn" onclick="TemplateStore.confirmPay()">✅ 我已付款</button>
+    </div>
+  </div>
+</div>
+<div class="layout">
+  <!-- 主站预览区（默认全屏） -->
+  <div class="preview" id="previewArea">
+    <div class="site-hero-title" id="siteHeroTitle">StarFan Studio 爱豆回忆录</div>
+    <div id="previewTitle"></div>
+    <div id="siteGuide" class="site-guide">
+      <div class="guide-item" onclick="Events.switchTab('celebrity')"><span class="guide-icon">🌟</span><span class="guide-text"><b>偶像资料</b><small>名字、头像、简介</small></span></div>
+      <div class="guide-item" onclick="Events.switchTab('news')"><span class="guide-icon">📖</span><span class="guide-text"><b>追忆时光</b><small>记录每一次心动</small></span></div>
+      <div class="guide-item" onclick="Events.switchTab('gallery')"><span class="guide-icon">🖼</span><span class="guide-text"><b>照片画廊</b><small>珍藏影像瞬间</small></span></div>
+      <div class="guide-item" onclick="Events.switchTab('community')"><span class="guide-icon">💌</span><span class="guide-text"><b>粉丝心语</b><small>记录每一份心情</small></span></div>
+      <div class="guide-item" onclick="Events.switchTab('calendar')"><span class="guide-icon">📅</span><span class="guide-text"><b>活动日历</b><small>演唱会与见面会</small></span></div>
+      <div class="guide-item" onclick="Events.switchTab('shop')"><span class="guide-icon">💝</span><span class="guide-text"><b>周边收藏</b><small>我的周边小柜</small></span></div>
+    </div>
+    <div id="previewContent"></div>
+  </div>
+  <!-- 侧滑编辑抽屉 -->
+  <div class="panel" id="editorPanel">
+    <h3 style="margin-top:0;">🎛 编辑控制台</h3>
+    <div class="tabs" id="editorTabs">
+      <button class="tab-btn active" data-tab="celebrity">🌟 资料</button>
+      <button class="tab-btn" data-tab="news">📖 追忆</button>
+      <button class="tab-btn" data-tab="gallery">🖼 画廊</button>
+      <button class="tab-btn" data-tab="community">💌 心语</button>
+      <button class="tab-btn" data-tab="calendar">📅 日历</button>
+      <button class="tab-btn" data-tab="shop">💝 收藏</button>
+      <button class="tab-btn" data-tab="template" style="position:relative;">🎨 外观</button>
+    </div>
+    <div id="editorContent"></div>
+  </div>
+  
+  <!-- 遮罩层 -->
+  <div class="overlay" id="overlay" onclick="Events.toggleEditor()"></div>
+</div>
+<!-- 底部信息栏（仅版权行） -->
+<div class="site-footer" id="siteFooter">
+  <div class="site-footer-copy">✨ 用 StarFan Studio 记录偶像的每一个精彩瞬间 | 仅供粉丝交流使用</div>
+</div>
+<!-- 追忆详情弹窗 -->
+<div class="memoir-overlay" id="memoirOverlay" onclick="if(event.target===this)Events.closeMemoir()">
+  <div class="memoir-modal" style="position:relative;">
+    <button class="memoir-close" onclick="Events.closeMemoir()">✕</button>
+    <div class="memoir-header">
+      <h3 id="memoirTitle"></h3>
+      <div class="memoir-meta" id="memoirMeta"></div>
+    </div>
+    <div class="memoir-body" id="memoirBody"></div>
+  </div>
+</div>
+<!-- 追忆图片灯箱 -->
+<div class="memoir-img-lightbox" id="memoirLightbox" onclick="this.classList.remove('show')">
+  <img id="memoirLightboxImg" src="">
+</div>
+<!-- 悬浮编辑开关 -->
+<button class="editor-toggle" title="打开/关闭编辑面板（可拖拽）">⚙️</button>
+<button class="exit-preview" onclick="Exporter.togglePreview()">← 返回编辑器</button>
+<button class="export-edit-toggle" onclick="document.body.classList.toggle('edit-mode')">✏️ 编辑模式</button>
+
+  <script src="js/modules/00_site_manager.js"></script>
+  <script src="js/modules/01_site_ui.js"></script>
+  <script src="js/modules/02_update_notifier.js"></script>
+  <script src="js/modules/03_asset_db.js"></script>
+  <script src="js/modules/04_app_state.js"></script>
+  <script src="js/modules/05_ai_service.js"></script>
+  <script src="js/modules/06_render.js"></script>
+  <script src="js/modules/07_events.js"></script>
+  <script src="js/modules/08_calendar.js"></script>
+  <script src="js/modules/09_shop.js"></script>
+  <script src="js/modules/10_template_store.js"></script>
+  <script src="js/modules/11_live_preview.js"></script>
+  <script src="js/modules/12_exporter.js"></script>
+  <script src="js/modules/13_background_fx.js"></script>
+  <script src="js/modules/14_inline_editor.js"></script>
+  <script src="js/modules/15_tutorial.js"></script>
+  <script src="js/modules/16_drag_button.js"></script>
+  <script src="js/init.js"></script>
+</body>
+</html>
