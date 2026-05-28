@@ -249,14 +249,16 @@ const Render = {
     }
   },  
   applyTheme(text) {
-    const map = {"蓝":"#4a90e2","淡蓝":"#a8d8ff","天蓝":"#87ceeb","粉":"#ff9ecb","淡粉":"#ffd1dc","紫":"#b388ff","黄":"#ffd700","黄色":"#ffd700","金":"#ffd700","金色":"#ffd700","白":"#ffffff","黑":"#222222","黑色":"#222222","红":"#ff4757","绿":"#2ed573","橙":"#ffa502","灰":"#a4b0be"};
+    const map = {"蓝":"#4a90e2","淡蓝":"#a8d8ff","天蓝":"#87ceeb","粉":"#ff9ecb","淡粉":"#ffd1dc","紫":"#b388ff","淡紫":"#D4D2E7","薰衣草":"#CEC9E8","紫粉":"#D8BCE3","深紫":"#8A73BB","黄":"#ffd700","黄色":"#ffd700","金":"#ffd700","金色":"#ffd700","白":"#ffffff","黑":"#222222","黑色":"#222222","红":"#ff4757","绿":"#2ed573","橙":"#ffa502","灰":"#a4b0be"};
     let c1="#a8d8ff", c2="#ffd700";
-    if(!text) { document.body.style.background = `linear-gradient(135deg, ${c1}, ${c2})`; return; }
+    // 将 hex 转为 rgba，alpha ~0.6，使背景图透出
+    const toRgba = (hex, alpha) => { const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${alpha})`; };
+    if(!text) { document.body.style.background = `linear-gradient(135deg, ${toRgba(c1,0.6)}, ${toRgba(c2,0.55)})`; return; }
     const parts = text.split('+').map(s => s.trim());
     const matchColor = (str) => { if(!str) return null; for(let k in map) if(str===k) return map[k]; for(let k in map) if(str.includes(k)) return map[k]; return null; };
     const m1 = matchColor(parts[0]); const m2 = matchColor(parts[1]);
     if(m1) c1=m1; if(m2) c2=m2;
-    document.body.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
+    document.body.style.background = `linear-gradient(135deg, ${toRgba(c1,0.6)}, ${toRgba(c2,0.55)})`;
   },
   bindInputs(tab) {
     if(tab==='celebrity') {

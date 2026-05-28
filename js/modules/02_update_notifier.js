@@ -4,12 +4,14 @@
 // ================= 00c. 更新通知器 =================
 const UpdateNotifier = {
   // >>> 每次发布新版本时修改这里的版本号和内容 <<<
-  CURRENT: '2.4',
-  TITLE: 'v2.4 更新内容',
+  CURRENT: '2.5',
+  TITLE: 'v2.5 焕新登场',
   _key() { return SiteManager.PREFIX + (SiteManager.getActive() || 'default') + '_last_version'; },
   CHANGES: [
-    { icon: '🔧', text: '修复编辑小球点击无反应的问题，现在手机端和电脑端都能正常打开编辑面板了。' },
-    { icon: '📦', text: '导出展示版全面优化！图片完整嵌入页面，导出后发给朋友也能看到美美的偶像照片啦~' }
+    { icon: '✨', text: '全新视觉风格！暖紫魔法配色 + 水晶球编辑按钮 + 星空背景图，整个粉丝站闪闪发光~' },
+    { icon: '🎨', text: '新增「魔法书」深色编辑面板，填写内容更有仪式感。' },
+    { icon: '🖼', text: '背景图支持横竖屏自动适配，电脑手机都有完美体验。' },
+    { icon: '🔤', text: '引入 Google Fonts 中英文字体，排版更精致。' }
   ],
   init() {
     var last = localStorage.getItem(this._key());
