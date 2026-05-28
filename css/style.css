@@ -35,6 +35,7 @@ body {
   position:fixed; inset:0; z-index:-3;
   background-image: url('../背景图/ChatGPT Image 2026年5月28日 10_30_57.png');
   background-size: cover; background-position: center; background-repeat: no-repeat;
+  opacity: 0.18;
 }
 #bgCanvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-2; pointer-events:none; }
 
@@ -84,11 +85,11 @@ body {
   flex:1; padding:7px 4px; background:rgba(255,255,255,0.08);
   border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius-full);
   cursor:pointer; text-align:center; font-size:11px; font-weight:500;
-  color:var(--panel-text-sub); transition:var(--transition);
+  color:rgba(255,255,255,0.78); transition:var(--transition);
 }
 .panel .tab-btn.active { background:linear-gradient(135deg,var(--primary),var(--ai)); color:#fff; border-color:transparent; box-shadow:0 0 14px var(--primary-glow); }
 .panel .form-group { margin-bottom:var(--space-md); }
-.panel .form-group label { display:block; font-size:12px; font-weight:600; margin-bottom:4px; color:var(--panel-text-sub); }
+.panel .form-group label { display:block; font-size:12px; font-weight:600; margin-bottom:4px; color:var(--panel-text); }
 .panel .item-list { margin-top:var(--space-md); border-top:1px solid rgba(255,255,255,0.08); padding-top:var(--space-sm); max-height:240px; overflow-y:auto; }
 .panel .item-card { background:rgba(255,255,255,0.08); padding:var(--space-md); border-radius:var(--radius-md); margin-bottom:var(--space-sm); box-shadow:none; display:flex; justify-content:space-between; align-items:center; gap:var(--space-sm); }
 .panel .item-card .info { flex:1; font-size:12px; }
@@ -99,7 +100,7 @@ body {
 
 /* ===== 模板商城 ===== */
 .tmpl-section { margin-bottom:16px; }
-.tmpl-section h4 { font-size:13px; font-weight:700; color:var(--text-main); margin:0 0 10px; display:flex; align-items:center; gap:6px; }
+.tmpl-section h4 { font-size:13px; font-weight:700; color:var(--panel-text); margin:0 0 10px; display:flex; align-items:center; gap:6px; }
 .tmpl-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
 .tmpl-card {
   border-radius:var(--radius-md); overflow:hidden; cursor:pointer; position:relative;
@@ -499,7 +500,7 @@ body {
   border:1px solid rgba(255,255,255,0.3);
 }
 .guide-item:hover { background:rgba(255,255,255,0.8); transform:translateY(-3px); box-shadow:var(--shadow-md), 0 0 16px rgba(138,115,187,0.15); }
-.guide-icon { font-size:20px; }
+.guide-icon { font-size:20px; display:none; }
 .guide-text { display:flex; flex-direction:column; line-height:1.3; }
 .guide-text b { font-size:13px; font-weight:600; color:var(--text-main); }
 .guide-text small { font-size:11px; color:var(--text-sub); }
@@ -759,7 +760,7 @@ body.fullscreen-mode .action-bar .preview-btn { display:none !important; }
   .gallery-grid { column-count:2; }
   .site-guide { gap:4px; }
   .guide-item { padding:6px 10px; }
-  .guide-icon { font-size:16px; }
+  .guide-icon { display:none; }
   .guide-text b { font-size:12px; }
   .guide-text small { font-size:10px; }
 }

@@ -1,12 +1,12 @@
 // ===== AIService Module =====
-// Part of StarFan Studio v2.3
+// Part of StarFan Studio v2.5 | 火山方舟 DeepSeek V4 Flash
 
-// ================= 2. AI 服务模块 (AIService) =================
 const AIService = {
-  mode: 'mock', // 🔹 测试编辑功能建议先用 mock，稳定后再切 real
-  apiKey: 'sk-您的密钥',
-  endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
-  
+  mode: 'real', // real=火山方舟 / mock=本地模拟
+  apiKey: 'ark-b4aeef1b-19e7-40c6-8c36-fffab0dc0c57-9781a',
+  endpoint: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
+  model: 'deepseek-v4-flash-260425',
+
   prompts: {
     bio: (name) => `请为偶像"${name||'未知'}"写一段80-100字的粉丝站欢迎简介。要求：语气热情专业，突出其代表作与粉丝昵称，适合放在网站首页。`,
     news: (title, date) => `请根据新闻标题"${title}"和日期"${date}"，生成一段120-150字的娱乐新闻报道正文。要求：语气客观积极，结构完整，适合粉丝站发布。`,
@@ -16,8 +16,7 @@ const AIService = {
     if(this.mode === 'mock') return this.mockGenerate(prompt, onChunk);
     return this.realGenerate(prompt, onChunk);
   },
-    async mockGenerate(prompt, onChunk) {
-    // 🔍 动态提取输入参数
+  async mockGenerate(prompt, onChunk) {
     const nameMatch = prompt.match(/偶像"([^"]+)"/);
     const titleMatch = prompt.match(/标题"([^"]+)"/);
     const countMatch = prompt.match(/(\d+)张/);
@@ -55,9 +54,12 @@ const AIService = {
       const res = await fetch(this.endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.apiKey}` },
-        body: JSON.stringify({ model: 'qwen-max', messages: [{role:'user', content:prompt}], stream: true, temperature: 0.9 })
+        body: JSON.stringify({ model: this.model, messages: [{role:'user', content:prompt}], stream: true, temperature: 0.9 })
       });
-      if(!res.ok) throw new Error(`API Error: ${res.status}`);
+      if(!res.ok) {
+        const errText = await res.text().catch(() => '');
+        throw new Error(`API ${res.status}: ${errText.slice(0,200)}`);
+      }
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
@@ -71,16 +73,18 @@ const AIService = {
           if(line.startsWith('data: ') && line !== 'data: [DONE]') {
             try {
               const json = JSON.parse(line.slice(6));
-              const delta = json.choices?.[0]?.delta?.content || '';
-              if(delta) onChunk(delta, false);
+              const delta = json.choices?.[0]?.delta;
+              // DeepSeek 模型会返回 reasoning_content，只取 content
+              const content = delta?.content || '';
+              if(content) onChunk(content, false);
             } catch(e) {}
           }
         }
       }
       onChunk('', true);
     } catch(e) {
-      console.error('🤖 AI请求失败', e);
-      onChunk('\n⚠️ API请求失败，已自动降级为本地模拟。', true);
+      console.error('🤖 火山方舟API失败，降级为模拟模式', e);
+      onChunk('\n⚠️ AI服务暂时不可用，已切换为本地模拟。', true);
       this.mode = 'mock';
     }
   }
