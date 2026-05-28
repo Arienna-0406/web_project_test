@@ -23,6 +23,7 @@ const Render = {
           </div>
           <div class="form-group"><label>个人简介</label><textarea id="inp_bio" rows="3">${d.celebrity.bio||''}</textarea></div>
           <button class="ai" onclick="Events.triggerAI('bio')">AI 生成简介</button>
+          <div class="ai-slot" id="aiSlot_celebrity"></div>
           <div class="form-group"><label>头像上传</label><input type="file" id="inp_avatar" accept="image/*"></div>
           <div class="form-group"><label>微博链接</label><input id="inp_weibo" value="${d.celebrity.social?.weibo||''}"></div>
           <button onclick="Events.applyPreview()">更新预览</button>`; break;
@@ -32,6 +33,7 @@ const Render = {
           <div class="form-group"><label>追忆日期</label><input type="date" id="news_date"></div>
           <div class="form-group"><label>正文内容</label><textarea id="news_content" rows="4" placeholder="记录当时的心情和细节..."></textarea></div>
           <button class="ai" onclick="Events.triggerAI('news')">AI 帮写</button>
+          <div class="ai-slot" id="aiSlot_news"></div>
           <div class="form-group"><label>封面图</label><input type="file" id="news_cover" accept="image/*"></div>
           <div class="form-group"><label>更多照片（最多9张，每张≤50MB）</label><input type="file" id="news_images" accept="image/*" multiple></div>
           <div style="display:flex; gap:8px;">
@@ -125,11 +127,13 @@ const Render = {
       h += '</div>';
       h += '<div class="tmpl-card-info">';
       h += '<div class="name">' + t.name + (t.price > 1 ? ' <span class="tmpl-tag">HOT</span>' : '') + '</div>';
-      h += '<div class="price-tag' + (t.price === 0 ? ' free' : '') + '">';
+      h += '<div class="price-tag' + (t.price === 0 || TS.paidItems.indexOf(t.id) !== -1 ? ' free' : '') + '">';
       if (t.price === 0) {
         h += '<span>免费</span>';
+      } else if (TS.paidItems.indexOf(t.id) !== -1) {
+        h += '<span class="check-mark">✓</span><span>已购买</span>';
       } else {
-        h += '<span>会员</span>';
+        h += '<span>¥' + t.price.toFixed(1) + '</span>';
       }
       h += '</div></div></div>';
     });
@@ -143,7 +147,11 @@ const Render = {
       h += '<span class="fx-emoji">' + fx.emoji + '</span>';
       h += '<span>' + fx.name + '</span>';
       if (fx.price > 0) {
-        h += '<span class="fx-price">会员</span>';
+        if (TS.paidItems.indexOf(fx.id) !== -1) {
+          h += '<span class="fx-price" style="color:#10b981;">已购买</span>';
+        } else {
+          h += '<span class="fx-price">¥' + fx.price.toFixed(1) + '</span>';
+        }
       } else {
         h += '<span class="fx-price" style="color:#10b981;">免费</span>';
       }
@@ -164,26 +172,33 @@ const Render = {
     // 说明
     h += '<div style="margin-top:12px;padding:10px 12px;background:#fef3c7;border-radius:10px;font-size:12px;color:#92400e;line-height:1.6;">';
     h += '<b>外观说明</b><br>';
-    h += '• 点击上方按钮可预览模板+特效的完整效果<br>';
-    h += '• 预览效果仅供当前页面查看，关闭后消失<br>';
-    h += '• 付费模板/特效需升级会员后永久生效';
+    h += '• 每个模板/特效 ¥0.50，一次购买永久使用<br>';
+    h += '• 未购买时点击"预览外观"会弹出提示<br>';
+    h += '• 购买后再次点击即永久生效';
     h += '</div>';
     return h;
   },
   renderAIPanel() {
     const draft = AppState.aiDraft;
-    const container = document.getElementById('editorContent');
-    let panel = document.getElementById('aiPanel');
-    if(!panel) { panel = document.createElement('div'); panel.id = 'aiPanel'; container.appendChild(panel); }
-    if(!draft.loading && !draft.text) { panel.style.display='none'; return; }
-    panel.style.display='block'; panel.className = 'ai-panel';
-    panel.innerHTML = `
-      <div class="header"><b>AI 生成中...</b><span style="font-size:12px;color:#888;">${draft.context||''}</span></div>
-      <div class="content ${draft.loading?'typing-cursor':''}">${draft.text || '正在思考...'}</div>
-      <div class="actions" style="${draft.loading?'display:none':''}">
-        <button class="success" onclick="Events.acceptAI()">✅ 采用内容</button>
-        <button onclick="Events.regenerateAI()">🔄 重新生成</button>
-      </div>`;
+    // 找到当前 tab 对应的 AI 槽位
+    var slotId = 'aiSlot_' + AppState.currentTab;
+    var slot = document.getElementById(slotId);
+    if (!slot) {
+      // fallback: 在底部创建 panel
+      var container = document.getElementById('editorContent');
+      var panel = document.getElementById('aiPanel');
+      if (!panel) { panel = document.createElement('div'); panel.id = 'aiPanel'; container.appendChild(panel); }
+      slot = panel;
+    }
+    if (!draft.loading && !draft.text) { slot.style.display = 'none'; slot.innerHTML = ''; return; }
+    slot.style.display = 'block';
+    slot.innerHTML = '<div class="ai-panel">' +
+      '<div class="header"><b>AI 生成中...</b><span style="font-size:12px;color:#888;">' + (draft.context||'') + '</span></div>' +
+      '<div class="content ' + (draft.loading?'typing-cursor':'') + '">' + (draft.text || '正在思考...') + '</div>' +
+      '<div class="actions" style="' + (draft.loading?'display:none':'') + '">' +
+        '<button class="success" onclick="Events.acceptAI()">采用内容</button>' +
+        '<button onclick="Events.regenerateAI()">重新生成</button>' +
+      '</div></div>';
   },
   preview(tab) {
     const box = document.getElementById('previewContent');
@@ -319,7 +334,7 @@ const Render = {
     if(!box) return;
     box.innerHTML = AppState.data.shop.map(item=>`
       <div class="item-card">
-        <div class="info"><b>${item.emoji} ${item.name}</b><span>${item.cat}${item.desc?' · '+item.desc:''}</span></div>
+        <div class="info"><b>${item.name}</b><span>${item.cat}${item.desc?' · '+item.desc:''}</span></div>
         <button class="small danger" onclick="Events.deleteShopItem('${item.id}')">删除</button>
       </div>`).join('') || '<div class="empty" style="padding:10px">暂无收藏</div>';
   }

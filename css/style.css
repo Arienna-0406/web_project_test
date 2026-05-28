@@ -48,7 +48,7 @@ body {
 
 /* 🪄 魔法书编辑面板 */
 .panel {
-  position:fixed; top:0; left:-340px; width:320px; height:100vh;
+  position:fixed; top:0; left:-360px; width:340px; height:100vh;
   background:var(--panel-bg); backdrop-filter:blur(24px) saturate(180%);
   -webkit-backdrop-filter:blur(24px) saturate(180%);
   border-right:1px solid rgba(138,115,187,0.25);
@@ -314,6 +314,64 @@ body {
 .pay-footer .pay-done-alipay:hover { transform:translateY(-2px); box-shadow:0 6px 22px rgba(22,119,255,0.45); }
 .pay-paid-tip { font-size:11px; color:#9ca3af; text-align:center; padding:0 22px 14px; line-height:1.5; }
 
+/* ===== 外观购买弹窗（预览时弹出） ===== */
+.style-purchase-overlay {
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(10,5,20,0.72); backdrop-filter:blur(12px);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity 0.3s ease;
+}
+.style-purchase-overlay.show { opacity:1; pointer-events:auto; }
+.style-purchase-dialog {
+  background:#fff; border-radius:20px; padding:0;
+  width:min(420px,92vw); overflow:hidden;
+  box-shadow:0 30px 90px rgba(107,33,94,0.25);
+  transform:translateY(24px) scale(0.94); transition:transform var(--spring);
+}
+.style-purchase-overlay.show .style-purchase-dialog { transform:translateY(0) scale(1); }
+.style-purchase-header {
+  padding:24px 28px 18px; text-align:center;
+  background:linear-gradient(135deg,#6B215E,#8A73BB,#A5559E);
+  color:#fff;
+}
+.style-purchase-header .sp-icon { font-size:40px; display:block; margin-bottom:8px; }
+.style-purchase-header h3 { margin:0 0 4px; font-size:18px; font-weight:800; }
+.style-purchase-body {
+  padding:18px 24px 10px; font-size:14px; color:#4b5563; line-height:1.7; text-align:center;
+}
+.style-purchase-body .sp-item-list {
+  display:flex; flex-direction:column; gap:6px; margin:12px 0; text-align:left;
+}
+.style-purchase-body .sp-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 12px; border-radius:10px; background:rgba(138,115,187,0.05);
+  border:1px solid rgba(138,115,187,0.1); font-size:13px;
+}
+.style-purchase-body .sp-item .sp-item-name { display:flex; align-items:center; gap:8px; }
+.style-purchase-body .sp-item .sp-item-price { font-weight:700; color:var(--primary); }
+.style-purchase-footer {
+  padding:10px 24px 20px; display:flex; gap:10px;
+}
+.style-purchase-footer .sp-btn-know {
+  flex:1; padding:12px; border-radius:12px;
+  background:#f3f4f6; color:var(--text-sub); border:none; cursor:pointer;
+  font-size:14px; font-weight:600; transition:0.2s; margin:0;
+}
+.style-purchase-footer .sp-btn-know:hover { background:#e5e7eb; }
+.style-purchase-footer .sp-btn-buy {
+  flex:2; padding:12px; border-radius:12px;
+  background:linear-gradient(135deg,var(--primary),var(--ai)); color:#fff; border:none; cursor:pointer;
+  font-size:14px; font-weight:700; transition:0.2s; margin:0;
+  box-shadow:0 4px 18px rgba(138,115,187,0.4);
+}
+.style-purchase-footer .sp-btn-buy:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(138,115,187,0.5); }
+
+/* ===== AI生成结果槽位 ===== */
+.ai-slot {
+  margin-top:12px; border:1px dashed rgba(138,115,187,0.25);
+  border-radius:var(--radius-md); min-height:10px;
+}
+
 /* ===== 实时特效层 ===== */
 .live-fx-layer { position:fixed; inset:0; z-index:998; pointer-events:none; overflow:hidden; }
 .live-fx-item { position:absolute; pointer-events:none; will-change:transform,opacity; }
@@ -382,11 +440,12 @@ body {
 /* ===== 魔法水晶球（悬浮编辑按钮） ===== */
 .editor-toggle {
   position:fixed; bottom:28px; right:28px; z-index:1001;
-  width:56px; height:56px; border-radius:50%;
+  width:60px; height:60px; border-radius:50%;
   background: radial-gradient(circle at 35% 32%, #E3E1EC 0%, #B7A6DD 25%, #8A73BB 60%, #6B215E 100%);
   color:#fff; border:none;
   box-shadow: 0 0 22px rgba(138,115,187,0.5), 0 6px 24px rgba(107,33,94,0.3);
-  cursor:grab; font-size:22px;
+  cursor:grab; font-size:14px; font-weight:700;
+  letter-spacing:1px;
   display:flex; align-items:center; justify-content:center;
   transition: background 0.3s, box-shadow 0.3s;
   touch-action:none; user-select:none; -webkit-user-select:none;

@@ -8,18 +8,10 @@ const Exporter = {
     window.scrollTo({top:0, behavior:'smooth'});
   },
   download() {
-    // 付费检查：有未支付项则弹窗拦截
-    if (!TemplateStore.checkBeforeExport('standalone')) return;
     this.doExport();
   },
   // 导出不可编辑的纯展示版
-  // skipCheck=true 时跳过付费弹窗（由弹窗"我已付款"按钮触发）
-  async exportReadOnly(skipCheck) {
-    // 付费检查（显示账单弹窗，由用户确认后再次调用 skipCheck=true）
-    if (!skipCheck) {
-      TemplateStore.checkBeforeExport('readonly');
-      return; // 等待弹窗回调
-    }
+  async exportReadOnly() {
 
     const btn = document.querySelector('.export-btn');
     const ori = btn ? btn.innerText : '📦 导出展示版';
@@ -168,15 +160,15 @@ const Exporter = {
     // 追忆时光
     var news = d.news||[];
     if(news.length) {
-      w('<div class="section"><div class="sec-hd">📖 追忆时光</div><div class="grid">');
+      w('<div class="section"><div class="sec-hd">追忆时光</div><div class="grid">');
       news.forEach(function(n,i){
         // 封面：优先用 _coverB64（已从IndexedDB加载），再用 cover，最后用占位
         var coverSrc = n._coverB64 || n.cover || '';
         w('<div class="card" onclick="openMo('+i+')">');
-        w(coverSrc?'<img src="'+coverSrc+'">':'<div style="height:140px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:32px;">📖</div>');
+        w(coverSrc?'<img src="'+coverSrc+'">':'<div style="height:140px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:32px;">无封面</div>');
         w('<div class="card-body"><div class="card-title">'+safe(n.title)+'</div>');
         var imgCount = (n._loadedImages||[]).length + (coverSrc?1:0);
-        w('<div class="card-meta">📅 '+n.date+(imgCount>0?' · 📷 '+imgCount+'张':'')+'</div>');
+        w('<div class="card-meta">' + n.date + (imgCount>0 ? ' · ' + imgCount + '张' : '') + '</div>');
         w('<div class="card-text">'+safe(n.content)+'</div></div></div>');
       });
       w('</div></div>');
@@ -184,7 +176,7 @@ const Exporter = {
     // 画廊
     var gallery = d.gallery||[];
     if(gallery.length) {
-      w('<div class="section"><div class="sec-hd">🖼 影像珍藏</div><div class="gallery">');
+      w('<div class="section"><div class="sec-hd">影像珍藏</div><div class="gallery">');
       gallery.forEach(function(g){
         // 优先用 _b64（已从IndexedDB加载），再用 url
         var imgSrc = g._b64 || g.url || '';
@@ -196,7 +188,7 @@ const Exporter = {
     // 心语
     var com = d.community||[];
     if(com.length) {
-      w('<div class="section"><div class="sec-hd">💌 粉丝心语</div><ul class="comments">');
+      w('<div class="section"><div class="sec-hd">粉丝心语</div><ul class="comments">');
       com.forEach(function(c){
         var entry = typeof c==='object'?c:{text:c,time:''};
         w('<li>'+(entry.time?'<span class="c-time">'+safe(entry.time)+'</span>':'')+'<span>'+(safe(entry.text||c))+'</span></li>');
@@ -206,8 +198,8 @@ const Exporter = {
     // 日历
     var cal = (d.calendar||[]).slice().sort(function(a,b){return a.date.localeCompare(b.date);});
     if(cal.length) {
-      var tagLabel={concert:'🎤 演唱会','fan-meet':'💞 见面会',release:'🎵 新专发布',other:'📌 其他'};
-      w('<div class="section"><div class="sec-hd">📅 活动日历</div>');
+      var tagLabel={concert:'演唱会','fan-meet':'见面会',release:'新专发布',other:'其他'};
+      w('<div class="section"><div class="sec-hd">活动日历</div>');
       cal.forEach(function(ev){
         var p=ev.date.split('-'),em=parseInt(p[1]),ed=parseInt(p[2]);
         w('<div class="ev-card"><div class="ev-badge"><div class="mo">'+em+'月</div><div class="dy">'+ed+'</div></div>');
@@ -221,16 +213,16 @@ const Exporter = {
     // 周边收藏
     var shop = d.shop||[];
     if(shop.length) {
-      w('<div class="section"><div class="sec-hd">💝 周边收藏</div><div class="sh-grid">');
+      w('<div class="section"><div class="sec-hd">周边收藏</div><div class="sh-grid">');
       shop.forEach(function(item){
-        w('<div class="sh-card"><div class="sh-thumb">'+(item.image?'<img src="'+item.image+'" style="width:100%;height:100%;object-fit:cover;">':(item.emoji||'🎁'))+'</div>');
+        w('<div class="sh-card"><div class="sh-thumb">'+(item.image?'<img src="'+item.image+'" style="width:100%;height:100%;object-fit:cover;">':'<span style="color:#9ca3af;font-size:14px;">暂无图片</span>')+'</div>');
         w('<div class="sh-body"><div class="sh-name">'+safe(item.name)+'</div>');
         if(item.desc) w('<div class="sh-desc">'+safe(item.desc)+'</div>');
         w('<span class="sh-tag">'+safe(item.cat||'周边')+'</span></div></div>');
       });
       w('</div></div>');
     }
-    w('<div class="footer">✨ 由 StarFan Studio 生成 | 展示版 · 仅供查看</div>');
+    w('<div class="footer">由 StarFan Studio 生成 | 展示版 · 仅供查看</div>');
     w('</div>');
     // 追忆弹窗
     w('<div class="mo" id="moOv" onclick="if(event.target===this)closeMo()"><div class="mo-box">');
@@ -440,26 +432,26 @@ const Exporter = {
     w('</style>');
     w('</head>');
     w('<body>');
-    w('<div class="edit-banner">✏️ 编辑模式已开启 — 点击文字即可修改，点击 ✕ 关闭编辑</div>');
+    w('<div class="edit-banner">编辑模式已开启 — 点击文字即可修改，点击 × 关闭编辑</div>');
     w('<div class="container">');
     w('  <div class="hero" id="siteHero">');
     w('    <div class="avatar-wrap">');
     w('      <div id="avatarContainer"></div>');
-    w('      <button class="avatar-upload-btn" title="更换头像" onclick="document.getElementById(\'avatarFileInput\').click()">📷</button>');
+    w('      <button class="avatar-upload-btn" title="更换头像" onclick="document.getElementById(\'avatarFileInput\').click()">+</button>');
     w('      <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="SF.uploadAvatar(this)">');
     w('    </div>');
     w('    <h1 class="site-name" id="siteName" contenteditable="false">' + (safe(c.name) || '偶像名字') + '</h1>');
     w('    <p class="bio-text" id="siteBio" contenteditable="false">' + (safe(c.bio) || '这里是简介，点击编辑按钮后可以直接修改') + '</p>');
     w('    <div id="weiboWrap"></div>');
     w('  </div>');
-    w('  <div class="section" id="sec-news"><div class="sec-hd"><h2>📰 新闻动态</h2><button class="add-btn" onclick="SF.openModal(\'news\')">➕ 添加新闻</button></div><div class="grid" id="newsGrid"></div></div>');
-    w('  <div class="section" id="sec-gallery"><div class="sec-hd"><h2>🖼 影像画廊</h2><button class="add-btn" onclick="document.getElementById(\'galleryFileInput\').click()">➕ 上传照片</button><input type="file" id="galleryFileInput" accept="image/*" multiple style="display:none" onchange="SF.uploadGallery(this)"></div><div class="gallery" id="galleryGrid"></div></div>');
-    w('  <div class="section" id="sec-calendar"><div class="sec-hd"><h2>📅 活动日历</h2><button class="add-btn" onclick="SF.openModal(\'calendar\')">➕ 添加活动</button></div><div id="calendarList"></div></div>');
-    w('  <div class="section" id="sec-shop"><div class="sec-hd"><h2>🛒 周边商城</h2><button class="add-btn" onclick="SF.openModal(\'shop\')">➕ 添加商品</button></div><div class="shop-grid" id="shopGrid"></div></div>');
-    w('  <div class="section" id="sec-community"><div class="sec-hd"><h2>💬 粉丝留言</h2></div><div class="comment-form"><input id="newCommentInput" placeholder="写下你的留言..."><button onclick="SF.addComment()">发布</button></div><ul class="comments" id="commentList"></ul></div>');
-    w('  <div class="footer">✨ 由 StarFan Studio 生成 | 仅供粉丝交流使用</div>');
+    w('  <div class="section" id="sec-news"><div class="sec-hd"><h2>新闻动态</h2><button class="add-btn" onclick="SF.openModal(\'news\')">添加新闻</button></div><div class="grid" id="newsGrid"></div></div>');
+    w('  <div class="section" id="sec-gallery"><div class="sec-hd"><h2>影像画廊</h2><button class="add-btn" onclick="document.getElementById(\'galleryFileInput\').click()">上传照片</button><input type="file" id="galleryFileInput" accept="image/*" multiple style="display:none" onchange="SF.uploadGallery(this)"></div><div class="gallery" id="galleryGrid"></div></div>');
+    w('  <div class="section" id="sec-calendar"><div class="sec-hd"><h2>活动日历</h2><button class="add-btn" onclick="SF.openModal(\'calendar\')">添加活动</button></div><div id="calendarList"></div></div>');
+    w('  <div class="section" id="sec-shop"><div class="sec-hd"><h2>周边商城</h2><button class="add-btn" onclick="SF.openModal(\'shop\')">添加商品</button></div><div class="shop-grid" id="shopGrid"></div></div>');
+    w('  <div class="section" id="sec-community"><div class="sec-hd"><h2>粉丝留言</h2></div><div class="comment-form"><input id="newCommentInput" placeholder="写下你的留言..."><button onclick="SF.addComment()">发布</button></div><ul class="comments" id="commentList"></ul></div>');
+    w('  <div class="footer">由 StarFan Studio 生成 | 仅供粉丝交流使用</div>');
     w('</div>');
-    w('<button class="edit-fab" id="editFab" onclick="SF.toggleEdit()" title="开启/关闭编辑模式">✏️</button>');
+    w('<button class="edit-fab" id="editFab" onclick="SF.toggleEdit()" title="开启/关闭编辑模式">+</button>');
     w('<div class="sf-modal-bg" id="sfModalBg" onclick="if(event.target===this)SF.closeModal()"><div class="sf-modal"><div id="sfModalContent"></div></div></div>');
     w('<script>');
     w('const INIT_DATA = ' + dataJson + ';');
@@ -482,7 +474,7 @@ const Exporter = {
     w('  renderHero() {');
     w('    var c=this.data.celebrity||{};');
     w('    var ac=document.getElementById("avatarContainer");');
-    w('    if(ac){ if(c.avatar){ ac.innerHTML=\'<img src="\'+c.avatar+\'" class="avatar">\'; }else{ ac.innerHTML=\'<div class="avatar-placeholder">🌟</div>\'; } }');
+    w('    if(ac){ if(c.avatar){ ac.innerHTML=\'<img src="\'+c.avatar+\'" class="avatar">\'; }else{ ac.innerHTML=\'<div class="avatar-placeholder">?</div>\'; } }');
     w('    var nameEl=document.getElementById("siteName"), bioEl=document.getElementById("siteBio");');
     w('    if(nameEl) nameEl.innerText=c.name||"偶像名字";');
     w('    if(bioEl) bioEl.innerText=c.bio||"这里是简介，点击编辑按钮后可以直接修改";');
@@ -499,7 +491,7 @@ const Exporter = {
     w("      h+=n.cover?'<img src=\"'+n.cover+'\" alt=\"\">':'<div style=\"height:140px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:13px\">无封面</div>';");
     w("      h+='<button class=\"del-btn card-del\" onclick=\"SF.deleteItem(\\'news\\','+i+')\" title=\"删除\">✕</button>';");
     w("      h+='<div class=\"card-body\"><div class=\"card-title\" contenteditable=\"false\" data-model=\"news['+i+'].title\">'+SF.safe(n.title)+'</div>';");
-    w("      h+='<div class=\"card-meta\">📅 '+n.date+'</div>';");
+    w("      h+='<div class=\"card-meta\">'+n.date+'</div>';");
     w("      h+='<div class=\"card-text\" contenteditable=\"false\" data-model=\"news['+i+'].content\">'+SF.safe(n.content)+'</div></div></div>';");
     w('    });');
     w('    box.innerHTML=h; this.applyEditMode();');
@@ -519,7 +511,7 @@ const Exporter = {
     w('  renderCalendar() {');
     w('    var box=document.getElementById("calendarList"); if(!box) return;');
     w('    var cal=(this.data.calendar||[]).slice().sort(function(a,b){return a.date.localeCompare(b.date);});');
-    w('    var tagLabel={concert:"🎤 演唱会","fan-meet":"💞 见面会",release:"🎵 新专发布",other:"📌 其他"};');
+    w('    var tagLabel={concert:"演唱会","fan-meet":"见面会",release:"新专发布",other:"其他"};');
     w('    if(!cal.length){ box.innerHTML=\'<div style="color:#9ca3af;padding:20px;">暂无活动\'+(this.editMode?"，点击上方「添加活动」":"")+\'</div>\'; return; }');
     w('    var h="";');
     w('    cal.forEach(function(ev,i){');
@@ -528,7 +520,7 @@ const Exporter = {
     w("      h+='<button class=\"del-btn ev-del\" onclick=\"SF.deleteItem(\\'calendar\\','+i+')\" title=\"删除\">✕</button>';");
     w("      h+='<div class=\"ev-badge\"><div class=\"mo\">'+em+'月</div><div class=\"dy\">'+ed+'</div></div>'; ");
     w("      h+='<div class=\"ev-info\"><h4>'+SF.safe(ev.name)+'</h4>'; ");
-    w("      if(ev.venue) h+='<div class=\"ev-desc\">📍 '+SF.safe(ev.venue)+'</div>'; ");
+    w("      if(ev.venue) h+='<div class=\"ev-desc\">'+SF.safe(ev.venue)+'</div>'; ");
     w("      if(ev.desc) h+='<div class=\"ev-desc\" style=\"margin-top:4px;\">'+SF.safe(ev.desc)+'</div>'; ");
     w("      h+='<span class=\"ev-tag\">'+(tagLabel[ev.type]||ev.type)+'</span></div></div>'; ");
     w('    });');
@@ -563,7 +555,7 @@ const Exporter = {
     w('  toggleEdit() {');
     w('    this.editMode=!this.editMode;');
     w('    document.body.classList.toggle("edit-on",this.editMode);');
-    w("    document.getElementById('editFab').textContent=this.editMode?'✕':'✏️';");
+    w("    document.getElementById('editFab').textContent=this.editMode?'X':'+';");
     w('    this.applyEditMode(); this.toggleSections();');
     w('  },');
     w('  applyEditMode() {');
@@ -591,11 +583,11 @@ const Exporter = {
     w("    var box=document.getElementById('sfModalContent'), bg=document.getElementById('sfModalBg');");
     w("    var h='';");
     w("    if(type==='news'){");
-    w("      h+='<h3>📰 添加新闻</h3>'; h+='<div class=\"sf-field\"><label>标题</label><input id=\"m_news_title\" placeholder=\"新闻标题\"></div>'; h+='<div class=\"sf-field\"><label>日期</label><input type=\"date\" id=\"m_news_date\"></div>'; h+='<div class=\"sf-field\"><label>正文</label><textarea id=\"m_news_content\" rows=\"4\" placeholder=\"新闻内容...\"></textarea></div>'; h+='<div class=\"sf-field\"><label>封面图</label><input type=\"file\" id=\"m_news_cover\" accept=\"image/*\"></div>'; h+='<div class=\"sf-modal-btns\"><button class=\"sf-btn-cancel\" onclick=\"SF.closeModal()\">取消</button><button class=\"sf-btn-ok\" onclick=\"SF.submitNews()\">添加</button></div>';");
+    w("      h+='<h3>添加新闻</h3>'; h+='<div class=\"sf-field\"><label>标题</label><input id=\"m_news_title\" placeholder=\"新闻标题\"></div>'; h+='<div class=\"sf-field\"><label>日期</label><input type=\"date\" id=\"m_news_date\"></div>'; h+='<div class=\"sf-field\"><label>正文</label><textarea id=\"m_news_content\" rows=\"4\" placeholder=\"新闻内容...\"></textarea></div>'; h+='<div class=\"sf-field\"><label>封面图</label><input type=\"file\" id=\"m_news_cover\" accept=\"image/*\"></div>'; h+='<div class=\"sf-modal-btns\"><button class=\"sf-btn-cancel\" onclick=\"SF.closeModal()\">取消</button><button class=\"sf-btn-ok\" onclick=\"SF.submitNews()\">添加</button></div>';");
     w("    } else if(type==='calendar'){");
-    w("      h+='<h3>📅 添加活动</h3>'; h+='<div class=\"sf-field\"><label>活动名称</label><input id=\"m_cal_name\" placeholder=\"演唱会、见面会...\"></div>'; h+='<div class=\"sf-field\"><label>活动日期</label><input type=\"date\" id=\"m_cal_date\"></div>'; h+='<div class=\"sf-field\"><label>活动地点</label><input id=\"m_cal_venue\" placeholder=\"城市/场馆名称\"></div>'; h+='<div class=\"sf-field\"><label>活动说明</label><textarea id=\"m_cal_desc\" rows=\"3\" placeholder=\"活动详情...\"></textarea></div>'; h+='<div class=\"sf-field\"><label>活动类型</label><select id=\"m_cal_type\"><option value=\"concert\">🎤 演唱会</option><option value=\"fan-meet\">💞 粉丝见面会</option><option value=\"release\">🎵 新专发布</option><option value=\"other\">📌 其他活动</option></select></div>'; h+='<div class=\"sf-modal-btns\"><button class=\"sf-btn-cancel\" onclick=\"SF.closeModal()\">取消</button><button class=\"sf-btn-ok\" onclick=\"SF.submitCalendar()\">添加</button></div>';");
+    w("      h+='<h3>添加活动</h3>'; h+='<div class=\"sf-field\"><label>活动名称</label><input id=\"m_cal_name\" placeholder=\"演唱会、见面会...\"></div>'; h+='<div class=\"sf-field\"><label>活动日期</label><input type=\"date\" id=\"m_cal_date\"></div>'; h+='<div class=\"sf-field\"><label>活动地点</label><input id=\"m_cal_venue\" placeholder=\"城市/场馆名称\"></div>'; h+='<div class=\"sf-field\"><label>活动说明</label><textarea id=\"m_cal_desc\" rows=\"3\" placeholder=\"活动详情...\"></textarea></div>'; h+='<div class=\"sf-field\"><label>活动类型</label><select id=\"m_cal_type\"><option value=\"concert\">演唱会</option><option value=\"fan-meet\">粉丝见面会</option><option value=\"release\">新专发布</option><option value=\"other\">其他活动</option></select></div>'; h+='<div class=\"sf-modal-btns\"><button class=\"sf-btn-cancel\" onclick=\"SF.closeModal()\">取消</button><button class=\"sf-btn-ok\" onclick=\"SF.submitCalendar()\">添加</button></div>';");
     w("    } else if(type==='shop'){");
-    w("      h+='<h3>🛒 添加商品</h3>'; h+='<div class=\"sf-field\"><label>商品名称</label><input id=\"m_sh_name\" placeholder=\"官方周边应援棒\"></div>'; h+='<div class=\"sf-field\"><label>售价（元）</label><input type=\"number\" id=\"m_sh_price\" placeholder=\"98\" min=\"0\" step=\"0.01\"></div>'; h+='<div class=\"sf-field\"><label>原价（可留空）</label><input type=\"number\" id=\"m_sh_orig\" placeholder=\"128\" min=\"0\" step=\"0.01\"></div>'; h+='<div class=\"sf-field\"><label>图标 emoji</label><input id=\"m_sh_emoji\" placeholder=\"🎤\" maxlength=\"4\"></div>'; h+='<div class=\"sf-field\"><label>类别</label><select id=\"m_sh_cat\"><option value=\"周边\">🎁 周边</option><option value=\"专辑\">💿 专辑</option><option value=\"服饰\">👕 服饰</option><option value=\"配饰\">📿 配饰</option><option value=\"其他\">✨ 其他</option></select></div>'; h+='<div class=\"sf-field\"><label>商品描述</label><textarea id=\"m_sh_desc\" rows=\"2\" placeholder=\"商品说明...\"></textarea></div>'; h+='<div class=\"sf-modal-btns\"><button class=\"sf-btn-cancel\" onclick=\"SF.closeModal()\">取消</button><button class=\"sf-btn-ok\" onclick=\"SF.submitShop()\">添加</button></div>';");
+    w("      h+='<h3>添加商品</h3>'; h+='<div class=\"sf-field\"><label>商品名称</label><input id=\"m_sh_name\" placeholder=\"官方周边应援棒\"></div>'; h+='<div class=\"sf-field\"><label>售价（元）</label><input type=\"number\" id=\"m_sh_price\" placeholder=\"98\" min=\"0\" step=\"0.01\"></div>'; h+='<div class=\"sf-field\"><label>原价（可留空）</label><input type=\"number\" id=\"m_sh_orig\" placeholder=\"128\" min=\"0\" step=\"0.01\"></div>'; h+='<div class=\"sf-field\"><label>图标 emoji</label><input id=\"m_sh_emoji\" placeholder=\"🎤\" maxlength=\"4\"></div>'; h+='<div class=\"sf-field\"><label>类别</label><select id=\"m_sh_cat\"><option value=\"周边\">周边</option><option value=\"专辑\">专辑</option><option value=\"服饰\">服饰</option><option value=\"配饰\">配饰</option><option value=\"其他\">其他</option></select></div>'; h+='<div class=\"sf-field\"><label>商品描述</label><textarea id=\"m_sh_desc\" rows=\"2\" placeholder=\"商品说明...\"></textarea></div>'; h+='<div class=\"sf-modal-btns\"><button class=\"sf-btn-cancel\" onclick=\"SF.closeModal()\">取消</button><button class=\"sf-btn-ok\" onclick=\"SF.submitShop()\">添加</button></div>';");
     w("    }");
     w("    box.innerHTML=h; bg.classList.add('open');");
     w('  },');

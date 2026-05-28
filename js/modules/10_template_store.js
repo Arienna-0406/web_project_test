@@ -16,7 +16,7 @@ const TemplateStore = {
       decoItems: []
     },
     {
-      id:'sakura', name:'樱花浪漫', price:0, emoji:'🌸',
+      id:'sakura', name:'樱花浪漫', price:0.5, emoji:'🌸',
       gradient:'linear-gradient(135deg,#ffc3d0,#ff9ecb,#e8a0bf)',
       desc:'粉嫩樱花主题',
       // SVG 底纹：小花瓣散落
@@ -27,7 +27,7 @@ const TemplateStore = {
       ]
     },
     {
-      id:'galaxy', name:'星空梦幻', price:0, emoji:'🌌',
+      id:'galaxy', name:'星空梦幻', price:0.5, emoji:'🌌',
       gradient:'linear-gradient(135deg,#0f0c29,#302b63,#24243e)',
       desc:'深邃星空背景',
       // SVG 底纹：星星 + 星座连线
@@ -39,7 +39,7 @@ const TemplateStore = {
       ]
     },
     {
-      id:'ocean', name:'海洋蔚蓝', price:0, emoji:'🌊',
+      id:'ocean', name:'海洋蔚蓝', price:0.5, emoji:'🌊',
       gradient:'linear-gradient(135deg,#0077b6,#00b4d8,#90e0ef)',
       desc:'清爽海洋风格',
       // SVG 底纹：波浪线条
@@ -51,7 +51,7 @@ const TemplateStore = {
       ]
     },
     {
-      id:'sunset', name:'落日余晖', price:0, emoji:'🌇',
+      id:'sunset', name:'落日余晖', price:0.5, emoji:'🌇',
       gradient:'linear-gradient(135deg,#f72585,#b5179e,#7209b7)',
       desc:'渐变紫粉暖色调',
       // SVG 底纹：几何光晕
@@ -63,7 +63,7 @@ const TemplateStore = {
       ]
     },
     {
-      id:'minimal', name:'极简黑白', price:0, emoji:'🖤',
+      id:'minimal', name:'极简黑白', price:0.5, emoji:'🖤',
       gradient:'linear-gradient(135deg,#2b2d42,#8d99ae)',
       desc:'高级感极简设计',
       // SVG 底纹：细线网格
@@ -77,12 +77,12 @@ const TemplateStore = {
   // 特效列表
   effects: [
     { id:'none', name:'无特效', price:0, emoji:'✋' },
-    { id:'snow', name:'飘雪', price:0, emoji:'❄️' },
-    { id:'sparkle', name:'星光闪烁', price:0, emoji:'✨' },
-    { id:'bubbles', name:'泡泡浮动', price:0, emoji:'🫧' },
-    { id:'hearts', name:'爱心飘落', price:0, emoji:'💕' },
-    { id:'cherry', name:'樱花飘落', price:0, emoji:'🌺' },
-    { id:'music', name:'音符跳动', price:0, emoji:'🎵' }
+    { id:'snow', name:'飘雪', price:0.5, emoji:'❄️' },
+    { id:'sparkle', name:'星光闪烁', price:0.5, emoji:'✨' },
+    { id:'bubbles', name:'泡泡浮动', price:0.5, emoji:'🫧' },
+    { id:'hearts', name:'爱心飘落', price:0.5, emoji:'💕' },
+    { id:'cherry', name:'樱花飘落', price:0.5, emoji:'🌺' },
+    { id:'music', name:'音符跳动', price:0.5, emoji:'🎵' }
   ],
   init() {
     // 从 localStorage 恢复选择
@@ -243,7 +243,7 @@ const TemplateStore = {
     var unpaid = billItems.filter(function(item) { return !item.paid; });
     this.showPayModal(unpaid);
   },
-  // 预览外观效果（临时应用，关闭页面即消失）
+  // 预览外观效果：先检查付费，再应用预览
   previewStyle() {
     if (!this.selectedTemplate || this.selectedTemplate === 'default') {
       var hasFx = this.selectedEffects && this.selectedEffects.length > 0 && !(this.selectedEffects.length === 1 && this.selectedEffects[0] === 'none');
@@ -252,25 +252,73 @@ const TemplateStore = {
         return;
       }
     }
+    // 检查是否有未购买的模板/特效
+    var unpaid = this.getUnpaidItems();
+    if (unpaid.length > 0) {
+      this.showStylePurchaseDialog(unpaid);
+      return;
+    }
+    // 全部已购买，直接预览
+    this._doPreview();
+  },
+  // 显示外观购买弹窗
+  showStylePurchaseDialog(unpaid) {
+    var self = this;
+    // 移除旧弹窗
+    var old = document.getElementById('stylePurchaseOverlay');
+    if (old) old.remove();
+    var total = 0;
+    unpaid.forEach(function(item) { total += item.price; });
+    var itemsHtml = '';
+    unpaid.forEach(function(item) {
+      itemsHtml += '<div class="sp-item"><div class="sp-item-name"><span>' + item.emoji + '</span><span>' + item.name + '</span></div><span class="sp-item-price">¥' + item.price.toFixed(1) + '</span></div>';
+    });
+    var overlay = document.createElement('div');
+    overlay.id = 'stylePurchaseOverlay';
+    overlay.className = 'style-purchase-overlay';
+    overlay.innerHTML = '<div class="style-purchase-dialog">' +
+      '<div class="style-purchase-header"><span class="sp-icon">🎨</span><h3>解锁精美外观</h3></div>' +
+      '<div class="style-purchase-body">' +
+        '<p>该特效/模板<b>未购买</b>，仅可预览，<br>刷新或下次点开将不会保存。</p>' +
+        '<div class="sp-item-list">' + itemsHtml + '</div>' +
+        '<p style="font-size:13px;color:var(--primary);font-weight:700;">合计：¥' + total.toFixed(1) + '</p>' +
+      '</div>' +
+      '<div class="style-purchase-footer">' +
+        '<button class="sp-btn-know" id="spBtnKnow">知道了</button>' +
+        '<button class="sp-btn-buy" id="spBtnBuy">立即购买 ¥' + total.toFixed(1) + '</button>' +
+      '</div>' +
+    '</div>';
+    document.body.appendChild(overlay);
+    // 动画入场
+    requestAnimationFrame(function() { overlay.classList.add('show'); });
+    // "知道了" — 仍然预览但不保存
+    document.getElementById('spBtnKnow').onclick = function() {
+      overlay.classList.remove('show');
+      setTimeout(function() { overlay.remove(); }, 300);
+      self._doPreview();
+    };
+    // "立即购买" — 打开支付弹窗
+    document.getElementById('spBtnBuy').onclick = function() {
+      overlay.classList.remove('show');
+      setTimeout(function() { overlay.remove(); }, 300);
+      self._pendingBill = unpaid.map(function(u) { return { id: u.id, name: u.name, price: u.price, emoji: u.emoji, type: u.type, paid: false }; });
+      self.showPayModal(unpaid);
+    };
+    // 点击背景关闭
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        overlay.classList.remove('show');
+        setTimeout(function() { overlay.remove(); }, 300);
+      }
+    });
+  },
+  // 实际执行预览
+  _doPreview() {
     // 应用模板和特效
     LivePreview.refresh();
     // 进入全屏预览
     document.body.classList.add('fullscreen-mode');
     window.scrollTo({top:0, behavior:'smooth'});
-    // 显示提示
-    var tip = document.createElement('div');
-    tip.id = 'previewTip';
-    tip.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;z-index:10000;backdrop-filter:blur(8px);animation:tipFadeIn 0.3s ease;max-width:90vw;text-align:center;';
-    tip.innerHTML = '预览模式 — 点击右上角「导出展示版」即可保存<br><button onclick="document.getElementById(\'previewTip\').remove();document.body.classList.remove(\'fullscreen-mode\');LivePreview.clearEffect();LivePreview.clearDecoLayer();LivePreview.tmplStyleEl.textContent=\'\';" style="margin-top:8px;background:#fff;color:#333;border:none;padding:6px 20px;border-radius:8px;cursor:pointer;font-size:13px;">退出预览</button>';
-    var style = document.createElement('style');
-    style.textContent = '@keyframes tipFadeIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}';
-    document.head.appendChild(style);
-    document.body.appendChild(tip);
-    // 5秒后自动淡出提示
-    setTimeout(function() {
-      var t = document.getElementById('previewTip');
-      if (t) { t.style.transition = 'opacity 0.5s'; t.style.opacity = '0.6'; }
-    }, 5000);
   },
   // 当前选中的支付方式
   _payMethod: 'wechat',
@@ -392,16 +440,21 @@ const TemplateStore = {
     // 支付成功提示
     var tip = document.createElement('div');
     tip.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(16,185,129,0.95);color:#fff;padding:16px 32px;border-radius:16px;font-size:16px;font-weight:700;z-index:20000;box-shadow:0 8px 32px rgba(0,0,0,0.2);animation:tipFadeIn 0.3s ease;';
-    tip.textContent = '✅ 支付成功！正在生成回忆录…';
+    tip.textContent = '✅ 支付成功！外观已永久解锁';
     document.body.appendChild(tip);
+    // 刷新编辑台显示"已购买"
+    Render.editor('template');
     setTimeout(function() {
       tip.remove();
-      // 根据导出类型调用对应方法（skipCheck=true 跳过二次付费检查）
-      if (self._exportType === 'standalone') {
+      // 如果是样式购买触发的支付，自动预览
+      if (!self._exportType) {
+        self._doPreview();
+      } else if (self._exportType === 'standalone') {
         Exporter.doExport();
       } else {
         Exporter.exportReadOnly(true);
       }
+      self._exportType = null;
     }, 1200);
   },
   // 获取模板对应的导出样式覆盖（含装饰图案）
