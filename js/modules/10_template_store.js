@@ -92,6 +92,13 @@ const TemplateStore = {
       if (saved.effects) this.selectedEffects = saved.effects;
       if (saved.paid) this.paidItems = saved.paid;
     } catch(e) {}
+    // 页面加载时：如果所有选中的模板/特效都已购买，自动应用效果
+    var self = this;
+    setTimeout(function() {
+      if (self._checkAllSelectedPaid()) {
+        LivePreview.refresh();
+      }
+    }, 300);
   },
   save() {
     localStorage.setItem(SiteManager.optsKey(), JSON.stringify({
@@ -125,12 +132,27 @@ const TemplateStore = {
     });
     return items;
   },
+  // 检查当前所有选中的模板+特效是否都已购买/免费
+  _checkAllSelectedPaid() {
+    var tmpl = this.templates.find(function(t){ return t.id === TemplateStore.selectedTemplate; });
+    if (tmpl && tmpl.price > 0 && TemplateStore.paidItems.indexOf(tmpl.id) === -1) return false;
+    for (var i = 0; i < TemplateStore.selectedEffects.length; i++) {
+      var eid = TemplateStore.selectedEffects[i];
+      if (eid === 'none') continue;
+      var fx = TemplateStore.effects.find(function(e){ return e.id === eid; });
+      if (fx && fx.price > 0 && TemplateStore.paidItems.indexOf(eid) === -1) return false;
+    }
+    return true;
+  },
   toggleTemplate(id) {
     this.selectedTemplate = id;
     this.save();
     Render.editor('template');
     Render.preview(AppState.currentTab);
-    // 不立即刷新预览，等用户点击"预览外观"才生效
+    // 如果全部已购买/免费，立即应用效果
+    if (this._checkAllSelectedPaid()) {
+      LivePreview.refresh();
+    }
   },
   toggleEffect(id) {
     var idx = this.selectedEffects.indexOf(id);
@@ -150,7 +172,10 @@ const TemplateStore = {
     this.save();
     Render.editor('template');
     Render.preview(AppState.currentTab);
-    // 不立即刷新预览，等用户点击"预览外观"才生效
+    // 如果全部已购买/免费，立即应用效果
+    if (this._checkAllSelectedPaid()) {
+      LivePreview.refresh();
+    }
   },
   // 导出前的付费检查：弹出费用清单弹窗，返回 false（异步流程，由弹窗按钮触发后续导出）
   checkBeforeExport(exportType) {

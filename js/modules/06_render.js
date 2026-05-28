@@ -211,11 +211,11 @@ const Render = {
       if(titleEl) titleEl.innerText = d.celebrity.name ? `${d.celebrity.name} 的粉丝站` : '粉丝站预览';
       this.applyTheme(d.celebrity.colors);
       box.innerHTML = `
-        <div style="text-align:center;margin-bottom:30px;padding:30px 20px;background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:16px;box-shadow:var(--shadow-md);">
-          ${d.celebrity.avatar ? `<img src="${d.celebrity.avatar}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid white;box-shadow:0 4px 12px rgba(0,0,0,0.15);">` : '<div style="width:120px;height:120px;border-radius:50%;background:#ddd;margin:0 auto;display:flex;align-items:center;justify-content:center;color:#888;">未上传</div>'}
-          <h3 style="margin:16px 0 8px;font-size:24px;" contenteditable="true" data-bind="celebrity.name">${d.celebrity.name || '点击输入偶像名字'}</h3>
-          <p style="color:#666;font-size:15px;white-space:pre-wrap;max-width:600px;margin:0 auto;" contenteditable="true" data-bind="celebrity.bio">${d.celebrity.bio || '点击输入简介，或让AI生成...'}</p>
-          ${d.celebrity.social?.weibo ? `<a href="${d.celebrity.social.weibo}" target="_blank" style="display:inline-block;margin-top:16px;padding:10px 20px;background:#ff8200;color:white;text-decoration:none;border-radius:20px;font-size:14px;font-weight:500;">👉 微博主页</a>` : ''}
+        <div style="text-align:center;margin-bottom:30px;padding:40px 24px;background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);border:1px solid var(--border);">
+          ${d.celebrity.avatar ? `<img src="${d.celebrity.avatar}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid #fff;box-shadow:0 4px 20px rgba(123,111,229,0.2);">` : '<div style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,var(--primary-light),rgba(155,126,222,0.1));margin:0 auto;display:flex;align-items:center;justify-content:center;color:var(--text-sub);font-size:14px;font-weight:500;">未上传</div>'}
+          <h3 style="margin:16px 0 8px;font-size:26px;font-weight:800;color:var(--text-main);" contenteditable="true" data-bind="celebrity.name">${d.celebrity.name || '点击输入偶像名字'}</h3>
+          <p style="color:var(--text-sub);font-size:15px;white-space:pre-wrap;max-width:600px;margin:0 auto;line-height:1.7;" contenteditable="true" data-bind="celebrity.bio">${d.celebrity.bio || '点击输入简介，或让AI生成...'}</p>
+          ${d.celebrity.social?.weibo ? `<a href="${d.celebrity.social.weibo}" target="_blank" style="display:inline-block;margin-top:20px;padding:10px 24px;background:linear-gradient(135deg,var(--primary),var(--ai));color:white;text-decoration:none;border-radius:20px;font-size:14px;font-weight:600;box-shadow:0 4px 14px rgba(123,111,229,0.3);transition:0.2s;">微博主页</a>` : ''}
         </div>`;
     } else if(tab==='news') {
       if(titleEl) titleEl.innerText = '追忆时光';
