@@ -248,7 +248,7 @@ const TemplateStore = {
     if (!this.selectedTemplate || this.selectedTemplate === 'default') {
       var hasFx = this.selectedEffects && this.selectedEffects.length > 0 && !(this.selectedEffects.length === 1 && this.selectedEffects[0] === 'none');
       if (!hasFx) {
-        alert('请先在 ⚙️ 编辑面板的「🎨 外观」标签中选择一个模板或特效');
+        alert('请先在编辑面板的「外观」标签中选择一个模板或特效');
         return;
       }
     }
@@ -261,7 +261,7 @@ const TemplateStore = {
     var tip = document.createElement('div');
     tip.id = 'previewTip';
     tip.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;z-index:10000;backdrop-filter:blur(8px);animation:tipFadeIn 0.3s ease;max-width:90vw;text-align:center;';
-    tip.innerHTML = '👁 预览模式 — 点击右上角「📦 导出展示版」即可保存<br><button onclick="document.getElementById(\'previewTip\').remove();document.body.classList.remove(\'fullscreen-mode\');LivePreview.clearEffect();LivePreview.clearDecoLayer();LivePreview.tmplStyleEl.textContent=\'\';" style="margin-top:8px;background:#fff;color:#333;border:none;padding:6px 20px;border-radius:8px;cursor:pointer;font-size:13px;">退出预览</button>';
+    tip.innerHTML = '预览模式 — 点击右上角「导出展示版」即可保存<br><button onclick="document.getElementById(\'previewTip\').remove();document.body.classList.remove(\'fullscreen-mode\');LivePreview.clearEffect();LivePreview.clearDecoLayer();LivePreview.tmplStyleEl.textContent=\'\';" style="margin-top:8px;background:#fff;color:#333;border:none;padding:6px 20px;border-radius:8px;cursor:pointer;font-size:13px;">退出预览</button>';
     var style = document.createElement('style');
     style.textContent = '@keyframes tipFadeIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}';
     document.head.appendChild(style);

@@ -68,9 +68,9 @@
 <button class="tut-exit-btn" id="tutExitBtn" onclick="Tutorial.close()">✕ 跳出教程</button>
 <!-- 操作栏 -->
 <div class="action-bar" id="mainActionBar">
-  <button class="switch-site-btn" onclick="SiteUI.toggle()">🔄 切换粉丝站</button>
-<button class="export-btn" onclick="Exporter.exportReadOnly()">📦 导出展示版</button>
-<button class="preview-btn" onclick="TemplateStore.previewStyle()">👁 预览外观</button>
+  <button class="switch-site-btn" onclick="SiteUI.toggle()">切换粉丝站</button>
+<button class="export-btn" onclick="Exporter.exportReadOnly()">导出展示版</button>
+<button class="preview-btn" onclick="TemplateStore.previewStyle()">预览外观</button>
 </div>
 </div>
 <!-- 站点列表面板 -->
@@ -81,7 +81,7 @@
 <div class="bill-overlay" id="billOverlay">
   <div class="bill-modal">
     <div class="bill-header">
-      <h3>📋 导出费用清单</h3>
+      <h3>导出费用清单</h3>
       <p>请确认以下费用后前往支付</p>
     </div>
     <div class="bill-body" id="billBody"></div>
@@ -100,7 +100,7 @@
     <!-- 头部 -->
     <div class="pay-header">
       <button class="pay-header-close" onclick="TemplateStore.cancelPay()" title="关闭">✕</button>
-      <h3>🎨 解锁精美外观</h3>
+      <h3>解锁精美外观</h3>
       <p>选择支付方式，完成后点击"我已付款"</p>
     </div>
     <!-- 商品清单 -->
@@ -114,11 +114,11 @@
     <!-- 支付方式 Tab -->
     <div class="pay-method-tabs">
       <div class="pay-method-tab wechat active" id="payTabWechat" onclick="TemplateStore.switchPayMethod('wechat')">
-        <span class="pm-icon">💚</span>
+        <span class="pm-icon"></span>
         <span class="pm-label">微信支付</span>
       </div>
       <div class="pay-method-tab alipay" id="payTabAlipay" onclick="TemplateStore.switchPayMethod('alipay')">
-        <span class="pm-icon">💙</span>
+        <span class="pm-icon"></span>
         <span class="pm-label">支付宝</span>
       </div>
     </div>
@@ -127,7 +127,7 @@
       <div class="pay-qr-wrap" id="payQrWrap">
         <!-- QR 码图片，运营者替换为真实二维码 -->
         <div class="pay-qr-placeholder" id="payQrPlaceholder">
-          <div class="qr-icon" id="payQrIcon">📱</div>
+          <div class="qr-icon" id="payQrIcon"></div>
           <svg id="payQrSvg" width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" style="display:none;">
             <!-- 微信二维码占位图案 -->
             <rect width="140" height="140" fill="#fff"/>
@@ -192,7 +192,7 @@
   </div>
   <!-- 侧滑编辑抽屉 -->
   <div class="panel" id="editorPanel">
-    <h3 style="margin-top:0;">🎛 编辑控制台</h3>
+    <h3 style="margin-top:0;">编辑控制台</h3>
     <div class="tabs" id="editorTabs">
       <button class="tab-btn active" data-tab="celebrity">资料</button>
       <button class="tab-btn" data-tab="news">追忆</button>
