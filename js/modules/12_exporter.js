@@ -62,7 +62,26 @@ const Exporter = {
         celebrity: Object.assign({}, AppState.data.celebrity, { avatar: avatarData })
       });
 
-      const htmlContent = this.generateReadOnlyHTML(d);
+      // 加载背景图作为 base64（用于导出嵌入）
+      var bgImageB64 = '';
+      try {
+        var bgEl = document.querySelector('#bgImageLayer');
+        if (bgEl) {
+          var bgUrl = window.getComputedStyle(bgEl).backgroundImage;
+          bgUrl = bgUrl.replace(/^url\([\"']?/, '').replace(/[\"']?\)$/, '');
+          if (bgUrl) {
+            var resp = await fetch(bgUrl);
+            var blob = await resp.blob();
+            bgImageB64 = await new Promise(function(r) {
+              var reader = new FileReader();
+              reader.onloadend = function() { r(reader.result); };
+              reader.readAsDataURL(blob);
+            });
+          }
+        }
+      } catch(e) { console.warn('背景图加载失败，跳过', e); }
+
+      const htmlContent = this.generateReadOnlyHTML(d, bgImageB64);
       const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -80,9 +99,16 @@ const Exporter = {
       if (btn) { btn.innerText = ori; btn.disabled = false; btn.style.background = ''; }
     }, 2500);
   },
-  generateReadOnlyHTML(d) {
+  generateReadOnlyHTML(d, bgImageB64) {
     var c = d.celebrity;
     var theme = this.parseTheme(c.colors);
+    var hexToRgba = function(hex, alpha) {
+      hex = hex.replace('#','');
+      var r = parseInt(hex.substring(0,2), 16);
+      var g = parseInt(hex.substring(2,4), 16);
+      var b = parseInt(hex.substring(4,6), 16);
+      return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    };
     var safe = function(str) { return str ? str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; };
     
     var S = [];
@@ -91,20 +117,24 @@ const Exporter = {
     w('<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">');
     w('<title>' + safe(c.name || 'StarFan') + ' 的回忆录</title>');
     w('<style>');
-    w(':root{--bg1:' + theme.c1 + ';--bg2:' + theme.c2 + ';--pri:#6366f1;--r:12px;--sh:0 4px 16px rgba(0,0,0,0.08);}');
+    w(':root{--bg1:' + hexToRgba(theme.c1, 0.35) + ';--bg2:' + hexToRgba(theme.c2, 0.35) + ';--pri:#6366f1;--r:12px;--sh:0 4px 16px rgba(0,0,0,0.08);}');
     w('*{box-sizing:border-box;margin:0;padding:0;}');
-    w('body{font-family:system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2));min-height:100vh;color:#1f2937;line-height:1.6;}');
+    w('body{font-family:system-ui,-apple-system,sans-serif;background:#f0f0f5;min-height:100vh;color:#1f2937;line-height:1.6;}');
+    w('#bgLayer{position:fixed;inset:0;z-index:-2;background:linear-gradient(135deg,var(--bg1),var(--bg2));}');
+    if(bgImageB64) {
+      w('#bgImg{position:fixed;inset:0;z-index:-3;background-image:url(' + bgImageB64 + ');background-size:cover;background-position:center;background-repeat:no-repeat;opacity:0.50;}');
+    }
     w('.container{max-width:900px;margin:0 auto;padding:20px 16px 60px;}');
-    w('.hero{text-align:center;padding:40px 24px;background:rgba(255,255,255,0.75);backdrop-filter:blur(12px);border-radius:16px;box-shadow:var(--sh);margin-bottom:24px;}');
+    w('.hero{text-align:center;padding:40px 24px;background:rgba(255,255,255,0.2);backdrop-filter:blur(12px);border-radius:16px;box-shadow:var(--sh);margin-bottom:24px;}');
     w('.avatar{width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);margin-bottom:12px;}');
     w('.avatar-ph{width:120px;height:120px;border-radius:50%;background:#e5e7eb;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:40px;}');
     w('h1{font-size:28px;margin-bottom:8px;}');
     w('.bio{color:#6b7280;max-width:600px;margin:0 auto 16px;white-space:pre-wrap;}');
     w('.weibo-btn{display:inline-block;padding:10px 20px;background:#ff8200;color:#fff;text-decoration:none;border-radius:20px;font-weight:500;}');
-    w('.section{background:rgba(255,255,255,0.82);backdrop-filter:blur(10px);border-radius:16px;padding:20px;margin-bottom:24px;box-shadow:var(--sh);}');
+    w('.section{background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border-radius:16px;padding:20px;margin-bottom:24px;box-shadow:var(--sh);}');
     w('.sec-hd{font-size:18px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid rgba(0,0,0,0.05);}');
     w('.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}');
-    w('.card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:0.2s;cursor:pointer;}');
+    w('.card{background:rgba(255,255,255,0.2);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:0.2s;cursor:pointer;}');
     w('.card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.12);}');
     w('.card img{width:100%;height:140px;object-fit:cover;background:#f3f4f6;}');
     w('.card-body{padding:12px;}');
@@ -115,27 +145,27 @@ const Exporter = {
     w('.g-item{position:relative;break-inside:avoid;margin-bottom:12px;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;background:#f3f4f6;}');
     w('.g-item img{width:100%;display:block;transition:0.3s;}.g-item:hover img{transform:scale(1.05);}');
     w('.g-cap{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.7));color:#fff;font-size:12px;padding:20px 8px 8px;}');
-    w('.ev-card{background:#fff;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;gap:14px;transition:0.2s;}');
+    w('.ev-card{background:rgba(255,255,255,0.2);border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;gap:14px;transition:0.2s;}');
     w('.ev-card:hover{transform:translateX(4px);}');
     w('.ev-badge{min-width:52px;text-align:center;background:var(--pri);color:#fff;border-radius:10px;padding:8px 4px;}');
     w('.ev-badge .mo{font-size:11px;opacity:0.85;}.ev-badge .dy{font-size:22px;font-weight:800;line-height:1;}');
     w('.ev-info{flex:1;} .ev-info h4{font-size:15px;margin:0 0 4px;} .ev-desc{font-size:13px;color:#6b7280;}');
     w('.ev-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:#e0e7ff;color:var(--pri);margin-top:6px;}');
     w('.sh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;}');
-    w('.sh-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:0.2s;}');
+    w('.sh-card{background:rgba(255,255,255,0.2);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:0.2s;}');
     w('.sh-card:hover{transform:translateY(-3px);}');
     w('.sh-thumb{height:160px;display:flex;align-items:center;justify-content:center;font-size:52px;background:linear-gradient(135deg,#f0f7ff,#e0e7ff);}');
     w('.sh-body{padding:12px;} .sh-name{font-weight:700;font-size:14px;margin-bottom:4px;}');
     w('.sh-desc{color:#9ca3af;font-size:12px;margin-bottom:4px;}');
     w('.sh-tag{display:inline-block;padding:2px 8px;background:#ede9fe;color:var(--pri);border-radius:10px;font-size:11px;font-weight:600;}');
     w('.comments{list-style:none;padding:0;}');
-    w('.comments li{background:#fff;padding:12px 14px;border-radius:10px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.04);display:flex;align-items:flex-start;gap:8px;font-size:14px;}');
+    w('.comments li{background:rgba(255,255,255,0.2);padding:12px 14px;border-radius:10px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.04);display:flex;align-items:flex-start;gap:8px;font-size:14px;}');
     w('.c-time{font-size:11px;color:#9ca3af;margin-left:auto;flex-shrink:0;white-space:nowrap;}');
     w('.footer{text-align:center;padding:20px;color:rgba(255,255,255,0.7);font-size:13px;}');
     // 追忆弹窗
     w('.mo{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);z-index:9000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s;}');
     w('.mo.show{opacity:1;pointer-events:auto;}');
-    w('.mo-box{background:#fff;border-radius:20px;width:min(600px,94vw);max-height:85vh;overflow:hidden;box-shadow:0 25px 80px rgba(0,0,0,0.3);transform:translateY(20px) scale(0.95);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);display:flex;flex-direction:column;position:relative;}');
+    w('.mo-box{background:rgba(255,255,255,0.95);border-radius:20px;width:min(600px,94vw);max-height:85vh;overflow:hidden;box-shadow:0 25px 80px rgba(0,0,0,0.3);transform:translateY(20px) scale(0.95);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);display:flex;flex-direction:column;position:relative;}');
     w('.mo.show .mo-box{transform:translateY(0) scale(1);}');
     w('.mo-hd{padding:20px 24px 16px;border-bottom:1px solid #f3f4f6;} .mo-hd h3{margin:0 0 4px;font-size:18px;} .mo-hd .mo-meta{font-size:13px;color:#9ca3af;}');
     w('.mo-bd{padding:20px 24px;overflow-y:auto;flex:1;}');
@@ -149,11 +179,13 @@ const Exporter = {
     w('.badge-readonly{display:inline-block;background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle;}');
     w('@media(max-width:600px){.grid,.sh-grid{grid-template-columns:1fr;}.gallery{column-count:2;}.hero{padding:24px 16px;}.mo-imgs{grid-template-columns:1fr 1fr;}.mo-imgs img:first-child{grid-column:span 2;grid-row:span 1;}}');
     w('</style></head><body>');
+    w('<div id="bgLayer"></div>');
+    if(bgImageB64) { w('<div id="bgImg"></div>'); }
     w('<div class="container">');
     // Hero
     w('<div class="hero">');
     w(c.avatar ? '<img class="avatar" src="'+c.avatar+'">' : '<div class="avatar-ph">🌟</div>');
-    w('<h1>'+safe(c.name||'偶像名字')+'<span class="badge-readonly">🔒 展示版</span></h1>');
+    w('<h1>'+safe(c.name||'偶像名字')+'<span class="badge-readonly">展示版</span></h1>');
     w('<p class="bio">'+safe(c.bio||'')+'</p>');
     if(c.social&&c.social.weibo) w('<a class="weibo-btn" href="'+safe(c.social.weibo)+'" target="_blank">👉 微博主页</a>');
     w('</div>');
