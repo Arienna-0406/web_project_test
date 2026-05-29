@@ -84,9 +84,9 @@ const LivePreview = {
     var layer = document.getElementById('liveFxLayer');
     if (!layer) return;
     var config = {
-      'snow':    { emoji:'❄️', count:15, size:[8,18], anim:'lfxSnow', dur:[8,18], axis:'y', fromTop:true },
-      'sparkle': { emoji:'✨', count:10, size:[10,24], anim:'lfxSparkle', dur:[4,9], axis:'pulse', pos:'random' },
-      'bubbles': { emoji:'🫧', count:8, size:[12,28], anim:'lfxBubble', dur:[10,22], axis:'y-up', shape:'circle' },
+      'snow':    { emoji:'❄️', count:30, size:[8,18], anim:'lfxSnow', dur:[8,18], axis:'y', fromTop:true, color:'#ffffff' },
+      'sparkle': { emoji:'✨', count:20, size:[10,24], anim:'lfxSparkle', dur:[4,9], axis:'pulse', pos:'random', color:'#ffeaa7' },
+      'bubbles': { emoji:'🫧', count:16, size:[12,28], anim:'lfxBubble', dur:[10,22], axis:'y-up', shape:'circle' },
       'hearts':  { emoji:'💕❤️💖💗💘', count:8, size:[14,24], anim:'lfxHeart', dur:[8,18], axis:'y', fromTop:true },
       'cherry':  { emoji:'🌸✿❀', count:12, size:[12,24], anim:'lfxCherry', dur:[10,22], axis:'y', fromTop:true },
       'music':   { emoji:'🎵🎶🎼♪', count:6, size:[16,28], anim:'lfxMusic', dur:[7,16], axis:'y-up' }
@@ -132,6 +132,7 @@ const LivePreview = {
       el.style.marginLeft = driftX.toFixed(0) + 'px';
       el.style.animation = cfg.anim + ' ' + dur.toFixed(1) + 's ease-in-out infinite';
       el.style.animationDelay = delay.toFixed(1) + 's';
+      if (cfg.color) el.style.color = cfg.color;
       if (cfg.axis === 'pulse') el.style.opacity = '0';
       else el.style.opacity = '0.4';
       layer.appendChild(el);
