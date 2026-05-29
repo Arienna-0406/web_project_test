@@ -35,7 +35,7 @@ body {
   position:fixed; inset:0; z-index:-3;
   background-image: url('../背景图/ChatGPT Image 2026年5月28日 10_30_57.png');
   background-size: cover; background-position: center; background-repeat: no-repeat;
-  opacity: 0.40;
+  opacity: 0.50;
 }
 #bgCanvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-2; pointer-events:none; }
 
@@ -387,13 +387,13 @@ body {
 .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-lg); }
 .section-header h2 { margin:0; font-size:20px; font-weight:700; color:var(--text-main); }
 .inline-btn {
-  background:rgba(255,255,255,0.75); border:1px solid rgba(138,115,187,0.2);
+  background:rgba(255,255,255,0.2); border:1px solid rgba(138,115,187,0.2);
   color:var(--text-main); padding:6px 14px; border-radius:20px;
   font-size:12px; cursor:pointer; transition:var(--transition);
   display:inline-flex; align-items:center; gap:4px;
   backdrop-filter:blur(6px);
 }
-.inline-btn:hover { background:#fff; box-shadow:var(--shadow-md); transform:translateY(-1px); }
+.inline-btn:hover { background:rgba(255,255,255,0.35); box-shadow:var(--shadow-md); transform:translateY(-1px); }
 .inline-del {
   position:absolute; top:8px; right:8px;
   background:rgba(248,113,113,0.92); color:#fff;
@@ -496,7 +496,7 @@ body {
 .action-bar {
   display:flex; justify-content:flex-end; gap:10px;
   padding:10px var(--space-xl);
-  background:rgba(255,255,255,0.45); backdrop-filter:blur(14px);
+  background:rgba(255,255,255,0.2); backdrop-filter:blur(14px);
   -webkit-backdrop-filter:blur(14px);
   position:sticky; top:0; z-index:100;
   border-bottom:1px solid rgba(138,115,187,0.1);
@@ -511,20 +511,25 @@ body {
 
 /* 切换站点按钮 */
 .switch-site-btn {
-  background:rgba(255,255,255,0.85); border:1px solid rgba(138,115,187,0.15);
+  background:rgba(255,255,255,0.2); border:1px solid rgba(138,115,187,0.15);
   color:var(--text-main); font-size:13px; padding:9px 16px; border-radius:var(--radius-full);
   cursor:pointer; backdrop-filter:blur(8px); transition:var(--transition);
   width:auto; margin:0; display:flex; align-items:center; gap:5px;
 }
-.switch-site-btn:hover { background:#fff; transform:translateY(-2px); box-shadow:var(--shadow-md), 0 0 14px var(--primary-glow); }
+.switch-site-btn:hover { background:rgba(255,255,255,0.35); transform:translateY(-2px); box-shadow:var(--shadow-md), 0 0 14px var(--primary-glow); }
 
 /* 导出/预览按钮 */
 .export-btn {
-  background:linear-gradient(135deg,var(--primary),var(--ai))!important;
+  background:linear-gradient(135deg,rgba(138,115,187,0.2),rgba(165,85,158,0.2))!important;
   color:#fff!important; font-weight:700!important;
   box-shadow:0 0 14px var(--primary-glow) !important;
 }
 .export-btn:hover { box-shadow:0 0 22px rgba(138,115,187,0.5) !important; }
+.preview-btn {
+  background:rgba(255,255,255,0.2); border:1px solid rgba(138,115,187,0.15);
+  color:var(--text-main);
+}
+.preview-btn:hover { background:rgba(255,255,255,0.35); }
 .import-btn {
   background:linear-gradient(135deg,var(--ai),var(--primary))!important;
   color:#fff!important; font-weight:700!important;
@@ -806,7 +811,7 @@ body {
 .exit-preview { display:none; position:fixed; top:16px; left:16px; z-index:2000; background:rgba(30,15,50,0.7); color:#fff; border:none; border-radius:20px; padding:8px 16px; cursor:pointer; font-size:13px; width:auto; margin:0; }
 body.fullscreen-mode .exit-preview { display:block; }
 body.fullscreen-mode .editor-toggle { display:none !important; }
-body.fullscreen-mode .action-bar { display:flex !important; position:fixed; top:16px; right:16px; z-index:2000; gap:8px; background:rgba(255,255,255,0.9); backdrop-filter:blur(14px); padding:6px 10px; border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); }
+body.fullscreen-mode .action-bar { display:flex !important; position:fixed; top:16px; right:16px; z-index:2000; gap:8px; background:rgba(255,255,255,0.2); backdrop-filter:blur(14px); padding:6px 10px; border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); }
 body.fullscreen-mode .action-bar button { width:auto; padding:6px 14px; margin:0; font-size:12px; }
 body.fullscreen-mode .action-bar .preview-btn { display:none !important; }
 .export-edit-toggle { display:none; }
