@@ -4,10 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StarFan Studio</title>
+
+<!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS Play CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
@@ -15,71 +18,579 @@ tailwind.config = {
     extend: {
       colors: {
         primary: '#7C5CFC',
-        'primary-hover': '#6A4DE0',
-        'primary-light': '#E8DEF8',
-        'primary-bg': '#F8F7FF',
-        'text-main': '#111827',
-        'text-sub': '#6B7280',
-        'border-light': '#E5E7EB',
-        'border-hover': '#D1D5DB',
-        accent: {
-          pink: '#F472B6', amber: '#F59E0B', sky: '#38BDF8',
-          purple: '#A78BFA', green: '#34D399', rose: '#FB7185'
-        }
+        'primary-hover': '#6A4FE0',
+        'primary-light': 'rgba(124,92,252,0.08)',
+        'primary-glow': 'rgba(124,92,252,0.18)',
+        bg: '#F8F7FF',
+        text: '#111827',
+        secondary: '#6B7280',
+        ai: '#9B7EDE',
+        success: '#34d399',
+        danger: '#ff6b6b'
       },
       fontFamily: {
-        sans: ['Inter', 'Noto Sans SC', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'Noto Sans SC', 'system-ui', '-apple-system', 'sans-serif']
       },
       borderRadius: {
-        'card': '16px',
-        'btn': '12px',
-        'full': '9999px',
+        'card': '16px'
       },
       spacing: {
-        '18': '72px',
-      },
-      boxShadow: {
-        'card': '0 2px 8px rgba(0,0,0,0.04)',
-        'card-hover': '0 8px 30px rgba(0,0,0,0.10)',
-        'sidebar': '2px 0 12px rgba(0,0,0,0.03)',
+        'card-pad': '24px'
       },
       transitionTimingFunction: {
-        'spring': 'cubic-bezier(0.34,1.56,0.64,1)',
+        'spring': 'cubic-bezier(0.34,1.56,0.64,1)'
+      },
+      boxShadow: {
+        'card-sm': '0 2px 8px rgba(124,92,252,0.05)',
+        'card': '0 4px 20px rgba(124,92,252,0.08)',
+        'card-lg': '0 12px 40px rgba(124,92,252,0.12)',
+        'primary': '0 4px 16px rgba(124,92,252,0.3)'
       }
     }
   }
 }
 </script>
+
+<!-- Custom CSS -->
+<style>
+:root {
+  --primary: #7C5CFC;
+  --primary-hover: #6A4FE0;
+  --primary-light: rgba(124,92,252,0.08);
+  --primary-glow: rgba(124,92,252,0.18);
+  --ai: #9B7EDE;
+  --success: #34d399;
+  --danger: #ff6b6b;
+  --bg-start: #F0F2F8;
+  --bg-end: #E8EAF5;
+  --text-main: #111827;
+  --text-sub: #6B7280;
+  --border: rgba(124,92,252,0.1);
+  --shadow-sm: 0 2px 8px rgba(124,92,252,0.05);
+  --shadow-md: 0 4px 20px rgba(124,92,252,0.08);
+  --shadow-lg: 0 12px 40px rgba(124,92,252,0.12);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-full: 9999px;
+  --transition: 0.3s cubic-bezier(0.34,1.2,0.64,1);
+  --spring: 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+* { box-sizing: border-box; }
+body {
+  margin:0; font-family:'Inter','Noto Sans SC',system-ui,-apple-system,sans-serif;
+  background:var(--bg-start); min-height:100vh; color:var(--text-main);
+  line-height:1.65; overflow-x:hidden;
+}
+
+/* Background Layers */
+#bgImageLayer {
+  position:fixed; inset:0; z-index:-3;
+  background-image:url('背景图/ChatGPT Image 2026年5月28日 10_30_57.png');
+  background-size:cover; background-position:center; background-repeat:no-repeat; opacity:0.06;
+}
+#bgCanvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-2; pointer-events:none; }
+
+/* Card Container Base */
+.card-container {
+  background:#fff; border-radius:16px; padding:24px;
+  box-shadow:var(--shadow-sm); border:1px solid var(--border);
+  transition:all 0.3s ease;
+}
+.card-container:hover {
+  transform:translateY(-4px); box-shadow:var(--shadow-lg);
+}
+
+/* Hover Overlay */
+.hover-overlay {
+  position:absolute; inset:0; background:rgba(0,0,0,0.4);
+  border-radius:16px; display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:opacity 0.3s ease; z-index:10;
+}
+.card-container:hover .hover-overlay { opacity:1; }
+
+/* Editor Panel Slide */
+.editor-panel {
+  position:fixed; top:0; left:-360px; width:340px; height:100vh;
+  background:rgba(255,255,255,0.92); backdrop-filter:blur(28px) saturate(160%);
+  border-right:1px solid var(--border); padding:24px;
+  box-shadow:4px 0 40px rgba(124,92,252,0.1); z-index:1000;
+  transition:left var(--spring); overflow-y:auto; display:flex; flex-direction:column;
+}
+.editor-panel.open { left:0; }
+
+/* Overlay */
+.editor-overlay {
+  position:fixed; inset:0; background:rgba(17,24,39,0.25);
+  z-index:999; opacity:0; pointer-events:none; transition:opacity var(--transition);
+}
+.editor-overlay.show { opacity:1; pointer-events:auto; }
+
+/* Form Elements */
+.editor-panel input, .editor-panel textarea, .editor-panel select {
+  width:100%; padding:10px 14px; margin:4px 0; border-radius:12px;
+  border:1px solid rgba(124,92,252,0.15); background:rgba(124,92,252,0.04);
+  color:#2D3436; font-size:13px; transition:0.2s;
+}
+.editor-panel input:focus, .editor-panel textarea:focus {
+  outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(124,92,252,0.12);
+  background:#fff;
+}
+.editor-panel button {
+  width:100%; padding:12px; border:none; border-radius:12px;
+  cursor:pointer; font-size:13px; font-weight:600;
+  transition:var(--transition); margin-top:8px;
+}
+.btn-primary {
+  background:linear-gradient(135deg,var(--primary),var(--ai));
+  color:#fff; box-shadow:0 4px 14px rgba(124,92,252,0.25);
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 22px rgba(124,92,252,0.35); }
+.btn-ai { background:linear-gradient(135deg,var(--ai),#b8a0f0); color:#fff; }
+.btn-ai:hover { box-shadow:0 6px 22px rgba(155,126,222,0.35); transform:translateY(-2px); }
+.btn-danger { background:linear-gradient(135deg,var(--danger),#ff9f9f); color:#fff; }
+.btn-small { width:auto; padding:6px 14px; font-size:11px; margin:0; border-radius:10px; }
+
+/* Editor Tabs */
+.editor-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+.editor-tab {
+  flex:1; padding:8px 4px; background:rgba(124,92,252,0.06);
+  border:1px solid rgba(124,92,252,0.1); border-radius:9999px;
+  cursor:pointer; text-align:center; font-size:11px; font-weight:500;
+  color:var(--text-sub); transition:var(--transition);
+}
+.editor-tab.active {
+  background:linear-gradient(135deg,var(--primary),var(--ai));
+  color:#fff; border-color:transparent;
+  box-shadow:0 0 14px var(--primary-glow);
+}
+
+/* AI Panel */
+.ai-panel {
+  background:#fff; border:1px solid var(--border);
+  border-radius:16px; padding:16px; box-shadow:var(--shadow-sm);
+}
+.ai-panel .content {
+  background:rgba(124,92,252,0.04); padding:16px;
+  border-radius:12px; min-height:60px; font-size:13px; line-height:1.7;
+  white-space:pre-wrap; color:#374151;
+  border:1px solid rgba(124,92,252,0.08);
+}
+.typing-cursor::after { content:'▋'; animation:blink 1s step-end infinite; color:var(--ai); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* FAB Button */
+.fab-btn {
+  position:fixed; bottom:28px; right:28px; z-index:1001;
+  width:60px; height:60px; border-radius:50%;
+  background:linear-gradient(135deg,#A29BFE,#7B6FE5,#6A5DD4);
+  color:#fff; border:none;
+  box-shadow:0 4px 20px rgba(124,92,252,0.4),0 0 0 4px rgba(124,92,252,0.1);
+  cursor:grab; font-size:13px; font-weight:700;
+  letter-spacing:1px; display:flex; align-items:center; justify-content:center;
+  transition:all 0.3s ease; touch-action:none; user-select:none;
+}
+.fab-btn::after {
+  content:''; position:absolute; width:10px; height:10px;
+  background:rgba(255,255,255,0.6); border-radius:50%;
+  top:22%; left:24%;
+}
+.fab-btn:hover { transform:scale(1.08); box-shadow:0 6px 28px rgba(124,92,252,0.5),0 0 0 6px rgba(124,92,252,0.08); }
+.fab-btn.dragging { cursor:grabbing; opacity:0.9; box-shadow:0 8px 32px rgba(124,92,252,0.6); z-index:2000; }
+.editor-panel.open ~ .fab-btn { background:linear-gradient(135deg,#b2b2b2,#888); box-shadow:0 4px 16px rgba(0,0,0,0.2); }
+
+/* Footer */
+.site-footer-bar { position:fixed; bottom:0; left:0; right:0; z-index:999; text-align:center; padding:14px 24px; background:linear-gradient(to top,rgba(240,242,248,0.9),transparent); pointer-events:none; }
+.site-footer-bar .copy { font-size:12px; color:rgba(107,114,128,0.5); pointer-events:auto; }
+
+/* Section Header */
+.section-title { font-size:22px; font-weight:800; color:var(--text-main); letter-spacing:-0.3px; }
+
+/* Inline Delete Button */
+.inline-del-btn {
+  position:absolute; top:10px; right:10px;
+  background:rgba(255,107,107,0.92); color:#fff;
+  width:26px; height:26px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; cursor:pointer; opacity:0; transition:0.2s; border:none;
+  box-shadow:0 2px 8px rgba(255,107,107,0.3); z-index:20;
+}
+.card-container:hover .inline-del-btn { opacity:1; }
+
+/* News Grid Masonry */
+.news-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:24px; }
+.news-card { border-radius:16px; overflow:hidden; background:#fff; box-shadow:var(--shadow-sm); transition:var(--transition); border:1px solid rgba(124,92,252,0.06); cursor:pointer; }
+.news-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); }
+.news-card img { width:100%; height:160px; object-fit:cover; background:#f3f4f6; }
+.news-card .news-body { padding:16px; }
+
+/* Gallery Grid Masonry */
+.gallery-grid { column-count:3; column-gap:16px; }
+.gallery-item-img {
+  position:relative; border-radius:16px; overflow:hidden;
+  break-inside:avoid; margin-bottom:16px;
+  box-shadow:var(--shadow-sm); transition:var(--transition); background:#f3f4f6;
+}
+.gallery-item-img:hover { transform:scale(1.02); box-shadow:var(--shadow-lg); }
+.gallery-item-img img { width:100%; display:block; transition:0.4s; }
+.gallery-item-img:hover img { transform:scale(1.05); }
+.gallery-caption {
+  position:absolute; bottom:0; left:0; right:0;
+  background:linear-gradient(transparent,rgba(45,52,54,0.75)); color:#fff;
+  font-size:12px; padding:28px 10px 10px;
+  transform:translateY(100%); transition:0.35s;
+}
+.gallery-item-img:hover .gallery-caption { transform:translateY(0); }
+
+/* Chat Bubbles */
+.chat-bubble {
+  background:#fff; padding:16px; border-radius:16px;
+  margin-bottom:12px; box-shadow:var(--shadow-sm);
+  border-left:3px solid rgba(124,92,252,0.2); position:relative;
+}
+
+/* Calendar */
+.calendar-wrap {
+  background:#fff; border-radius:22px; overflow:hidden;
+  box-shadow:var(--shadow-sm); margin-bottom:32px; border:1px solid var(--border);
+}
+.cal-header { display:flex; align-items:center; justify-content:space-between; padding:24px 32px; background:linear-gradient(135deg,var(--primary),var(--ai)); color:#fff; }
+.cal-header h3 { margin:0; font-size:18px; font-weight:700; }
+.cal-nav { background:rgba(255,255,255,0.2); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:0.2s; }
+.cal-nav:hover { background:rgba(255,255,255,0.35); }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); }
+.cal-day-name { text-align:center; padding:10px 4px; font-size:12px; font-weight:600; color:var(--text-sub); background:rgba(124,92,252,0.03); }
+.cal-cell { min-height:60px; padding:6px; border:1px solid rgba(124,92,252,0.05); cursor:pointer; transition:0.15s; position:relative; }
+.cal-cell:hover { background:var(--primary-light); }
+.cal-cell.other-month { opacity:0.35; }
+.cal-cell.today .cal-date { background:linear-gradient(135deg,var(--primary),var(--ai)); color:#fff; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-weight:700; }
+.cal-cell.selected { background:var(--primary-light); border-color:var(--primary); }
+.cal-date { font-size:13px; font-weight:600; margin-bottom:4px; }
+.cal-dot { width:6px; height:6px; border-radius:50%; background:var(--primary); display:inline-block; margin:1px; }
+
+/* Event Timeline */
+.event-card {
+  background:#fff; border-radius:16px; padding:16px;
+  box-shadow:var(--shadow-sm); display:flex; gap:16px;
+  align-items:flex-start; position:relative; transition:var(--transition);
+  border:1px solid var(--border); margin-bottom:12px;
+}
+.event-card:hover { transform:translateX(4px); box-shadow:var(--shadow-md); }
+.event-date-badge { min-width:50px; text-align:center; background:linear-gradient(135deg,var(--primary),var(--ai)); color:#fff; border-radius:16px; padding:8px 4px; }
+.event-badge-month { font-size:11px; opacity:0.85; }
+.event-badge-day { font-size:22px; font-weight:800; line-height:1; }
+.event-tag-label { display:inline-block; padding:3px 10px; border-radius:10px; font-size:11px; font-weight:600; margin-top:6px; }
+.event-tag-concert { background:var(--primary-light); color:var(--primary); }
+.event-tag-fanmeet { background:#fce7f3; color:#db2777; }
+.event-tag-release { background:#dcfce7; color:#16a34a; }
+.event-tag-other { background:#f3f4f6; color:#6b7280; }
+
+/* Shop Grid */
+.shop-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:24px; }
+
+/* Modal Overlays */
+.modal-overlay {
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(10,5,20,0.72); backdrop-filter:blur(12px);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity 0.3s ease;
+}
+.modal-overlay.show { opacity:1; pointer-events:auto; }
+.modal-box {
+  background:#fff; border-radius:22px; width:min(420px,92vw); overflow:hidden;
+  box-shadow:0 30px 90px rgba(107,33,94,0.25);
+  transform:translateY(24px) scale(0.94); transition:transform var(--spring);
+}
+.modal-overlay.show .modal-box { transform:translateY(0) scale(1); }
+
+/* Memoir Modal */
+.memoir-overlay {
+  position:fixed; inset:0; background:rgba(10,5,20,0.65); backdrop-filter:blur(8px);
+  z-index:9000; display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity 0.3s ease;
+}
+.memoir-overlay.show { opacity:1; pointer-events:auto; }
+.memoir-modal {
+  background:#fff; border-radius:22px; width:min(620px,94vw); max-height:85vh;
+  overflow:hidden; box-shadow:0 30px 80px rgba(107,33,94,0.25);
+  transform:translateY(20px) scale(0.95); transition:transform var(--spring);
+  display:flex; flex-direction:column;
+}
+.memoir-overlay.show .memoir-modal { transform:translateY(0) scale(1); }
+
+/* Memoir Lightbox */
+.memoir-lightbox {
+  position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:10000;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  opacity:0; pointer-events:none; transition:opacity 0.3s;
+}
+.memoir-lightbox.show { opacity:1; pointer-events:auto; }
+.memoir-lightbox img { max-width:92vw; max-height:92vh; border-radius:12px; object-fit:contain; }
+
+/* Site Panel Dropdown */
+.site-panel-drop {
+  position:fixed; top:72px; right:16px; z-index:1020;
+  width:min(340px,88vw); background:#fff; border-radius:22px;
+  box-shadow:0 20px 60px rgba(107,33,94,0.2),0 0 0 1px rgba(138,115,187,0.1);
+  opacity:0; transform:translateY(-8px) scale(0.97); pointer-events:none;
+  transition:opacity 0.25s ease,transform var(--spring); overflow:hidden;
+}
+.site-panel-drop.open { opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+
+/* Template Grid */
+.tmpl-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.tmpl-card {
+  border-radius:16px; overflow:hidden; cursor:pointer; position:relative;
+  border:2px solid transparent; transition:all var(--transition);
+  box-shadow:var(--shadow-sm); background:#fff;
+}
+.tmpl-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
+.tmpl-card.selected { border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-glow),var(--shadow-md); }
+.tmpl-preview { height:90px; position:relative; overflow:hidden; }
+
+/* Effect Chip */
+.fx-chip {
+  display:inline-flex; align-items:center; gap:6px; padding:8px 16px;
+  border-radius:20px; border:1.5px solid rgba(124,92,252,0.15); background:#fff;
+  cursor:pointer; font-size:12px; font-weight:600; color:#374151;
+  transition:all var(--transition); margin:0 6px 6px 0;
+}
+.fx-chip:hover { border-color:var(--primary); background:var(--primary-light); transform:translateY(-2px); }
+.fx-chip.selected { border-color:var(--primary); background:linear-gradient(135deg,var(--primary),var(--ai)); color:#fff; box-shadow:0 0 12px var(--primary-glow); }
+
+/* Guide Items */
+.site-guide-bar { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:28px; padding:12px 0; }
+.guide-item {
+  display:flex; align-items:center; gap:8px; padding:12px 20px;
+  background:#fff; border-radius:16px; cursor:pointer;
+  transition:var(--transition); border:1px solid var(--border); box-shadow:var(--shadow-sm);
+}
+.guide-item:hover { background:var(--primary-light); transform:translateY(-3px); box-shadow:var(--shadow-md); border-color:rgba(124,92,252,0.2); }
+
+/* Fullscreen Mode */
+body.fullscreen-mode .fab-btn { display:none !important; }
+.exit-preview-btn { display:none; position:fixed; top:16px; left:16px; z-index:2000; background:rgba(17,24,39,0.7); color:#fff; border:none; border-radius:20px; padding:8px 16px; cursor:pointer; font-size:13px; }
+body.fullscreen-mode .exit-preview-btn { display:block; }
+body.fullscreen-mode .action-bar { position:fixed; top:16px; right:16px; z-index:2000; background:rgba(255,255,255,0.95); backdrop-filter:blur(14px); padding:6px 10px; border-radius:22px; box-shadow:var(--shadow-lg); border:1px solid var(--border); }
+
+/* Tutorial */
+.tut-welcome { position:fixed; inset:0; z-index:9998; display:flex; align-items:center; justify-content:center; background:rgba(10,5,20,0.7); backdrop-filter:blur(10px); opacity:0; pointer-events:none; transition:opacity 0.4s ease; overflow-y:auto; }
+.tut-welcome.active { opacity:1; pointer-events:auto; }
+.tut-welcome-card { background:#fff; border-radius:22px; width:min(460px,90vw); max-height:90vh; overflow-y:auto; margin:auto; box-shadow:0 30px 80px rgba(107,33,94,0.25); transform:translateY(30px) scale(0.95); transition:transform var(--spring); overflow-x:hidden; }
+.tut-welcome.active .tut-welcome-card { transform:translateY(0) scale(1); }
+.tut-welcome-hero { padding:36px 32px 22px; text-align:center; background:linear-gradient(135deg,var(--primary),var(--ai),#b8a0f0,#e8eaf5); position:relative; overflow:hidden; }
+.tut-welcome-icon { font-size:58px; display:block; margin-bottom:12px; position:relative; z-index:1; animation:tutBounce 2s ease-in-out infinite; }
+@keyframes tutBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+.tut-welcome-hero h2 { margin:0; font-size:22px; font-weight:800; color:#fff; position:relative; z-index:1; }
+.tut-welcome-hero p { margin:8px 0 0; font-size:13px; color:rgba(255,255,255,0.85); position:relative; z-index:1; }
+.tut-welcome-body { padding:20px 28px 6px; }
+.tut-welcome-body p { font-size:14px; line-height:1.7; color:var(--text-sub); margin:0 0 14px; }
+.tut-welcome-list { display:flex; flex-direction:column; gap:8px; margin-bottom:4px; }
+.tut-welcome-item { display:flex; align-items:center; gap:10px; padding:9px 12px; background:#f9fafb; border-radius:10px; }
+.tut-welcome-item .wi-icon { font-size:20px; width:32px; text-align:center; }
+.tut-welcome-item .wi-text { font-size:13px; color:#374151; }
+.tut-welcome-item .wi-text b { display:block; }
+.tut-welcome-item .wi-text span { font-size:12px; color:#9ca3af; }
+.tut-welcome-footer { padding:16px 28px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid #f3f4f6; }
+
+.tut-mask { position:fixed; inset:0; z-index:9990; pointer-events:none; opacity:0; transition:opacity 0.35s ease; }
+.tut-mask.active { opacity:1; pointer-events:auto; }
+.tut-mask-top,.tut-mask-bottom,.tut-mask-left,.tut-mask-right { position:absolute; background:rgba(45,52,54,0.55); transition:all 0.35s ease; pointer-events:none; }
+.tut-mask.active .tut-mask-top,.tut-mask.active .tut-mask-bottom,.tut-mask.active .tut-mask-left,.tut-mask.active .tut-mask-right { pointer-events:auto; }
+.tut-mask-top { top:0; left:0; right:0; }
+.tut-mask-bottom { bottom:0; left:0; right:0; }
+.tut-mask-left { left:0; }
+.tut-mask-right { right:0; }
+
+.tut-highlight-ring { position:fixed; z-index:9991; border-radius:14px; box-shadow:0 0 0 3px #B7A6DD,0 0 0 7px rgba(183,166,221,0.3),0 8px 32px rgba(138,115,187,0.4); pointer-events:none; opacity:0; transition:all 0.35s var(--spring); animation:tutRingPulse 2s ease-in-out infinite; }
+.tut-highlight-ring.active { opacity:1; }
+@keyframes tutRingPulse { 0%,100%{box-shadow:0 0 0 3px #B7A6DD,0 0 0 7px rgba(183,166,221,0.3),0 8px 32px rgba(138,115,187,0.35)} 50%{box-shadow:0 0 0 3px #8A73BB,0 0 0 12px rgba(138,115,187,0.2),0 8px 40px rgba(107,33,94,0.5)} }
+
+.tut-bubble { position:fixed; z-index:9995; width:min(340px,92vw); max-height:68vh; overflow-y:auto; background:#fff; border-radius:16px; box-shadow:0 16px 56px rgba(107,33,94,0.22),0 0 0 1px rgba(138,115,187,0.08); opacity:0; transform:translateY(10px) scale(0.96); transition:opacity 0.3s ease,transform var(--spring); pointer-events:none; }
+.tut-bubble.active { opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+.tut-bubble::before { content:''; position:absolute; width:12px; height:12px; background:#fff; transform:rotate(45deg); box-shadow:-2px -2px 4px rgba(0,0,0,0.05); }
+.tut-bubble.arrow-up::before { top:-6px; left:var(--arrow-x,50%); margin-left:-6px; }
+.tut-bubble.arrow-down::before { bottom:-6px; left:var(--arrow-x,50%); margin-left:-6px; box-shadow:2px 2px 4px rgba(0,0,0,0.05); }
+.tut-bubble-head { padding:16px 18px 10px; background:linear-gradient(135deg,var(--primary),var(--ai),#b8a0f0); border-radius:16px 16px 0 0; display:flex; align-items:center; gap:10px; }
+.tut-bubble-icon { font-size:26px; line-height:1; }
+.tut-bubble-title { font-size:15px; font-weight:700; color:#fff; flex:1; }
+.tut-bubble-step { font-size:11px; color:rgba(255,255,255,0.75); background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:10px; white-space:nowrap; }
+.tut-bubble-body { padding:12px 18px 14px; font-size:13px; line-height:1.7; color:#4b5563; }
+.tut-bubble-body b { color:var(--primary); }
+.tut-bubble-footer { display:flex; align-items:center; justify-content:space-between; padding:10px 18px; border-top:1px solid #f3f4f6; }
+.tut-dots { display:flex; gap:5px; }
+.tut-dot { width:7px; height:7px; border-radius:50%; background:#e5e7eb; transition:0.3s; }
+.tut-dot.active { width:20px; border-radius:4px; background:var(--primary); }
+.tut-btn-next { background:var(--primary); color:#fff; border:none; border-radius:9px; padding:7px 18px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; transition:0.2s; }
+.tut-btn-next:hover { background:var(--primary-hover); transform:translateY(-1px); }
+.tut-btn-next.finish { background:linear-gradient(135deg,#10b981,#059669); }
+
+.tut-exit-btn { position:fixed; top:16px; left:16px; z-index:9999; background:rgba(255,255,255,0.92); border:1px solid rgba(0,0,0,0.1); color:var(--text-sub); font-size:12px; padding:6px 14px; border-radius:20px; cursor:pointer; display:none; align-items:center; gap:5px; box-shadow:0 2px 12px rgba(0,0,0,0.12); transition:0.2s; backdrop-filter:blur(8px); }
+.tut-exit-btn:hover { background:#fff; color:#374151; box-shadow:0 4px 16px rgba(0,0,0,0.16); }
+.tut-exit-btn.show { display:flex; }
+
+/* Update Notice */
+.update-notice { position:fixed; inset:0; z-index:9998; display:flex; align-items:center; justify-content:center; background:rgba(10,5,20,0.65); backdrop-filter:blur(10px); opacity:0; pointer-events:none; transition:opacity 0.4s ease; }
+.update-notice.active { opacity:1; pointer-events:auto; }
+
+/* Empty State */
+.empty-state { text-align:center; color:var(--text-sub); padding:50px 20px; font-size:14px; }
+
+/* Shop Category Filter */
+.shop-filter-btn { padding:8px 18px; border-radius:20px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:13px; transition:var(--transition); font-weight:500; }
+.shop-filter-btn.active { background:linear-gradient(135deg,var(--primary),var(--ai)); color:#fff; border-color:transparent; box-shadow:0 0 12px var(--primary-glow); }
+
+/* Register Button */
+.register-btn { background:var(--primary); color:#fff; border:none; padding:6px 14px; border-radius:20px; font-size:12px; cursor:pointer; transition:0.2s; margin-top:6px; }
+.register-btn:hover { background:var(--primary-hover); transform:translateY(-1px); }
+.register-btn.registered { background:var(--success); }
+
+/* Item Card (editor list) */
+.item-card { background:#fff; padding:16px; border-radius:16px; margin-bottom:12px; box-shadow:var(--shadow-sm); display:flex; justify-content:space-between; align-items:center; gap:12px; border:1px solid var(--border); }
+
+/* Action Bar */
+.action-bar { display:flex; justify-content:flex-end; gap:10px; padding:12px 32px; background:rgba(255,255,255,0.7); backdrop-filter:blur(16px); position:sticky; top:0; z-index:100; border-bottom:1px solid var(--border); }
+.btn-action { padding:10px 20px; font-size:13px; border-radius:9999px; font-weight:600; transition:var(--transition); box-shadow:var(--shadow-sm); cursor:pointer; }
+.btn-action:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
+.btn-export { background:linear-gradient(135deg,var(--primary),var(--ai)); color:#fff; box-shadow:0 4px 16px rgba(124,92,252,0.3); }
+.btn-export:hover { box-shadow:0 6px 24px rgba(124,92,252,0.4); }
+
+/* Inline Button */
+.inline-btn { background:#fff; border:1px solid var(--border); color:var(--text-main); padding:8px 18px; border-radius:9999px; font-size:12px; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; gap:4px; box-shadow:var(--shadow-sm); font-weight:600; }
+.inline-btn:hover { background:var(--primary-light); border-color:rgba(124,92,252,0.25); box-shadow:var(--shadow-md); transform:translateY(-1px); }
+
+/* Template Summary */
+.tmpl-summary { background:linear-gradient(135deg,rgba(124,92,252,0.06),rgba(155,126,222,0.04)); border-radius:16px; padding:16px; margin-top:14px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border); }
+
+/* Bill/Payment Modal Styles */
+.bill-header { padding:20px 24px 16px; text-align:center; background:linear-gradient(135deg,var(--primary),var(--ai),#b8a0f0); color:#fff; position:relative; }
+.bill-header h3 { margin:0 0 4px; font-size:18px; font-weight:800; }
+.bill-header p { margin:0; font-size:13px; opacity:0.88; }
+.bill-body { padding:18px 22px 10px; }
+.bill-row { display:flex; align-items:center; justify-content:space-between; padding:9px 12px; border-radius:10px; background:rgba(138,115,187,0.05); margin-bottom:6px; border:1px solid rgba(138,115,187,0.1); }
+.bill-row.paid { background:#f0fdf4; border-color:rgba(16,185,129,0.15); }
+.bill-total-row { display:flex; align-items:center; justify-content:space-between; padding:14px 0 8px; border-top:2px dashed rgba(138,115,187,0.2); margin-top:4px; }
+.bill-footer { padding:10px 22px 20px; display:flex; gap:10px; }
+.bill-cancel-btn { flex:1; padding:12px; border-radius:12px; background:#f3f4f6; color:var(--text-sub); border:none; cursor:pointer; font-size:14px; font-weight:600; transition:0.2s; }
+.bill-cancel-btn:hover { background:#e5e7eb; }
+.bill-go-btn { flex:2; padding:12px; border-radius:12px; background:linear-gradient(135deg,var(--primary),var(--ai)); color:#fff; border:none; cursor:pointer; font-size:14px; font-weight:700; transition:0.2s; box-shadow:0 4px 18px rgba(138,115,187,0.4); }
+.bill-go-btn:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(138,115,187,0.5); }
+.bill-easter-egg { height:16px; margin:2px 12px 0; position:relative; overflow:hidden; border-radius:4px; background:rgba(138,115,187,0.05); cursor:default; transition:height 0.4s ease; }
+.bill-easter-egg:hover { height:52px; }
+.bill-easter-text { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--primary); opacity:0; transition:opacity 0.4s ease 0.15s; padding:6px 10px; text-align:center; line-height:1.4; }
+.bill-easter-egg:hover .bill-easter-text { opacity:1; }
+
+/* Payment */
+.pay-header { padding:22px 24px 18px; text-align:center; background:linear-gradient(135deg,var(--primary),var(--ai),#b8a0f0,#e8eaf5); color:#fff; position:relative; }
+.pay-header h3 { margin:0 0 4px; font-size:20px; font-weight:800; }
+.pay-header p { margin:0; font-size:13px; opacity:0.88; }
+.pay-body { padding:18px 22px 0; }
+.pay-item { display:flex; align-items:center; justify-content:space-between; padding:9px 12px; border-radius:10px; background:rgba(138,115,187,0.05); margin-bottom:6px; border:1px solid rgba(138,115,187,0.1); }
+.pay-item-info { display:flex; align-items:center; gap:9px; font-size:13.5px; color:var(--text-main); }
+.pay-item-emoji { font-size:20px; }
+.pay-item-price { font-weight:700; color:var(--primary); font-size:14px; }
+.pay-total-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0 14px; border-top:2px dashed rgba(138,115,187,0.2); }
+.pay-method-tabs { display:flex; gap:8px; padding:0 22px 14px; }
+.pay-method-tab { flex:1; padding:10px 8px; border-radius:12px; border:2px solid #e5e7eb; background:#fafafa; cursor:pointer; text-align:center; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.pay-method-tab .pm-label { font-size:12px; font-weight:600; color:#6b7280; }
+.pay-method-tab.active.wechat { border-color:#07c160; background:#f0fff5; }
+.pay-method-tab.active.wechat .pm-label { color:#07c160; }
+.pay-method-tab.active.alipay { border-color:#1677ff; background:#f0f7ff; }
+.pay-method-tab.active.alipay .pm-label { color:#1677ff; }
+.pay-qr-section { padding:0 22px 18px; display:flex; flex-direction:column; align-items:center; gap:10px; }
+.pay-qr-wrap { width:170px; height:170px; border-radius:16px; display:flex; align-items:center; justify-content:center; background:#fff; border:2px solid #e5e7eb; box-shadow:0 4px 18px rgba(0,0,0,0.08); overflow:hidden; position:relative; transition:border-color 0.25s; }
+.pay-qr-wrap.wechat-qr { border-color:#07c160; box-shadow:0 4px 18px rgba(7,193,96,0.15); }
+.pay-qr-wrap.alipay-qr { border-color:#1677ff; box-shadow:0 4px 18px rgba(22,119,255,0.15); }
+.pay-qr-hint { font-size:12px; color:#9ca3af; text-align:center; line-height:1.6; }
+.pay-footer { padding:0 22px 22px; display:flex; gap:10px; }
+.pay-footer button { flex:1; padding:13px; border-radius:14px; font-size:14px; font-weight:700; cursor:pointer; border:none; transition:all 0.2s; }
+.pay-cancel-btn { background:#f3f4f6; color:#6b7280; flex:0.7; }
+.pay-cancel-btn:hover { background:#e5e7eb; }
+.pay-done-wx { background:linear-gradient(135deg,#07c160,#00a854); color:#fff; box-shadow:0 4px 16px rgba(7,193,96,0.35); }
+.pay-done-wx:hover { transform:translateY(-2px); box-shadow:0 6px 22px rgba(7,193,96,0.45); }
+.pay-done-ali { background:linear-gradient(135deg,#1677ff,#0958d9); color:#fff; box-shadow:0 4px 16px rgba(22,119,255,0.35); }
+.pay-done-ali:hover { transform:translateY(-2px); box-shadow:0 6px 22px rgba(22,119,255,0.45); }
+.pay-paid-tip { font-size:11px; color:#9ca3af; text-align:center; padding:0 22px 14px; line-height:1.5; }
+.pay-header-close { position:absolute; top:14px; right:16px; background:rgba(255,255,255,0.2); border:none; color:#fff; width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:0.2s; line-height:1; }
+.pay-header-close:hover { background:rgba(255,255,255,0.35); }
+
+/* Style Purchase Dialog */
+.style-purchase-overlay { position:fixed; inset:0; z-index:10000; background:rgba(10,5,20,0.72); backdrop-filter:blur(12px); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s ease; }
+.style-purchase-overlay.show { opacity:1; pointer-events:auto; }
+.style-purchase-dialog { background:#fff; border-radius:20px; padding:0; width:min(420px,92vw); overflow:hidden; box-shadow:0 30px 90px rgba(107,33,94,0.25); transform:translateY(24px) scale(0.94); transition:transform var(--spring); }
+.style-purchase-overlay.show .style-purchase-dialog { transform:translateY(0) scale(1); }
+.style-purchase-header { padding:24px 28px 18px; text-align:center; background:linear-gradient(135deg,var(--primary),var(--ai),#b8a0f0); color:#fff; }
+.style-purchase-header .sp-icon { font-size:40px; display:block; margin-bottom:8px; }
+.style-purchase-header h3 { margin:0 0 4px; font-size:18px; font-weight:800; }
+.style-purchase-body { padding:18px 24px 10px; font-size:14px; color:#4b5563; line-height:1.7; text-align:center; }
+.style-purchase-footer { padding:10px 24px 20px; display:flex; gap:10px; }
+.sp-btn-know { flex:1; padding:12px; border-radius:12px; background:#f3f4f6; color:var(--text-sub); border:none; cursor:pointer; font-size:14px; font-weight:600; transition:0.2s; }
+.sp-btn-know:hover { background:#e5e7eb; }
+.sp-btn-buy { flex:2; padding:12px; border-radius:12px; background:linear-gradient(135deg,var(--primary),var(--ai)); color:#fff; border:none; cursor:pointer; font-size:14px; font-weight:700; transition:0.2s; box-shadow:0 4px 18px rgba(138,115,187,0.4); }
+.sp-btn-buy:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(138,115,187,0.5); }
+
+/* Live FX Layer */
+.live-fx-layer { position:fixed; inset:0; z-index:998; pointer-events:none; overflow:hidden; }
+.live-fx-item { position:absolute; pointer-events:none; will-change:transform,opacity; }
+@keyframes lfxSnow { 0%{transform:translateY(-20px) rotate(0deg)} 100%{transform:translateY(105vh) rotate(360deg)} }
+@keyframes lfxSparkle { 0%{opacity:0;transform:scale(0.5) rotate(0deg)} 100%{opacity:1;transform:scale(1.2) rotate(180deg)} }
+@keyframes lfxBubble { 0%{transform:translateY(0) scale(1);opacity:0.8} 100%{transform:translateY(-110vh) scale(0.4);opacity:0} }
+@keyframes lfxHeart { 0%{transform:translateY(-20px) rotate(0deg) scale(1)} 50%{transform:translateY(50vh) rotate(15deg) scale(1.1)} 100%{transform:translateY(105vh) rotate(-15deg) scale(0.6)} }
+@keyframes lfxCherry { 0%{transform:translateY(-20px) translateX(0) rotate(0deg)} 25%{transform:translateY(25vh) translateX(30px) rotate(90deg)} 50%{transform:translateY(50vh) translateX(-20px) rotate(180deg)} 75%{transform:translateY(75vh) translateX(25px) rotate(270deg)} 100%{transform:translateY(105vh) translateX(0) rotate(360deg)} }
+@keyframes lfxMusic { 0%{transform:translateY(0) rotate(0deg);opacity:0} 10%{opacity:0.9} 90%{opacity:0.3} 100%{transform:translateY(-110vh) rotate(360deg);opacity:0} }
+
+/* Theme Deco Layer */
+.theme-deco-layer { position:fixed; inset:0; z-index:997; pointer-events:none; overflow:hidden; }
+.theme-deco-layer svg { position:absolute; }
+.theme-deco-float { position:absolute; pointer-events:none; opacity:0.12; }
+
+/* Update Card */
+.update-card { background:#fff; border-radius:22px; width:min(440px,90vw); overflow:hidden; box-shadow:0 30px 80px rgba(107,33,94,0.25); transform:translateY(30px) scale(0.95); transition:transform var(--spring); max-height:85vh; overflow-y:auto; }
+.update-notice.active .update-card { transform:translateY(0) scale(1); }
+.update-hero { padding:28px 28px 18px; text-align:center; background:linear-gradient(135deg,var(--primary),var(--ai),#b8a0f0,#e8eaf5); color:#fff; }
+.update-icon { font-size:48px; display:block; margin-bottom:8px; }
+.update-hero h2 { margin:0; font-size:20px; font-weight:800; color:#fff; }
+.update-hero p { margin:6px 0 0; font-size:13px; color:rgba(255,255,255,0.85); }
+.update-body { padding:18px 24px; }
+.update-item { display:flex; align-items:flex-start; gap:10px; padding:9px 0; font-size:13px; line-height:1.6; color:#4b5563; }
+.update-item span:first-child { font-size:18px; flex-shrink:0; }
+.update-footer { padding:12px 24px 18px; text-align:center; }
+.update-ok { background:var(--primary); color:#fff; border:none; border-radius:10px; padding:10px 40px; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s; }
+.update-ok:hover { background:var(--primary-hover); }
+
+/* Memoir Images Grid */
+.memoir-images { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; margin-bottom:16px; }
+.memoir-images img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:12px; cursor:pointer; transition:transform 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+.memoir-images img:hover { transform:scale(1.05); }
+.memoir-images img.cover-img { grid-column:span 2; grid-row:span 2; aspect-ratio:auto; }
+.memoir-content { font-size:15px; color:#374151; line-height:1.8; white-space:pre-wrap; }
+.memoir-close-btn { position:absolute; top:16px; right:16px; background:rgba(0,0,0,0.06); border:none; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:0.2s; color:#6b7280; z-index:1; }
+.memoir-close-btn:hover { background:rgba(0,0,0,0.12); color:#374151; }
+
+/* Site Hero Title */
+.site-hero-title { text-align:center; padding:28px 0 14px; font-size:clamp(26px,5vw,42px); font-weight:900; font-family:'Noto Sans SC','Inter',sans-serif; color:var(--text-main); letter-spacing:1px; line-height:1.2; }
+
+/* Guide Bar */
+.site-guide-bar { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:28px; padding:12px 0; }
+
+/* Responsive */
+@media(max-width:1024px){ .sidebar{display:none!important} .bottom-nav{display:flex!important} }
+@media(max-width:768px){ .preview-area{padding:16px} .news-grid{grid-template-columns:1fr} .gallery-grid{column-count:2} }
+@media(max-width:640px){ .right-panel{display:none!important} }
+@media(max-width:480px){ .memoir-images{grid-template-columns:1fr 1fr} .memoir-images img.cover-img{grid-column:span 2;grid-row:span 1} }
+@media(max-width:768px){ #bgImageLayer{background-image:url('背景图/ChatGPT Image 2026年5月28日 10_28_23.png')} }
+</style>
 </head>
-<body class="m-0 font-sans text-text-main leading-relaxed overflow-x-hidden min-h-screen">
+<body>
 
-<!-- 背景图层（保持 BackgroundFX 兼容） -->
-<div id="bgImageLayer" class="fixed inset-0 -z-30 bg-cover bg-center bg-no-repeat opacity-[0.35]" style="background-image:url('背景图/ChatGPT Image 2026年5月28日 10_30_57.png')"></div>
-<canvas id="bgCanvas" class="fixed inset-0 -z-20 pointer-events-none"></canvas>
+<!-- Background Layers (Outside React, managed by plain JS modules) -->
+<div id="bgImageLayer"></div>
+<canvas id="bgCanvas"></canvas>
+<div class="live-fx-layer" id="liveFxLayer"></div>
+<div class="theme-deco-layer" id="themeDecoLayer"></div>
 
-<!-- 教程界面（不在 React 内，由 Tutorial 纯 JS 模块管理） -->
-<div class="tut-welcome" id="tutWelcome">
-  <div class="tut-welcome-card">
-    <div class="tut-welcome-hero">
-      <div class="tut-welcome-icon">🎨</div>
-      <h2>欢迎使用 StarFan Studio</h2>
-      <p>爱豆回忆录生成器</p>
-    </div>
-    <div class="tut-welcome-body">
-      <p>想打造一个专属粉丝站？<br>只需 <b>3 分钟</b>，跟着指引一路点过去~</p>
-      <div class="tut-welcome-list">
-        <div class="tut-welcome-item"><span class="wi-icon">🌟</span><div class="wi-text"><b>偶像资料</b><span>头像、名字、简介</span></div></div>
-        <div class="tut-welcome-item"><span class="wi-icon">📖</span><div class="wi-text"><b>追忆时光</b><span>记录心动瞬间</span></div></div>
-        <div class="tut-welcome-item"><span class="wi-icon">🖼</span><div class="wi-text"><b>照片画廊</b><span>珍藏影像</span></div></div>
-        <div class="tut-welcome-item"><span class="wi-icon">💌</span><div class="wi-text"><b>粉丝心语</b><span>写下心里话</span></div></div>
-      </div>
-    </div>
-    <div class="tut-welcome-footer">
-      <button class="tut-btn-skip" onclick="Tutorial.close()">跳过教程</button>
-      <button class="tut-btn-next" onclick="Tutorial.next()"><span>开始引导</span><span style="font-size:14px;">→</span></button>
-    </div>
-  </div>
-</div>
+<!-- Tutorial Elements (Outside React, managed by Tutorial plain JS module) -->
+<div class="tut-welcome" id="tutWelcome"></div>
 <div class="tut-mask" id="tutMask">
   <div class="tut-mask-top" id="tutMaskTop"></div>
   <div class="tut-mask-bottom" id="tutMaskBottom"></div>
@@ -96,222 +607,1524 @@ tailwind.config = {
   <div class="tut-bubble-body" id="tutBubbleBody"></div>
   <div class="tut-bubble-footer">
     <div class="tut-dots" id="tutDots"></div>
-    <button class="tut-btn-next" id="tutBtnNext" onclick="Tutorial.next()"><span>下一步</span><span style="font-size:14px;">→</span></button>
+    <button class="tut-btn-next" id="tutBtnNext"><span>下一步</span><span style="font-size:14px;">→</span></button>
   </div>
 </div>
-<button class="tut-exit-btn" id="tutExitBtn" onclick="Tutorial.close()">✕ 跳出教程</button>
+<button class="tut-exit-btn" id="tutExitBtn">✕ 跳出教程</button>
 
-<!-- React 挂载点 — loading 内容会在 React 挂载后被替换 -->
-<div id="root">
-  <div id="root-loading" style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
-    <div style="text-align:center;">
-      <div style="font-size:40px;margin-bottom:16px;">🌟</div>
-      <p style="color:#6B7280;">StarFan Studio 加载中...</p>
-      <p id="root-error" style="color:#ef4444;font-size:12px;margin-top:8px;display:none;"></p>
-    </div>
-  </div>
-</div>
+<!-- Update Notice (Outside React, managed by UpdateNotifier plain JS module) -->
+<div class="update-notice" id="updateNotice"></div>
 
-<!-- 移动端汉堡菜单按钮 -->
-<button id="mobile-menu-btn" class="mobile-menu-btn" onclick="document.getElementById('app-sidebar').classList.toggle('mobile-open');document.getElementById('mobile-overlay').classList.toggle('show');" aria-label="菜单">
-  <span></span><span></span><span></span>
-</button>
-<div id="mobile-overlay" class="mobile-overlay" onclick="document.getElementById('app-sidebar').classList.remove('mobile-open');this.classList.remove('show');"></div>
+<!-- React Root -->
+<div id="root"></div>
 
-<!-- 兼容旧模块的隐藏容器 -->
-<div id="editorContent" style="display:none"></div>
-
-<!-- ═══════════ 支付弹窗 ═══════════ -->
-<div class="pay-overlay" id="payOverlay">
-  <div class="pay-dialog">
-    <div class="pay-dialog-inner">
-      <div class="pay-header-row">
-        <div class="pay-header-icon">💳</div>
-        <div class="pay-title">确认支付</div>
-      </div>
-      <div class="pay-item-list" id="payItemList"></div>
-      <div class="pay-total-line">应付：<b id="payTotalAmount">¥0</b></div>
-      <div class="pay-method-tabs">
-        <button class="pay-method-tab wechat active" id="payTabWechat" onclick="TemplateStore.switchPayMethod('wechat')">微信支付</button>
-        <button class="pay-method-tab alipay" id="payTabAlipay" onclick="TemplateStore.switchPayMethod('alipay')">支付宝</button>
-      </div>
-      <div class="pay-qr-wrap" id="payQrWrap">
-        <div class="pay-qr-placeholder" id="payQrPlaceholder">
-          <svg id="payQrSvg" viewBox="0 0 170 170"><rect width="170" height="170" rx="12" fill="#f0f0f0"/><circle cx="85" cy="85" r="35" fill="#ddd"/><text x="85" y="92" text-anchor="middle" fill="#fff" font-size="16">QR</text></svg>
-        </div>
-        <p class="pay-qr-tip" id="payQrTip"><span id="payQrIcon">📱</span> 请使用<span id="payQrLabel">微信</span>扫描二维码</p>
-      </div>
-      <div class="pay-qr-hint" id="payQrHint">
-        <div class="pay-qr-hint-title" id="payQrHintTitle"></div>
-      </div>
-      <button class="pay-done-wechat" id="payConfirmBtn" onclick="TemplateStore.confirmPay()">确认微信已付款</button>
-      <button class="pay-cancel-btn" onclick="TemplateStore.cancelPay()">取消</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════ 费用清单弹窗 ═══════════ -->
-<div class="bill-overlay" id="billOverlay">
-  <div class="bill-dialog">
-    <div class="bill-dialog-inner">
-      <div class="bill-header-row">
-        <div class="bill-header-icon">📋</div>
-        <div>
-          <div class="bill-title">费用明细</div>
-          <div class="bill-subtitle">导出前请确认以下费用</div>
-        </div>
-      </div>
-      <div class="bill-divider"></div>
-      <div class="bill-list" id="billBody"></div>
-    </div>
-    <div class="bill-footer">
-      <button class="bill-cancel-btn" onclick="TemplateStore.cancelBill()">取消</button>
-      <button class="bill-go-btn" id="billGoBtn" onclick="TemplateStore.goToPay()">去支付</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════ 数据层模块（保持不变） ═══════════ -->
+<!-- Plain JS Modules (Data Layer - Preserved) -->
 <script src="js/modules/00_site_manager.js"></script>
-<script src="js/modules/01_site_ui.js"></script>
 <script src="js/modules/02_update_notifier.js"></script>
-<!-- 站点初始化（替代原 init.js 的站点创建/迁移逻辑） -->
-<script>
-// ?reset=true → 清空当前站点数据
-if (location.search.includes('reset=true')) {
-  localStorage.removeItem(SiteManager.dataKey());
-  try { indexedDB.deleteDatabase(SiteManager.dbName()); } catch(e) {}
-  localStorage.removeItem(SiteManager.optsKey());
-  localStorage.removeItem(SiteManager.PREFIX + (SiteManager.getActive() || 'default') + '_tutorial_done');
-  localStorage.removeItem(SiteManager.PREFIX + (SiteManager.getActive() || 'default') + '_last_version');
-  console.log('🧹 当前站点数据已全部清零！');
-  history.replaceState(null, '', location.pathname);
-}
-// 自动创建默认站点
-window._isNewUser = false;
-if (SiteManager.getAll().length === 0) {
-  var _hasOldData = localStorage.getItem('starfan_data') || localStorage.getItem('starfan_tutorial_done');
-  SiteManager.create('我的第一个粉丝站');
-  if (_hasOldData) {
-    var _oldData = localStorage.getItem('starfan_data');
-    if (_oldData) { localStorage.setItem(SiteManager.dataKey(), _oldData); localStorage.removeItem('starfan_data'); }
-    var _oldOpts = localStorage.getItem('starfan_template_opts');
-    if (_oldOpts) { localStorage.setItem(SiteManager.optsKey(), _oldOpts); localStorage.removeItem('starfan_template_opts'); }
-    var _oldTut = localStorage.getItem('starfan_tutorial_done');
-    if (_oldTut) { localStorage.setItem(SiteManager.PREFIX + (SiteManager.getActive()||'default') + '_tutorial_done', _oldTut); localStorage.removeItem('starfan_tutorial_done'); }
-    _isNewUser = false;
-  } else {
-    _isNewUser = true;
-  }
-} else {
-  var _globalTut = localStorage.getItem('starfan_tutorial_done');
-  if (_globalTut) {
-    var _sites = SiteManager.getAll();
-    for (var _si = 0; _si < _sites.length; _si++) {
-      var _sk = SiteManager.PREFIX + _sites[_si].id + '_tutorial_done';
-      if (!localStorage.getItem(_sk)) localStorage.setItem(_sk, _globalTut);
-    }
-    localStorage.removeItem('starfan_tutorial_done');
-  }
-}
-// 页面关闭前自动保存
-window.addEventListener('beforeunload', function() {
-  if (window._reactState && typeof AppState !== 'undefined') {
-    AppState.data = window._reactState.data;
-    AppState.save();
-  }
-});
-</script>
 <script src="js/modules/03_asset_db.js"></script>
 <script src="js/modules/04_app_state.js"></script>
 <script src="js/modules/05_ai_service.js"></script>
-<script src="js/modules/08_calendar.js"></script>
-<script src="js/modules/09_shop.js"></script>
-<!-- Render / Events 兼容层：React 接管了 UI，但 TemplateStore/LivePreview/Exporter 仍需这些全局对象 -->
-<script>
-// Render 兼容层 — 提供 TemplateStore.previewStyle() 所需的接口
-window.Render = {
-  preview(tab) {
-    // React 管理所有渲染，这里只确保数据同步
-    if (window._reactDispatch) {
-      window._reactDispatch({ type: 'SET_TAB', tab: tab || (window._reactState?.activeTab || 'celebrity') });
-    }
-  },
-  editor(tab) { /* React 管理编辑器 */ },
-  renderTemplateEditor() { /* React 管理模板编辑 */ },
-  renderAIPanel() { /* React 管理 AI 面板 */ },
-  applyTheme(text) {
-    // 保留原版主题应用逻辑（通过 body background 显示 Canvas 背景特效）
-    const map = {"淡蓝":"#a8d8ff","天蓝":"#87ceeb","蓝":"#4a90e2","淡粉":"#ffd1dc","粉":"#ff9ecb","紫":"#b388ff","金":"#ffd700","黄":"#ffd700","红":"#ff4757","绿":"#2ed573","橙":"#ffa502","灰":"#a4b0be","白":"#ffffff","黑":"#222222"};
-    let c1="#a8d8ff", c2="#ffd700";
-    const toRgba = (hex, a) => { const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})`; };
-    if(text) {
-      var parts=text.split('+').map(function(s){return s.trim();});
-      // 按长度降序匹配，避免"淡蓝"被"蓝"误匹配
-      var sortedKeys = Object.keys(map).sort(function(a,b){return b.length - a.length;});
-      var m1 = parts[0] ? sortedKeys.find(function(k){return parts[0].includes(k);}) : null;
-      var m2 = parts[1] ? sortedKeys.find(function(k){return parts[1].includes(k);}) : null;
-      if(m1) c1=map[m1]; if(m2) c2=map[m2];
-    }
-    document.body.style.background=`linear-gradient(135deg, ${toRgba(c1,0.5)}, ${toRgba(c2,0.5)})`;
-    document.body.style.backgroundAttachment='fixed';
-  }
-};
-// Events 兼容层 — 提供追忆弹窗等功能
-window.Events = {
-  closeMemoir() {
-    document.getElementById('memoirOverlay')?.classList.add('hidden');
-  },
-  switchTab(tab) {
-    if (window._reactDispatch) window._reactDispatch({ type: 'SET_TAB', tab });
-  },
-  toggleEditor() { /* React 管理编辑面板 */ }
-};
-// 全局变量
-window.editingNewsId = null;
-</script>
 <script src="js/modules/10_template_store.js"></script>
-<script src="js/modules/11_live_preview.js"></script>
 <script src="js/modules/12_exporter.js"></script>
 <script src="js/modules/13_background_fx.js"></script>
 <script src="js/modules/15_tutorial.js"></script>
-<script src="js/modules/16_drag_button.js"></script>
 
-<!-- React CDN — 注意：GitHub Pages 部署时，crossorigin 必须设值或省略 -->
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<!-- React 18 UMD -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<!-- Babel Standalone -->
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-<!-- React 模块：纯 JS（无 JSX），不需要 Babel -->
-<script src="js/react/00_core.js"></script>
-<script src="js/react/01_components.js"></script>
-<script src="js/react/02_views.js"></script>
-<script src="js/react/03_main.js"></script>
+<!-- All React Components -->
+<script type="text/babel">
+const { useState, useEffect, useReducer, useCallback, useMemo, useRef, useContext, createContext, Fragment, memo } = React;
 
+/* ============================================================
+   SECTION 1: CONTEXTS & STATE MANAGEMENT
+   ============================================================ */
 
-<!-- ═══════════ 安全兜底：检测 React 是否成功挂载 ═══════════ -->
-<script>
-(function() {
-  var start = Date.now();
-  var check = setInterval(function() {
-    var root = document.getElementById('root');
-    var loading = document.getElementById('root-loading');
-    // 如果 root 被 React 接管，loading div 应该已被替换掉
-    if (root && !root.querySelector('#root-loading')) {
-      clearInterval(check); // React 正常挂载
-      return;
+// ---------- AppContext (UI State) ----------
+const AppContext = createContext(null);
+
+const appReducer = (state, action) => {
+  switch(action.type) {
+    case 'SET_TAB':         return { ...state, currentTab: action.tab, isEditorOpen: true };
+    case 'SET_TAB_PREVIEW': return { ...state, currentTab: action.tab };
+    case 'TOGGLE_EDITOR':   return { ...state, isEditorOpen: !state.isEditorOpen };
+    case 'OPEN_EDITOR':     return { ...state, isEditorOpen: true };
+    case 'CLOSE_EDITOR':    return { ...state, isEditorOpen: false };
+    case 'TOGGLE_PANEL':    return { ...state, isPanelOpen: !state.isPanelOpen };
+    case 'SET_EDIT_MODE':   return { ...state, editMode: action.value };
+    case 'SET_MODAL':       return { ...state, modal: { type: action.modalType, data: action.data || null } };
+    case 'CLOSE_MODAL':     return { ...state, modal: { type: null, data: null } };
+    case 'AI_START':        return { ...state, aiDraft: { text: '', loading: true, context: action.context, _targetGalleryId: action.targetId || null } };
+    case 'AI_CHUNK':        return { ...state, aiDraft: { ...state.aiDraft, text: state.aiDraft.text + action.text, loading: !action.done } };
+    case 'AI_DONE':         return { ...state, aiDraft: { ...state.aiDraft, loading: false } };
+    case 'AI_CLEAR':        return { ...state, aiDraft: { text: '', loading: false, context: null, _targetGalleryId: null } };
+    case 'FULLSCREEN_ON':   return { ...state, fullscreenMode: true };
+    case 'FULLSCREEN_OFF':  return { ...state, fullscreenMode: false };
+    default: return state;
+  }
+};
+
+const initialAppState = {
+  currentTab: 'celebrity',
+  editMode: false,
+  isEditorOpen: false,
+  isPanelOpen: false,
+  aiDraft: { text: '', loading: false, context: null, _targetGalleryId: null },
+  modal: { type: null, data: null },
+  tutorial: { active: false, currentStep: 0 },
+  fullscreenMode: false
+};
+
+const AppProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(appReducer, initialAppState);
+  return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>;
+};
+
+// ---------- DataContext (Bridge to Plain JS modules) ----------
+const DataContext = createContext(null);
+
+const DataProvider = ({ children }) => {
+  const [version, setVersion] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+  const forceUpdate = useCallback(() => setVersion(v => v + 1), []);
+
+  // Data accessors
+  const celebrity = useMemo(() => (window.AppState && window.AppState.data ? window.AppState.data.celebrity : {}), [version, loaded]);
+  const news = useMemo(() => (window.AppState && window.AppState.data ? window.AppState.data.news : []), [version, loaded]);
+  const gallery = useMemo(() => (window.AppState && window.AppState.data ? window.AppState.data.gallery : []), [version, loaded]);
+  const community = useMemo(() => (window.AppState && window.AppState.data ? window.AppState.data.community : []), [version, loaded]);
+  const calendar = useMemo(() => (window.AppState && window.AppState.data ? window.AppState.data.calendar : []), [version, loaded]);
+  const shop = useMemo(() => (window.AppState && window.AppState.data ? window.AppState.data.shop : []), [version, loaded]);
+
+  // Site Manager
+  const sites = useMemo(() => (window.SiteManager ? window.SiteManager.getAll() : []), [version, loaded]);
+  const activeSite = useMemo(() => (window.SiteManager ? window.SiteManager.getActive() : null), [version, loaded]);
+
+  // Template
+  const selectedTemplate = useMemo(() => (window.TemplateStore ? window.TemplateStore.selectedTemplate : 'default'), [version, loaded]);
+  const selectedEffects = useMemo(() => (window.TemplateStore ? window.TemplateStore.selectedEffects : []), [version, loaded]);
+  const paidItems = useMemo(() => (window.TemplateStore ? window.TemplateStore.paidItems : []), [version, loaded]);
+  const templates = useMemo(() => (window.TemplateStore ? window.TemplateStore.templates : []), [version, loaded]);
+  const effects = useMemo(() => (window.TemplateStore ? window.TemplateStore.effects : []), [version, loaded]);
+
+  // CRUD: Celebrity
+  const updateCelebrity = useCallback((path, value) => {
+    window.AppState.update('celebrity', path, value);
+    if (path === 'bgType' && window.BackgroundFX) window.BackgroundFX.setType(value);
+    forceUpdate();
+  }, [forceUpdate]);
+
+  const uploadAvatar = useCallback(async (file) => {
+    if (!file) return;
+    if (file.size > 50*1024*1024) { alert('图片请≤50MB'); return; }
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      window.AppState.update('celebrity', 'avatar', e.target.result);
+      await window.AssetDB.save('avatar', e.target.result);
+      forceUpdate();
+    };
+    reader.readAsDataURL(file);
+  }, [forceUpdate]);
+
+  // CRUD: News
+  const addNews = useCallback(async (item) => {
+    const id = 'n' + Date.now().toString(36);
+    const newItem = { id, ...item, images: item.images || [] };
+    window.AppState.data.news.unshift(newItem);
+    if (item.cover) await window.AssetDB.save('news_' + id, item.cover);
+    window.AppState.save();
+    forceUpdate();
+  }, [forceUpdate]);
+
+  const deleteNews = useCallback(async (id) => {
+    if (!confirm('确定删除此追忆？')) return;
+    window.AppState.data.news = window.AppState.data.news.filter(n => n.id !== id);
+    window.AppState.save();
+    await window.AssetDB.delete('news_' + id);
+    forceUpdate();
+  }, [forceUpdate]);
+
+  // CRUD: Gallery
+  const addGallery = useCallback(async (files) => {
+    if (!files || !files.length) return;
+    for (let f of files) {
+      if (f.size > 50*1024*1024) { alert(f.name + ' 超过50MB，已跳过'); continue; }
+      const id = 'g' + Date.now().toString(36) + Math.random().toString(36).substr(2,4);
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const url = e.target.result;
+        window.AppState.data.gallery.push({ id, caption: '', url });
+        window.AppState.save();
+        await window.AssetDB.save('gallery_' + id, url);
+        forceUpdate();
+      };
+      reader.readAsDataURL(f);
     }
-    // 10 秒超时
-    if (Date.now() - start > 10000) {
-      clearInterval(check);
-      var err = document.getElementById('root-error');
-      if (err) {
-        err.style.display = 'block';
-        err.innerHTML = '页面加载超时。可能原因：<br>① CDN 资源被拦截，请检查网络<br>② 浏览器控制台 (F12 → Console) 查看详细报错<br>③ 尝试刷新或清除缓存后重试';
+  }, [forceUpdate]);
+
+  const deleteGallery = useCallback(async (id) => {
+    if (!confirm('确定删除此照片？')) return;
+    window.AppState.data.gallery = window.AppState.data.gallery.filter(g => g.id !== id);
+    window.AppState.save();
+    await window.AssetDB.delete('gallery_' + id);
+    forceUpdate();
+  }, [forceUpdate]);
+
+  const updateGalleryCaption = useCallback((id, val) => {
+    const item = window.AppState.data.gallery.find(g => g.id === id);
+    if (item) { item.caption = val; window.AppState.save(); forceUpdate(); }
+  }, [forceUpdate]);
+
+  // CRUD: Community
+  const addCommunity = useCallback((text) => {
+    const now = new Date();
+    const timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    window.AppState.data.community.push({ text, time: timeStr });
+    window.AppState.save();
+    forceUpdate();
+  }, [forceUpdate]);
+
+  const deleteCommunity = useCallback((idx) => {
+    window.AppState.data.community.splice(idx, 1);
+    window.AppState.save();
+    forceUpdate();
+  }, [forceUpdate]);
+
+  // CRUD: Calendar
+  const addCalendarEvent = useCallback((ev) => {
+    const id = 'ev' + Date.now().toString(36);
+    window.AppState.data.calendar.push({ id, ...ev, registered: false });
+    window.AppState.save();
+    forceUpdate();
+  }, [forceUpdate]);
+
+  const deleteCalendarEvent = useCallback((id) => {
+    if (!confirm('确定删除此活动？')) return;
+    window.AppState.data.calendar = window.AppState.data.calendar.filter(ev => ev.id !== id);
+    window.AppState.save();
+    forceUpdate();
+  }, [forceUpdate]);
+
+  const toggleEventRegister = useCallback((id) => {
+    const ev = window.AppState.data.calendar.find(e => e.id === id);
+    if (!ev) return;
+    ev.registered = !ev.registered;
+    window.AppState.save();
+    forceUpdate();
+  }, [forceUpdate]);
+
+  // CRUD: Shop
+  const addShopItem = useCallback(async (item, imageFile) => {
+    const id = 'sp' + Date.now().toString(36);
+    const newItem = { id, ...item };
+    if (imageFile) {
+      if (imageFile.size > 50*1024*1024) { alert('图片请≤50MB'); return; }
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        newItem.image = e.target.result;
+        window.AppState.data.shop.push(newItem);
+        window.AppState.save();
+        forceUpdate();
+      };
+      reader.readAsDataURL(imageFile);
+    } else {
+      window.AppState.data.shop.push(newItem);
+      window.AppState.save();
+      forceUpdate();
+    }
+  }, [forceUpdate]);
+
+  const deleteShopItem = useCallback(async (id) => {
+    if (!confirm('确定删除此收藏？')) return;
+    await window.AssetDB.delete('shop_' + id);
+    window.AppState.data.shop = window.AppState.data.shop.filter(s => s.id !== id);
+    window.AppState.save();
+    forceUpdate();
+  }, [forceUpdate]);
+
+  // Site Manager
+  const switchSite = useCallback((id) => {
+    window.AppState.save();
+    window._isSwitching = true;
+    window.SiteManager.setActive(id);
+    location.reload();
+  }, []);
+
+  const createSite = useCallback((name) => {
+    if (!name || !name.trim()) return;
+    window.AppState.save();
+    window._isSwitching = true;
+    window.SiteManager.create(name.trim());
+    location.reload();
+  }, []);
+
+  const deleteSite = useCallback((id) => {
+    const list = window.SiteManager.getAll();
+    const site = list.find(s => s.id === id);
+    const label = site ? site.name : '这个粉丝站';
+    if (!confirm('确定删除"' + label + '"？所有数据将无法恢复！')) return;
+    if (window.SiteManager.getActive() === id) window.AppState.save();
+    window._isSwitching = true;
+    window.SiteManager.remove(id);
+    location.reload();
+  }, []);
+
+  // AIService
+  const aiGenerate = useCallback(async (type, params, dispatch) => {
+    const draft = window.AppState.aiDraft;
+    if (draft.loading) return;
+    let prompt = '';
+    let context = '';
+    if (type === 'bio') {
+      const name = params.name || window.AppState.data.celebrity.name;
+      if (!name) { alert('请先输入偶像名字'); return; }
+      prompt = window.AIService.prompts.bio(name);
+      context = '生成个人简介';
+    } else if (type === 'news') {
+      if (!params.title) { alert('请先输入追忆标题'); return; }
+      prompt = window.AIService.prompts.news(params.title, params.date || '今日');
+      context = '生成追忆正文';
+    } else if (type === 'gallery') {
+      const count = window.AppState.data.gallery.length;
+      if (!count) { alert('请先上传照片'); return; }
+      prompt = window.AIService.prompts.gallery(count);
+      context = '生成画廊图注';
+    } else if (type === 'caption') {
+      prompt = '请为一张偶像活动照片生成一句简短唯美的图注，8-12字，风格应援/纪实，只输出一句话，不要编号和解释。';
+      context = 'AI 生成图注中...';
+    }
+    dispatch({ type: 'AI_START', context, targetId: params.targetId || null });
+    await window.AIService.generate(prompt, (chunk, isDone) => {
+      dispatch({ type: 'AI_CHUNK', text: chunk, done: isDone });
+    });
+    dispatch({ type: 'AI_DONE' });
+  }, []);
+
+  // Template
+  const selectTemplate = useCallback((id) => {
+    window.TemplateStore.toggleTemplate(id);
+    forceUpdate();
+  }, [forceUpdate]);
+
+  const toggleEffect = useCallback((id) => {
+    window.TemplateStore.toggleEffect(id);
+    forceUpdate();
+  }, [forceUpdate]);
+
+  const getTemplateTotal = useCallback(() => {
+    return window.TemplateStore ? window.TemplateStore.getTotal() : 0;
+  }, []);
+
+  // Export
+  const exportReadOnly = useCallback(async () => {
+    const btn = document.querySelector('.btn-export');
+    const ori = btn ? btn.innerText : '导出展示版';
+    if (btn) { btn.innerText = '打包中...'; btn.disabled = true; }
+    try {
+      await window.TemplateStore.checkBeforeExport('readonly');
+    } catch(e) {
+      alert('导出失败：' + e.message);
+    }
+    setTimeout(() => { if (btn) { btn.innerText = ori; btn.disabled = false; } }, 2500);
+  }, []);
+
+  const previewStyle = useCallback(() => {
+    if (window.TemplateStore) window.TemplateStore.previewStyle();
+  }, []);
+
+  // Init
+  const loadData = useCallback(async () => {
+    // First-time site creation + old data migration (from init.js)
+    if (window.SiteManager.getAll().length === 0) {
+      const hasOldData = localStorage.getItem('starfan_data') || localStorage.getItem('starfan_tutorial_done');
+      window.SiteManager.create('我的第一个粉丝站');
+      if (hasOldData) {
+        const oldData = localStorage.getItem('starfan_data');
+        if (oldData) {
+          localStorage.setItem(window.SiteManager.dataKey(), oldData);
+          localStorage.removeItem('starfan_data');
+        }
+        const oldOpts = localStorage.getItem('starfan_template_opts');
+        if (oldOpts) {
+          localStorage.setItem(window.SiteManager.optsKey(), oldOpts);
+          localStorage.removeItem('starfan_template_opts');
+        }
+        const oldTut = localStorage.getItem('starfan_tutorial_done');
+        if (oldTut) {
+          localStorage.setItem(window.SiteManager.PREFIX + (window.SiteManager.getActive() || 'default') + '_tutorial_done', oldTut);
+          localStorage.removeItem('starfan_tutorial_done');
+        }
+        window._isNewUser = false;
+      } else {
+        window._isNewUser = true;
+      }
+    } else {
+      const globalTut = localStorage.getItem('starfan_tutorial_done');
+      if (globalTut) {
+        const sites = window.SiteManager.getAll();
+        sites.forEach(s => {
+          const sk = window.SiteManager.PREFIX + s.id + '_tutorial_done';
+          if (!localStorage.getItem(sk)) localStorage.setItem(sk, globalTut);
+        });
+        localStorage.removeItem('starfan_tutorial_done');
       }
     }
-  }, 500);
-})();
-</script>
-</body>
-</html>
+    await window.AppState.init();
+    window.TemplateStore.init();
+    setLoaded(true);
+    forceUpdate();
+  }, [forceUpdate]);
+
+  // DataContext value
+  const value = useMemo(() => ({
+    celebrity, news, gallery, community, calendar, shop,
+    sites, activeSite,
+    selectedTemplate, selectedEffects, paidItems, templates, effects,
+    updateCelebrity, uploadAvatar,
+    addNews, deleteNews,
+    addGallery, deleteGallery, updateGalleryCaption,
+    addCommunity, deleteCommunity,
+    addCalendarEvent, deleteCalendarEvent, toggleEventRegister,
+    addShopItem, deleteShopItem,
+    switchSite, createSite, deleteSite,
+    aiGenerate,
+    selectTemplate, toggleEffect, getTemplateTotal,
+    exportReadOnly, previewStyle,
+    loadData, loaded, forceUpdate
+  }), [
+    celebrity, news, gallery, community, calendar, shop,
+    sites, activeSite,
+    selectedTemplate, selectedEffects, paidItems, templates, effects,
+    version, loaded
+  ]);
+
+  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
+};
+
+/* ============================================================
+   SECTION 2: CUSTOM HOOKS
+   ============================================================ */
+
+// useDrag - for FAB button
+const useDrag = (initialPos = { left: 28, top: typeof window !== 'undefined' ? window.innerHeight - 88 : 600 }, posKey) => {
+  const [position, setPosition] = useState(() => {
+    if (posKey) {
+      try {
+        const saved = JSON.parse(localStorage.getItem(posKey));
+        if (saved) return saved;
+      } catch(e) {}
+    }
+    return initialPos;
+  });
+  const [dragging, setDragging] = useState(false);
+  const startPos = useRef({ x: 0, y: 0, left: 0, top: 0 });
+  const moved = useRef(false);
+
+  const onDown = useCallback((cx, cy) => {
+    setDragging(true);
+    moved.current = false;
+    startPos.current = { x: cx, y: cy, left: position.left, top: position.top };
+  }, [position]);
+
+  const onMove = useCallback((cx, cy) => {
+    if (!dragging) return;
+    const dx = cx - startPos.current.x;
+    const dy = cy - startPos.current.y;
+    if (!moved.current && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) moved.current = true;
+    if (moved.current) {
+      setPosition({ left: startPos.current.left + dx, top: startPos.current.top + dy });
+    }
+  }, [dragging]);
+
+  const onUp = useCallback(() => {
+    if (!dragging) return;
+    setDragging(false);
+    if (moved.current) {
+      const size = 60;
+      const maxX = window.innerWidth - size;
+      const maxY = window.innerHeight - size;
+      const left = Math.max(0, Math.min(position.left, maxX));
+      const top = Math.max(0, Math.min(position.top, maxY));
+      setPosition({ left, top });
+      if (posKey) localStorage.setItem(posKey, JSON.stringify({ left, top }));
+    }
+    return moved.current;
+  }, [dragging, position, posKey]);
+
+  return { position, dragging, moved, onDown, onMove, onUp };
+};
+
+/* ============================================================
+   SECTION 3: SHARED / BASE COMPONENTS
+   ============================================================ */
+
+// Card
+const Card = ({ children, className, onClick, style }) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div className={"card-container relative " + (className || '')} onClick={onClick} style={style}
+      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+      {typeof children === 'function' ? children(hovered) : children}
+    </div>
+  );
+};
+
+// HoverOverlay
+const HoverOverlay = ({ children }) => (
+  <div className="hover-overlay">{children}</div>
+);
+
+// ActionGroup
+const ActionGroup = ({ actions }) => (
+  <div className="flex gap-3">
+    {actions.map((act, i) => (
+      <button key={i} className="p-2 rounded-full bg-white/90 hover:bg-white text-text text-xs font-semibold shadow-md transition-all hover:scale-110"
+        onClick={(e) => { e.stopPropagation(); act.onClick(); }}
+        title={act.label || ''}>
+        {act.icon}
+      </button>
+    ))}
+  </div>
+);
+
+// EmptyState
+const EmptyState = ({ type, description, ctaText, onCta }) => (
+  <div className="card-container text-center py-16">
+    <div className="text-5xl mb-4 opacity-30">
+      {type === 'celebrity' ? '🌟' : type === 'news' ? '📖' : type === 'gallery' ? '🖼' : type === 'community' ? '💌' : type === 'calendar' ? '📅' : '💝'}
+    </div>
+    <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center text-4xl opacity-20">
+      📦
+    </div>
+    <p className="text-secondary text-sm mb-6">{description}</p>
+    {ctaText && onCta && (
+      <button className="px-6 py-2 bg-primary text-white rounded-full font-medium transition-all hover:bg-primary-hover hover:-translate-y-0.5 shadow-primary"
+        onClick={onCta}>{ctaText}</button>
+    )}
+  </div>
+);
+
+// SectionHeader
+const SectionHeader = ({ title, onAdd, addLabel, children }) => (
+  <div className="flex justify-between items-center mb-6">
+    <h2 className="text-[22px] font-extrabold text-text tracking-[-0.3px] m-0">{title}</h2>
+    <div className="flex gap-2">
+      {children}
+      {onAdd && <button className="inline-btn" onClick={onAdd}>{addLabel || '添加'}</button>}
+    </div>
+  </div>
+);
+
+// Modal (generic)
+const Modal = ({ show, onClose, children, className }) => {
+  if (!show) return null;
+  return (
+    <div className={"modal-overlay " + (show ? 'show' : '')} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className={"modal-box " + (className || '')}>{children}</div>
+    </div>
+  );
+};
+
+// FormGroup
+const FormGroup = ({ label, children }) => (
+  <div className="mb-4">
+    {label && <label className="block text-xs font-semibold mb-1.5 text-[#2D3436]">{label}</label>}
+    {children}
+  </div>
+);
+
+// EditorItemList
+const EditorItemList = ({ items, renderItem, emptyText }) => (
+  <div className="mt-4 border-t pt-3 max-h-[240px] overflow-y-auto" style={{borderColor:'var(--border)'}}>
+    {!items || !items.length ? <div className="text-center text-secondary text-xs py-3">{emptyText || '暂无数据'}</div> :
+      items.map(renderItem)}
+  </div>
+);
+
+// GuideItem
+const GuideItem = ({ icon, title, subtitle, onClick }) => (
+  <div className="guide-item" onClick={onClick}>
+    <span className="text-xl">{icon}</span>
+    <div className="flex flex-col leading-[1.3]">
+      <b className="text-[13px] font-semibold text-text">{title}</b>
+      <small className="text-[11px] text-secondary">{subtitle}</small>
+    </div>
+  </div>
+);
+
+/* ============================================================
+   SECTION 4: LAYOUT COMPONENTS
+   ============================================================ */
+
+// TopActionBar
+const TopActionBar = () => {
+  const { state, dispatch } = useContext(AppContext);
+  const data = useContext(DataContext);
+  const [showSites, setShowSites] = useState(false);
+
+  return (
+    <div className="action-bar" id="mainActionBar">
+      <button className="btn-action bg-white border text-text" style={{borderColor:'var(--border)'}}
+        onClick={() => setShowSites(!showSites)}>
+        🔄 切换粉丝站
+      </button>
+      {showSites && (
+        <div className={"site-panel-drop " + (showSites ? 'open' : '')}>
+          <div className="py-3.5 px-4.5 font-bold text-[15px] text-text border-b" style={{borderColor:'#f3f4f6'}}>我的粉丝站</div>
+          <div className="max-h-[40vh] overflow-y-auto">
+            {data.sites.length === 0 ? (
+              <div className="py-6 px-4.5 text-center text-secondary text-[13px]">还没有粉丝站，快创建一个吧~</div>
+            ) : data.sites.map(s => (
+              <div key={s.id} className={"flex items-center justify-between py-3 px-4.5 border-b " + (s.id === data.activeSite ? 'bg-primary-light' : '')} style={{borderColor:'#f9fafb'}}>
+                <div className="flex flex-col gap-1 min-w-0 flex-1">
+                  <span className="text-sm font-semibold text-text overflow-hidden text-ellipsis whitespace-nowrap">{s.name}</span>
+                  {s.id === data.activeSite && <span className="text-[11px] text-primary bg-primary-light py-0.5 px-2 rounded-lg w-fit">当前所在</span>}
+                </div>
+                <div className="flex gap-1.5 flex-shrink-0">
+                  {s.id !== data.activeSite && <button className="text-xs bg-primary text-white border-none rounded-lg py-1.5 px-3 cursor-pointer" onClick={() => data.switchSite(s.id)}>进入</button>}
+                  <button className="text-xs bg-red-100 text-red-600 border-none rounded-lg py-1.5 px-3 cursor-pointer" onClick={() => data.deleteSite(s.id)}>删除</button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button className="block w-full py-3.5 border-none bg-gray-50 text-primary text-sm font-semibold cursor-pointer"
+            onClick={() => { const name = prompt('为新的粉丝站起个名字：'); if (name && name.trim()) data.createSite(name); }}>
+            + 创建新的粉丝站
+          </button>
+        </div>
+      )}
+      <button className="btn-action btn-export" onClick={data.exportReadOnly}>📦 导出展示版</button>
+      <button className="btn-action bg-white border text-text" style={{borderColor:'var(--border)'}} onClick={data.previewStyle}>👁 预览外观</button>
+    </div>
+  );
+};
+
+// Sidebar
+const Sidebar = () => {
+  const { state, dispatch } = useContext(AppContext);
+  const data = useContext(DataContext);
+  const navItems = [
+    { icon: '🌟', label: '偶像资料', tab: 'celebrity' },
+    { icon: '📖', label: '追忆时光', tab: 'news' },
+    { icon: '🖼', label: '照片画廊', tab: 'gallery' },
+    { icon: '💌', label: '粉丝心语', tab: 'community' },
+    { icon: '📅', label: '活动日历', tab: 'calendar' },
+    { icon: '💝', label: '周边收藏', tab: 'shop' }
+  ];
+
+  return (
+    <div className="sidebar w-[220px] min-h-full bg-white/80 backdrop-blur-sm border-r flex flex-col flex-shrink-0" style={{borderColor:'var(--border)'}}>
+      <div className="p-6 text-center border-b" style={{borderColor:'var(--border)'}}>
+        <div className="text-3xl mb-2">⭐</div>
+        <div className="text-sm font-extrabold text-text">{data.celebrity?.siteName || 'StarFan Studio'}</div>
+        <div className="text-[11px] text-secondary mt-1">爱豆回忆录</div>
+      </div>
+      <nav className="flex-1 p-3">
+        {navItems.map(item => (
+          <div key={item.tab}
+            className={"flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all mb-1 " +
+              (state.currentTab === item.tab ? 'bg-primary text-white shadow-[0_0_14px_var(--primary-glow)]' : 'hover:bg-primary-light text-secondary')}
+            onClick={() => { dispatch({ type: 'SET_TAB', tab: item.tab }); }}>
+            <span className="text-lg">{item.icon}</span>
+            <span className="text-sm font-semibold">{item.label}</span>
+          </div>
+        ))}
+      </nav>
+      <div className="p-4 text-center text-[11px] text-secondary border-t" style={{borderColor:'var(--border)'}}>
+        用 StarFan Studio 记录<br/>偶像的每一个精彩瞬间
+      </div>
+    </div>
+  );
+};
+
+// MainLayout
+const MainLayout = ({ children }) => {
+  const { state } = useContext(AppContext);
+  return (
+    <div className="flex min-h-[calc(100vh-80px)] w-full">
+      <Sidebar />
+      <div className="flex-1 overflow-y-auto p-8 preview-area">
+        {children}
+      </div>
+      {state.isPanelOpen && (
+        <div className="right-panel w-[280px] bg-white/80 backdrop-blur-sm border-l p-6 flex-shrink-0" style={{borderColor:'var(--border)'}}>
+          <QuickStats />
+          <RecentActivity />
+          <AIAssistant />
+        </div>
+      )}
+    </div>
+  );
+};
+
+// QuickStats
+const QuickStats = () => {
+  const data = useContext(DataContext);
+  return (
+    <div className="mb-6">
+      <h4 className="text-sm font-bold text-text mb-3">📊 站点统计</h4>
+      <div className="grid grid-cols-2 gap-2">
+        {[
+          { label: '追忆', count: data.news.length, color: '#7C5CFC' },
+          { label: '照片', count: data.gallery.length, color: '#9B7EDE' },
+          { label: '心语', count: data.community.length, color: '#f59e0b' },
+          { label: '活动', count: data.calendar.length, color: '#10b981' },
+          { label: '收藏', count: data.shop.length, color: '#ef4444' }
+        ].map(s => (
+          <div key={s.label} className="card-container !p-3 text-center" style={{borderLeft:`3px solid ${s.color}`}}>
+            <div className="text-lg font-extrabold" style={{color:s.color}}>{s.count}</div>
+            <div className="text-[11px] text-secondary">{s.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// RecentActivity
+const RecentActivity = () => {
+  const data = useContext(DataContext);
+  const activities = useMemo(() => {
+    const acts = [];
+    if (data.news.length) acts.push({ icon: '📖', text: '最近追忆：' + data.news[0].title?.substring(0, 15), time: data.news[0].date });
+    if (data.community.length) {
+      const last = data.community[data.community.length - 1];
+      const txt = typeof last === 'object' ? last.text : last;
+      acts.push({ icon: '💌', text: '最近心语：' + String(txt).substring(0, 15), time: typeof last === 'object' ? last.time : '' });
+    }
+    return acts.slice(0, 5);
+  }, [data.news, data.community]);
+  return (
+    <div className="mb-6">
+      <h4 className="text-sm font-bold text-text mb-3">🕐 最近动态</h4>
+      {activities.length === 0 ? (
+        <div className="text-center text-secondary text-xs py-4">暂无动态，开始创作吧</div>
+      ) : activities.map((act, i) => (
+        <div key={i} className="flex items-center gap-2 py-2 border-b text-xs" style={{borderColor:'var(--border)'}}>
+          <span>{act.icon}</span>
+          <span className="flex-1 text-text">{act.text}</span>
+          <span className="text-secondary flex-shrink-0">{act.time}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// AIAssistant
+const AIAssistant = () => {
+  const { state } = useContext(AppContext);
+  return (
+    <div>
+      <h4 className="text-sm font-bold text-text mb-3">🤖 AI 助手</h4>
+      {state.aiDraft.loading ? (
+        <div className="card-container !p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 rounded-full bg-ai animate-pulse"></div>
+            <span className="text-xs text-ai font-semibold">AI 生成中...</span>
+          </div>
+          <div className="text-xs text-secondary">正在为你生成精彩内容 ✨</div>
+        </div>
+      ) : (
+        <div className="card-container !p-4 text-center">
+          <div className="text-2xl mb-2 opacity-40">🤖</div>
+          <p className="text-xs text-secondary">在编辑面板中点击<br/>AI 按钮即可生成</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// EditorPanel
+const EditorPanel = () => {
+  const { state, dispatch } = useContext(AppContext);
+  const tabs = [
+    { key: 'celebrity', label: '资料' },
+    { key: 'news', label: '追忆' },
+    { key: 'gallery', label: '画廊' },
+    { key: 'community', label: '心语' },
+    { key: 'calendar', label: '日历' },
+    { key: 'shop', label: '收藏' },
+    { key: 'template', label: '外观' }
+  ];
+
+  const renderEditor = () => {
+    switch(state.currentTab) {
+      case 'celebrity': return <CelebrityEditor />;
+      case 'news': return <NewsEditor />;
+      case 'gallery': return <GalleryEditor />;
+      case 'community': return <CommunityEditor />;
+      case 'calendar': return <CalendarEditor />;
+      case 'shop': return <ShopEditor />;
+      case 'template': return <TemplateEditor />;
+      default: return <div className="text-secondary text-sm">请选择编辑标签</div>;
+    }
+  };
+
+  return (
+    <>
+      <div className={"editor-overlay " + (state.isEditorOpen ? 'show' : '')}
+        onClick={() => dispatch({ type: 'CLOSE_EDITOR' })}></div>
+      <div className={"editor-panel " + (state.isEditorOpen ? 'open' : '')}>
+        <h3 className="text-lg font-extrabold text-text mt-0 mb-4">编辑控制台</h3>
+        <div className="editor-tabs">
+          {tabs.map(t => (
+            <button key={t.key}
+              className={"editor-tab " + (state.currentTab === t.key ? 'active' : '')}
+              onClick={() => dispatch({ type: 'SET_TAB', tab: t.key })}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex-1 overflow-y-auto" id="editorContent">
+          {renderEditor()}
+          <AIPanel />
+        </div>
+      </div>
+    </>
+  );
+};
+
+// AIPanel (inside editor)
+const AIPanel = () => {
+  const { state, dispatch } = useContext(AppContext);
+  const data = useContext(DataContext);
+  const draft = state.aiDraft;
+
+  if (!draft.loading && !draft.text) return null;
+
+  const handleAccept = () => {
+    const tab = state.currentTab;
+    if (tab === 'celebrity') {
+      data.updateCelebrity('bio', draft.text);
+    } else if (tab === 'news') {
+      const el = document.getElementById('news_content');
+      if (el) el.value = draft.text;
+    } else if (tab === 'gallery') {
+      if (draft._targetGalleryId) {
+        const g = window.AppState.data.gallery.find(g => g.id === draft._targetGalleryId);
+        if (g) { g.caption = draft.text.trim(); window.AppState.save(); data.forceUpdate(); }
+      } else {
+        const lines = draft.text.split('\n').filter(l => l.trim());
+        window.AppState.data.gallery.forEach((g, i) => { if (lines[i]) g.caption = lines[i].trim(); });
+        window.AppState.save(); data.forceUpdate();
+      }
+    }
+    dispatch({ type: 'AI_CLEAR' });
+  };
+
+  return (
+    <div className="ai-panel mt-4">
+      <div className="flex justify-between items-center mb-3">
+        <b className="text-[13px] text-ai">AI 生成中...</b>
+        <span className="text-xs text-secondary">{draft.context || ''}</span>
+      </div>
+      <div className={"content " + (draft.loading ? 'typing-cursor' : '')}>
+        {draft.text || '正在思考...'}
+      </div>
+      {!draft.loading && (
+        <div className="flex gap-3 mt-3">
+          <button className="btn-primary flex-1 m-0 text-xs !p-2" onClick={handleAccept}>采用内容</button>
+          <button className="btn-ai flex-1 m-0 text-xs !p-2" onClick={() => data.aiGenerate(draft.context?.includes('简介') ? 'bio' : draft.context?.includes('追忆') ? 'news' : 'gallery', {}, dispatch)}>重新生成</button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// FAB Toggle Button
+const EditorToggleFAB = () => {
+  const { state, dispatch } = useContext(AppContext);
+  const posKey = useMemo(() => {
+    return window.SiteManager ? (window.SiteManager.PREFIX + (window.SiteManager.getActive() || 'default') + '_btnpos') : null;
+  }, []);
+  const { position, dragging, moved, onDown, onMove, onUp } = useDrag({ left: 28, right: 'auto', bottom: 28, top: 'auto' }, posKey);
+  const [clickConsumed, setClickConsumed] = useState(false);
+
+  // Restore saved position
+  useEffect(() => {
+    if (!posKey) return;
+    const saved = localStorage.getItem(posKey);
+    if (saved) {
+      try {
+        const pos = JSON.parse(saved);
+        // update position state - handled by useDrag initializer
+      } catch(e) {}
+    }
+  }, [posKey]);
+
+  return (
+    <button
+      className={"fab-btn " + (dragging ? 'dragging' : '')}
+      style={{ bottom: position.bottom || position.top || 28, right: position.right || 28, left: position.left || 'auto', top: 'auto' }}
+      onMouseDown={(e) => { onDown(e.clientX, e.clientY); }}
+      onTouchStart={(e) => { const t = e.touches[0]; onDown(t.clientX, t.clientY); }}
+      onClick={(e) => {
+        if (clickConsumed) { setClickConsumed(false); return; }
+        if (moved.current) return;
+        dispatch({ type: 'TOGGLE_EDITOR' });
+      }}
+    >
+      {state.isEditorOpen ? 'X' : '编辑'}
+    </button>
+  );
+};
+
+// Fullscreen / Exit Preview
+const ExitPreviewButton = () => {
+  const { state, dispatch } = useContext(AppContext);
+  if (!state.fullscreenMode) return null;
+  return (
+    <button className="exit-preview-btn" onClick={() => { document.body.classList.remove('fullscreen-mode'); dispatch({ type: 'FULLSCREEN_OFF' }); }}>
+      ← 返回编辑器
+    </button>
+  );
+};
+
+// SiteFooter
+const SiteFooter = () => (
+  <div className="site-footer-bar">
+    <div className="copy">用 StarFan Studio 记录偶像的每一个精彩瞬间 | 仅供粉丝交流使用</div>
+  </div>
+);
+
+/* ============================================================
+   SECTION 5: MODULE VIEW COMPONENTS
+   ============================================================ */
+
+// ---------- CelebrityView ----------
+const CelebrityView = () => {
+  const data = useContext(DataContext);
+  const c = data.celebrity;
+  const isEmpty = !c.name && !c.bio && !c.avatar;
+
+  return (
+    <div>
+      <div className="site-hero-title">{c.siteName || 'StarFan Studio 爱豆回忆录'}</div>
+      <div className="site-guide-bar">
+        <GuideItem icon="🌟" title="偶像资料" subtitle="名字、头像、简介" tab="celebrity" />
+        <GuideItem icon="📖" title="追忆时光" subtitle="记录每一次心动" tab="news" />
+        <GuideItem icon="🖼" title="照片画廊" subtitle="珍藏影像瞬间" tab="gallery" />
+        <GuideItem icon="💌" title="粉丝心语" subtitle="记录每一份心情" tab="community" />
+        <GuideItem icon="📅" title="活动日历" subtitle="演唱会与见面会" tab="calendar" />
+        <GuideItem icon="💝" title="周边收藏" subtitle="我的周边小柜" tab="shop" />
+      </div>
+      <Card className="!text-center !py-10 !px-6 !rounded-[22px]">
+        {/* Avatar */}
+        {c.avatar ? (
+          <img src={c.avatar} className="w-[120px] h-[120px] rounded-full object-cover mx-auto border-4 border-white shadow-lg" style={{boxShadow:'0 4px 20px rgba(124,92,252,0.2)'}} />
+        ) : (
+          <div className="w-[120px] h-[120px] rounded-full mx-auto flex items-center justify-center text-sm text-secondary font-medium" style={{background:'linear-gradient(135deg,var(--primary-light),rgba(155,126,222,0.06))'}}>未上传</div>
+        )}
+        {/* Name */}
+        <h3 className="text-[26px] font-extrabold text-text mt-4 mb-2">{c.name || '点击输入偶像名字'}</h3>
+        {/* Bio */}
+        <p className="text-[15px] text-secondary max-w-[600px] mx-auto leading-relaxed whitespace-pre-wrap">{c.bio || '点击输入简介，或让AI生成...'}</p>
+        {/* Stats */}
+        <div className="flex justify-center gap-8 mt-6">
+          <div className="text-center"><div className="text-2xl font-extrabold text-primary">{data.news.length}</div><div className="text-xs text-secondary">作品</div></div>
+          <div className="text-center"><div className="text-2xl font-extrabold text-primary">{data.gallery.length}</div><div className="text-xs text-secondary">照片</div></div>
+          <div className="text-center"><div className="text-2xl font-extrabold text-primary">{data.calendar.length}</div><div className="text-xs text-secondary">活动</div></div>
+        </div>
+        {/* Weibo link */}
+        {c.social?.weibo && (
+          <a href={c.social.weibo} target="_blank" className="inline-block mt-5 px-6 py-2.5 text-white no-underline rounded-full text-sm font-semibold shadow-primary hover:-translate-y-0.5 transition-all"
+            style={{background:'linear-gradient(135deg,var(--primary),var(--ai))'}}>
+            微博主页
+          </a>
+        )}
+        {isEmpty && <EmptyState type="celebrity" description="还没有设置偶像资料，点击右下角编辑按钮开始创建" />}
+      </Card>
+    </div>
+  );
+};
+
+// ---------- NewsView ----------
+const NewsView = memo(() => {
+  const { dispatch } = useContext(AppContext);
+  const data = useContext(DataContext);
+
+  if (!data.news || !data.news.length) {
+    return (
+      <div>
+        <SectionHeader title="追忆时光" onAdd={() => dispatch({ type: 'SET_TAB', tab: 'news' })} addLabel="添加追忆" />
+        <EmptyState type="news" description="还没有追忆记录，点击上方添加你的第一次心动吧" ctaText="添加追忆" onCta={() => dispatch({ type: 'SET_TAB', tab: 'news' })} />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <SectionHeader title="追忆时光" onAdd={() => dispatch({ type: 'SET_TAB', tab: 'news' })} addLabel="添加追忆" />
+      <div className="news-grid">
+        {data.news.map(item => (
+          <div key={item.id} className="news-card relative" onClick={() => dispatch({ type: 'SET_MODAL', modalType: 'memoir', data: item })}>
+            <button className="inline-del-btn" onClick={(e) => { e.stopPropagation(); data.deleteNews(item.id); }}>✕</button>
+            {item.cover ? <img src={item.cover} alt="" /> : <div className="h-[160px] bg-gray-100 flex items-center justify-center text-secondary text-sm">暂无封面</div>}
+            <div className="news-body">
+              <div className="text-base font-bold text-text mb-1.5">{item.title}</div>
+              <div className="text-xs text-secondary mb-2">{item.date}{item.images && item.images.length ? ' · ' + (item.images.length + 1) + '张照片' : ''}</div>
+              <div className="text-[13px] text-[#4b5563] leading-relaxed whitespace-pre-wrap max-h-[60px] overflow-hidden">{item.content}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+
+// ---------- GalleryView ----------
+const GalleryView = memo(() => {
+  const { dispatch } = useContext(AppContext);
+  const data = useContext(DataContext);
+  const [viewMode, setViewMode] = useState('grid');
+  const [focusIdx, setFocusIdx] = useState(0);
+
+  if (!data.gallery || !data.gallery.length) {
+    return (
+      <div>
+        <SectionHeader title="影像珍藏" onAdd={() => dispatch({ type: 'SET_TAB', tab: 'gallery' })} addLabel="上传照片" />
+        <EmptyState type="gallery" description="暂无照片，点击上方按钮上传" ctaText="上传照片" onCta={() => dispatch({ type: 'SET_TAB', tab: 'gallery' })} />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <SectionHeader title="影像珍藏" onAdd={() => dispatch({ type: 'SET_TAB', tab: 'gallery' })} addLabel="上传照片">
+        <div className="flex gap-2">
+          {['grid','list','focus'].map(m => (
+            <button key={m} className={"inline-btn text-xs !px-3 !py-1.5 " + (viewMode === m ? '!bg-primary !text-white !border-primary' : '')}
+              onClick={() => setViewMode(m)}>
+              {m === 'grid' ? '▦' : m === 'list' ? '≡' : '⊡'} {m === 'grid' ? '网格' : m === 'list' ? '列表' : '聚焦'}
+            </button>
+          ))}
+        </div>
+      </SectionHeader>
+
+      {viewMode === 'grid' && (
+        <div className="gallery-grid">
+          {data.gallery.map(item => (
+            <div key={item.id} className="gallery-item-img" onClick={() => dispatch({ type: 'SET_MODAL', modalType: 'lightbox', data: item.url })}>
+              <button className="inline-del-btn" onClick={(e) => { e.stopPropagation(); data.deleteGallery(item.id); }}>✕</button>
+              <img src={item.url || ''} alt="" />
+              <div className="gallery-caption">{item.caption || '未命名'}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {viewMode === 'list' && (
+        <div className="flex flex-col gap-3">
+          {data.gallery.map(item => (
+            <div key={item.id} className="card-container !p-4 flex items-center gap-4">
+              <img src={item.url || ''} className="w-16 h-16 object-cover rounded-lg bg-gray-100" />
+              <div className="flex-1">
+                <div className="text-sm font-semibold text-text">{item.caption || '未命名'}</div>
+              </div>
+              <button className="btn-small bg-red-100 text-danger" onClick={() => data.deleteGallery(item.id)}>删除</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {viewMode === 'focus' && (
+        <div className="relative">
+          <div className="relative rounded-2xl overflow-hidden bg-gray-100">
+            <img src={data.gallery[focusIdx]?.url || ''} className="w-full max-h-[60vh] object-contain" />
+            <div className="absolute bottom-0 left-0 right-0 p-4 text-white text-sm" style={{background:'linear-gradient(transparent,rgba(0,0,0,0.7))'}}>
+              {data.gallery[focusIdx]?.caption || '未命名'}
+            </div>
+          </div>
+          <div className="flex justify-between mt-4">
+            <button className="inline-btn" disabled={focusIdx === 0} onClick={() => setFocusIdx(i => i - 1)}>← 上一张</button>
+            <span className="text-sm text-secondary py-2">{focusIdx + 1} / {data.gallery.length}</span>
+            <button className="inline-btn" disabled={focusIdx === data.gallery.length - 1} onClick={() => setFocusIdx(i => i + 1)}>下一张 →</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+// ---------- CommunityView ----------
+const CommunityView = memo(() => {
+  const { dispatch } = useContext(AppContext);
+  const data = useContext(DataContext);
+  const [text, setText] = useState('');
+
+  const handlePublish = () => {
+    if (!text.trim()) { alert('心语不能为空'); return; }
+    data.addCommunity(text);
+    setText('');
+  };
+
+  return (
+    <div>
+      <SectionHeader title="粉丝心语" onAdd={() => dispatch({ type: 'SET_TAB', tab: 'community' })} addLabel="发布心语" />
+      {/* Quick Publish Bar */}
+      <div className="card-container !p-4 flex items-center gap-3 mb-6">
+        <div className="w-9 h-9 rounded-full bg-primary-light flex items-center justify-center text-sm flex-shrink-0">💬</div>
+        <input className="flex-1 border-0 bg-transparent text-sm outline-none" placeholder="写下你想对偶像说的话..."
+          value={text} onChange={e => setText(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') handlePublish(); }} />
+        <button className="inline-btn !bg-primary !text-white" onClick={handlePublish}>发布</button>
+      </div>
+      {(!data.community || !data.community.length) ? (
+        <EmptyState type="community" description="还没有心语记录，写下你的第一份心情吧" ctaText="发布心语" onCta={() => document.querySelector('.card-container input')?.focus()} />
+      ) : (
+        <div>
+          {data.community.map((entry, i) => {
+            const txt = typeof entry === 'object' ? entry.text : entry;
+            const time = typeof entry === 'object' ? entry.time : '';
+            return (
+              <div key={i} className="chat-bubble flex items-start gap-3">
+                <span className="text-xs text-secondary whitespace-nowrap flex-shrink-0 mt-1">{time}</span>
+                <div className="flex-1 text-sm text-text">{txt}</div>
+                <button className="opacity-0 hover:opacity-100 transition-opacity text-xs text-danger bg-transparent border-none cursor-pointer flex-shrink-0 mt-1"
+                  onClick={() => data.deleteCommunity(i)}>✕</button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+});
+
+// ---------- CalendarView (Mini Calendar + Timeline) ----------
+const CalendarView = memo(() => {
+  const { dispatch } = useContext(AppContext);
+  const data = useContext(DataContext);
+  const [viewDate, setViewDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  const y = viewDate.getFullYear();
+  const m = viewDate.getMonth();
+  const now = new Date();
+  const monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+  const dayNames = ['日','一','二','三','四','五','六'];
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const daysInPrev = new Date(y, m, 0).getDate();
+
+  // Build calendar cells
+  const cells = [];
+  for (let i = firstDay-1; i >= 0; i--) {
+    cells.push({ date: daysInPrev - i, type: 'other', dateStr: '' });
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = now.getFullYear() === y && now.getMonth() === m && now.getDate() === d;
+    const isSel = selectedDate === ds;
+    const hasEv = (data.calendar || []).some(e => e.date === ds);
+    cells.push({ date: d, type: isToday ? 'today' : 'normal', dateStr: ds, isSel, hasEv });
+  }
+  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+  for (let i = firstDay + daysInMonth; i < totalCells; i++) {
+    cells.push({ date: i - firstDay - daysInMonth + 1, type: 'other', dateStr: '' });
+  }
+
+  const filteredEvents = selectedDate
+    ? (data.calendar || []).filter(e => e.date === selectedDate)
+    : (data.calendar || []).sort((a, b) => a.date.localeCompare(b.date));
+
+  const tagLabels = { concert: '演唱会', 'fan-meet': '见面会', release: '新专发布', other: '其他' };
+  const tagClass = { concert: 'event-tag-concert', 'fan-meet': 'event-tag-fanmeet', release: 'event-tag-release', other: 'event-tag-other' };
+
+  return (
+    <div>
+      <SectionHeader title="活动日历" onAdd={() => dispatch({ type: 'SET_TAB', tab: 'calendar' })} addLabel="添加活动">
+        {selectedDate && <button className="inline-btn" onClick={() => setSelectedDate(null)}>📋 全部活动</button>}
+      </SectionHeader>
+
+      {/* Mini Calendar */}
+      <div className="calendar-wrap">
+        <div className="cal-header">
+          <button className="cal-nav" onClick={() => setViewDate(new Date(y, m-1, 1))}>‹</button>
+          <h3>{y}年 {monthNames[m]}</h3>
+          <button className="cal-nav" onClick={() => setViewDate(new Date(y, m+1, 1))}>›</button>
+        </div>
+        <div className="cal-grid">
+          {dayNames.map(d => <div key={d} className="cal-day-name">{d}</div>)}
+          {cells.map((cell, i) => (
+            <div key={i}
+              className={"cal-cell " + (cell.type === 'other' ? 'other-month' : '') + (cell.type === 'today' ? 'today' : '') + (cell.isSel ? 'selected' : '')}
+              onClick={() => cell.type !== 'other' ? setSelectedDate(cell.isSel ? null : cell.dateStr) : null}>
+              <div className="cal-date">{cell.date}</div>
+              {cell.hasEv && <span className="cal-dot"></span>}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Event Timeline */}
+      {(!data.calendar || !data.calendar.length) ? (
+        <EmptyState type="calendar" description="暂无活动，点击上方按钮添加" />
+      ) : !filteredEvents.length ? (
+        <div className="empty-state">{selectedDate ? '当天暂无活动' : '暂无活动'}</div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {filteredEvents.map(ev => {
+            const [, em, ed] = ev.date.split('-');
+            return (
+              <div key={ev.id} className="event-card">
+                <button className="inline-del-btn" onClick={(e) => { e.stopPropagation(); data.deleteCalendarEvent(ev.id); }}>✕</button>
+                <div className="event-date-badge">
+                  <div className="event-badge-month">{parseInt(em)}月</div>
+                  <div className="event-badge-day">{parseInt(ed)}</div>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-[15px] font-bold text-text m-0 mb-1">{ev.name}</h4>
+                  {ev.venue && <div className="text-[13px] text-secondary">📍 {ev.venue}</div>}
+                  {ev.desc && <div className="text-[13px] text-secondary mt-1">{ev.desc}</div>}
+                  <span className={"event-tag-label " + (tagClass[ev.type] || 'event-tag-other')}>{tagLabels[ev.type] || ev.type}</span>
+                  <div>
+                    <button className={"register-btn " + (ev.registered ? 'registered' : '')} onClick={() => data.toggleEventRegister(ev.id)}>
+                      {ev.registered ? '✅ 已报名' : '🎫 立即报名'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+});
+
+// ---------- ShopView ----------
+const ShopView = memo(() => {
+  const { dispatch } = useContext(AppContext);
+  const data = useContext(DataContext);
+  const [currentCat, setCurrentCat] = useState('全部');
+
+  const categories = useMemo(() => {
+    const cats = new Set((data.shop || []).map(i => i.cat));
+    return ['全部', ...Array.from(cats)];
+  }, [data.shop]);
+
+  const filtered = currentCat === '全部' ? (data.shop || []) : (data.shop || []).filter(i => i.cat === currentCat);
+
+  return (
+    <div>
+      <SectionHeader title="周边收藏" onAdd={() => dispatch({ type: 'SET_TAB', tab: 'shop' })} addLabel="添加收藏" />
+      {/* Category Filter */}
+      <div className="flex gap-2 flex-wrap mb-6">
+        {categories.map(cat => (
+          <button key={cat} className={"shop-filter-btn " + (currentCat === cat ? 'active' : '')}
+            onClick={() => setCurrentCat(cat)}>{cat}</button>
+        ))}
+      </div>
+      {!filtered.length ? (
+        <EmptyState type="shop" description="还没有收藏周边，点击上方添加" ctaText="添加收藏" onCta={() => dispatch({ type: 'SET_TAB', tab: 'shop' })} />
+      ) : (
+        <div className="shop-grid">
+          {filtered.map(item => (
+            <div key={item.id} className="card-container !p-0 !overflow-hidden">
+              <button className="inline-del-btn" onClick={(e) => { e.stopPropagation(); data.deleteShopItem(item.id); }}>✕</button>
+              <div className="w-full h-[160px] flex items-center justify-center text-5xl" style={{background:'linear-gradient(135deg,var(--primary-light),rgba(155,126,222,0.06))'}}>
+                {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : (item.emoji || '🎁')}
+              </div>
+              <div className="p-4">
+                <div className="font-bold text-sm text-text mb-1">{item.name}</div>
+                {item.desc && <div className="text-xs text-secondary mb-1">{item.desc}</div>}
+                <span className="inline-block py-1 px-2.5 bg-primary-light text-primary rounded-[10px] text-[11px] font-semibold mt-1">{item.cat}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+});
+
+/* ============================================================
+   SECTION 6: MODULE EDITOR COMPONENTS
+   ============================================================ */
+
+// ---------- CelebrityEditor ----------
+const CelebrityEditor = () => {
+  const { dispatch } = useContext(AppContext);
+  const data = useContext(DataContext);
+  const c = data.celebrity;
+  const [siteName, setSiteName] = useState(c.siteName || '');
+  const [name, setName] = useState(c.name || '');
+  const [colors, setColors] = useState(c.colors || '');
+  const [bio, setBio] = useState(c.bio || '');
+  const [weibo, setWeibo] = useState(c.social?.weibo || '');
+  const [bgType, setBgType] = useState(c.bgType || 'stars');
+
+  useEffect(() => { setSiteName(c.siteName || ''); setName(c.name || ''); setColors(c.colors || ''); setBio(c.bio || ''); setWeibo(c.social?.weibo || ''); setBgType(c.bgType || 'stars'); }, [c]);
+
+  return (
+    <div>
+      <FormGroup label="站点名称">
+        <input id="inp_sitename" value={siteName} onChange={e => { setSiteName(e.target.value); data.updateCelebrity('siteName', e.target.value); }} placeholder="给你的粉丝站起个名字，如：星光守护站" />
+      </FormGroup>
+      <FormGroup label="偶像名字">
+        <input id="inp_name" value={name} onChange={e => { setName(e.target.value); data.updateCelebrity('name', e.target.value); }} />
+      </FormGroup>
+      <FormGroup label="主色调">
+        <input id="inp_colors" value={colors} onChange={e => { setColors(e.target.value); data.updateCelebrity('colors', e.target.value); }} placeholder="如：淡蓝+金色" />
+      </FormGroup>
+      <FormGroup label="动态背景">
+        <select value={bgType} onChange={e => { setBgType(e.target.value); data.updateCelebrity('bgType', e.target.value); }} style={{width:'100%',padding:'10px',borderRadius:'12px',border:'1px solid rgba(124,92,252,0.15)',background:'rgba(124,92,252,0.04)',color:'#2D3436',fontSize:'13px'}}>
+          <option value="stars">闪烁星空</option>
+          <option value="moon">梦幻月影</option>
+          <option value="particles">浮动粒子</option>
+        </select>
+      </FormGroup>
+      <FormGroup label="个人简介">
+        <textarea id="inp_bio" rows="3" value={bio} onChange={e => { setBio(e.target.value); data.updateCelebrity('bio', e.target.value); }}></textarea>
+      </FormGroup>
+      <button className="btn-ai" onClick={() => data.aiGenerate('bio', { name }, dispatch)}>🤖 AI 生成简介</button>
+      <FormGroup label="头像上传">
+        <input type="file" id="inp_avatar" accept="image/*" onChange={e => data.uploadAvatar(e.target.files[0])} />
+      </FormGroup>
+      <FormGroup label="微博链接">
+        <input id="inp_weibo" value={weibo} onChange={e => { setWeibo(e.target.value); data.updateCelebrity('social.weibo', e.target.value); }} />
+      </FormGroup>
+      <button className="btn-primary">更新预览</button>
+    </div>
+  );
+};
+
+// ---------- NewsEditor ----------
+const NewsEditor = () => {
+  const { dispatch } = useContext(AppContext);
+  const data = useContext(DataContext);
+  const [title, setTitle] = useState('');
+  const [date, setDate] = useState('');
+  const [content, setContent] = useState('');
+  const [coverFile, setCoverFile] = useState(null);
+  const [extraFiles, setExtraFiles] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+
+  const handleSave = async () => {
+    if (!title.trim()) { alert('请填写追忆标题'); return; }
+    const item = {
+      title: title.trim(),
+      date: date || new Date().toISOString().split('T')[0],
+      content: content.trim(),
+      cover: '',
+      images: []
+    };
+    if (coverFile) {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        item.cover = e.target.result;
+        await data.addNews(item);
+        resetForm();
+      };
+      reader.readAsDataURL(coverFile);
+    } else {
+      await data.addNews(item);
+      resetForm();
+    }
+  };
+
+  const resetForm = () => {
+    setTitle(''); setDate(''); setContent(''); setCoverFile(null); setExtraFiles(null); setEditingId(null);
+  };
+
+  const handleEdit = (item) => {
+    setEditingId(item.id);
+    setTitle(item.title);
+    setDate(item.date);
+    setContent(item.content);
+  };
+
+  return (
+    <div>
+      <FormGroup label="追忆标题">
+        <input id="news_title" value={title} onChange={e => setTitle(e.target.value)} placeholder="如：第一次看演唱会" />
+      </FormGroup>
+      <FormGroup label="追忆日期">
+        <input type="date" id="news_date" value={date} onChange={e => setDate(e.target.value)} />
+      </FormGroup>
+      <FormGroup label="正文内容">
+        <textarea id="news_content" rows="4" value={content} onChange={e => setContent(e.target.value)} placeholder="记录当时的心情和细节..."></textarea>
+      </FormGroup>
+      <button className="btn-ai" onClick={() => data.aiGenerate('news', { title, date }, dispatch)}>🤖 AI 帮写</button>
+      <FormGroup label="封面图">
+        <input type="file" accept="image/*" onChange={e => setCoverFile(e.target.files[0])} />
+      </FormGroup>
+      <FormGroup label="更多照片（最多9张，每张≤50MB）">
+        <input type="file" accept="image/*" multiple onChange={e => setExtraFiles(e.target.files)} />
+      </FormGroup>
+      <div className="flex gap-2">
+        <button className="btn-primary flex-1" onClick={handleSave}>{editingId ? '保存修改' : '添加追忆'}</button>
+        {editingId && <button className="btn-danger flex-[0.4]" onClick={resetForm}>取消</button>}
+      </div>
+      <EditorItemList items={data.news} emptyText="暂无追忆"
+        renderItem={(item) => (
+          <div key={item.id} className="item-card" style={editingId === item.id ? {border:'2px solid var(--primary)',background:'#f0f7ff'} : {}}>
+            <div className="flex-1">
+              <b className="text-xs text-text block mb-0.5">{item.title}</b>
+              <span className="text-[11px] text-secondary">{item.date}</span>
+            </div>
+            <div className="flex gap-1.5">
+              <button className="btn-small" onClick={() => handleEdit(item)}>编辑</button>
+              <button className="btn-small btn-danger" onClick={() => data.deleteNews(item.id)}>删除</button>
+            </div>
+          </div>
+        )} />
+    </div>
+  );
+};
+
+// ---------- GalleryEditor ----------
+const GalleryEditor = () => {
+  const { dispatch } = useContext(AppContext);
+  const data = useContext(DataContext);
+  const [files, setFiles] = useState(null);
+
+  const handleUpload = () => {
+    if (!files || !files.length) return;
+    data.addGallery(files);
+    setFiles(null);
+    const inp = document.getElementById('gallery_files');
+    if (inp) inp.value = '';
+  };
+
+  useEffect(() => { handleUpload(); }, [files]);
+
+  const handleAICaption = (galleryId) => {
+    data.aiGenerate('caption', { targetId: galleryId }, dispatch);
+  };
+
+  return (
+    <div>
+      <FormGroup label="批量上传照片">
+        <input type="file" id="gallery_files" accept="image/*" multiple onChange={e => setFiles(e.target.files)} />
+      </FormGroup>
+      <p className="text-xs text-secondary mb-2.5">支持多选，单张≤50MB。上传后可在下方点击 🤖 为单张照片 AI 生成图注。</p>
+      <EditorItemList items={data.gallery} emptyText="暂无照片"
+        renderItem={(item) => (
+          <div key={item.id} className="item-card flex-wrap">
+            <img src={item.url || ''} className="w-10 h-10 object-cover rounded mr-2" />
+            <input value={item.caption || ''} placeholder="输入图注" className="flex-1 m-0 p-1.5 text-xs"
+              onChange={e => data.updateGalleryCaption(item.id, e.target.value)} />
+            <button className="btn-small btn-ai ml-1" onClick={() => handleAICaption(item.id)} title="AI 生成图注">🤖</button>
+            <button className="btn-small btn-danger ml-1" onClick={() => data.deleteGallery(item.id)}>删</button>
+          </div>
+        )} />
+    </div>
+  );
+};
+
+// ---------- CommunityEditor ----------
+const CommunityEditor = () => {
+  const data = useContext(DataContext);
+  const [text, setText] = useState('');
+
+  const handleAdd = () => {
+    if (!text.trim()) { alert('心语不能为空'); return; }
+    data.addCommunity(text);
+    setText('');
+  };
+
+  return (
+    <div>
+      <FormGroup label="写下此刻的心情">
+        <input value={text} onChange={e => setText(e.target.value)} placeholder="对偶像说点什么..."
+          onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }} />
+      </FormGroup>
+      <button className="btn-primary" onClick={handleAdd}>发布心语</button>
+      <EditorItemList items={data.community} emptyText="暂无心语"
+        renderItem={(entry, i) => {
+          const txt = typeof entry === 'object' ? entry.text : entry;
+          const time = typeof entry === 'object' ? ' · ' + entry.time : '';
+          return (
+            <div key={i} className="item-card">
+              <div className="flex-1">
+                <b className="text-xs text-text">{txt}</b>
+                <span className="text-[11px] text-secondary">{time}</span>
+              </div>
+              <button className="btn-small btn-danger" onClick={() => data.deleteCommunity(i)}>删除</button>
+            </div>
+          );
+        }} />
+    </div>
+  );
+};
+
+// ---------- CalendarEditor ----------
+const CalendarEditor = () => {
+  const data = useContext(DataContext);
+  const [name, setName] = useState('');
+  const [date, setDate] = useState('');
+  const [venue, setVenue] = useState('');
+  const [desc, setDesc] = useState('');
+  const [type, setType] = useState('concert');
+
+  const handleAdd = () => {
+    if (!name.trim()) { alert('请填写活动名称'); return; }
+    if (!date) { alert('请选择活动日期'); return; }
+    data.addCalendarEvent({ name: name.trim(), date, venue: venue.trim(), desc: desc.trim(), type });
+    setName(''); setDate(''); setVenue(''); setDesc('');
+  };
+
+  const tagMap = { concert: '演唱会', 'fan-meet': '见面会', release: '新专发布', other: '其他' };
+
+  return (
+    <div>
+      <FormGroup label="活动名称">
+        <input value={name} onChange={e => setName(e.target.value)} placeholder="如：演唱会、见面会..." />
+      </FormGroup>
+      <FormGroup label="活动日期">
+        <input type="date" value={date} onChange={e => setDate(e.target.value)} />
+      </FormGroup>
+      <FormGroup label="活动地点">
+        <input value={venue} onChange={e => setVenue(e.target.value)} placeholder="如：上海梅赛德斯奔驰文化中心" />
+      </FormGroup>
+      <FormGroup label="活动描述">
+        <textarea rows="3" value={desc} onChange={e => setDesc(e.target.value)} placeholder="活动详细说明..."></textarea>
+      </FormGroup>
+      <FormGroup label="活动类型">
+        <select value={type} onChange={e => setType(e.target.value)} style={{width:'100%',padding:'10px',borderRadius:'12px',border:'1px solid rgba(124,92,252,0.15)',background:'rgba(124,92,252,0.04)',color:'#2D3436',fontSize:'13px'}}>
+          <option value="concert">演唱会</option>
+          <option value="fan-meet">粉丝见面会</option>
+          <option value="release">新专发布</option>
+          <option value="other">其他活动</option>
+        </select>
+      </FormGroup>
+      <button className="btn-primary" onClick={handleAdd}>添加活动</button>
+      <EditorItemList items={data.calendar} emptyText="暂无活动"
+        renderItem={(ev) => (
+          <div key={ev.id} className="item-card">
+            <div className="flex-1">
+              <b className="text-xs text-text block mb-0.5">{ev.name}</b>
+              <span className="text-[11px] text-secondary">{ev.date} · {tagMap[ev.type] || ev.type}</span>
+            </div>
+            <button className="btn-small btn-danger" onClick={() => data.deleteCalendarEvent(ev.id)}>删除</button>
+          </div>
+        )} />
+    </div>
+  );
+};
+
+// ---------- ShopEditor ----------
+const ShopEditor = () => {
+  const data = useContext(DataContext);
+  const [name, setName] = useState('');
+  const [emoji, setEmoji] = useState('');
+  const [cat, setCat] = useState('周边');
+  const [desc, setDesc] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+
+  const handleAdd = () => {
+    if (!name.trim()) { alert('请填写收藏名称'); return; }
+    data.addShopItem({ name: name.trim(), emoji: emoji.trim() || '🎁', cat, desc: desc.trim() }, imageFile);
+    setName(''); setEmoji(''); setDesc(''); setImageFile(null);
+    const inp = document.getElementById('shop_image');
+    if (inp) inp.value = '';
+  };
+
+  return (
+    <div>
