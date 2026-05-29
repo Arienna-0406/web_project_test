@@ -63,19 +63,28 @@ const Exporter = {
       });
 
       // 加载背景图作为 base64（用于导出嵌入）
+      // 用 Image + Canvas 替代 fetch，避免 CORS/路径解析问题
       var bgImageB64 = '';
       try {
         var bgEl = document.querySelector('#bgImageLayer');
         if (bgEl) {
-          var bgUrl = window.getComputedStyle(bgEl).backgroundImage;
-          bgUrl = bgUrl.replace(/^url\([\"']?/, '').replace(/[\"']?\)$/, '');
-          if (bgUrl) {
-            var resp = await fetch(bgUrl);
-            var blob = await resp.blob();
-            bgImageB64 = await new Promise(function(r) {
-              var reader = new FileReader();
-              reader.onloadend = function() { r(reader.result); };
-              reader.readAsDataURL(blob);
+          var style = window.getComputedStyle(bgEl).backgroundImage;
+          var match = style.match(/url\(["']?([^"')]+)["']?\)/);
+          if (match && match[1] && match[1] !== 'none') {
+            var imgUrl = match[1];
+            bgImageB64 = await new Promise(function(resolve) {
+              var img = new Image();
+              img.onload = function() {
+                var canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                try { resolve(canvas.toDataURL('image/jpeg', 0.85)); }
+                catch(e) { resolve(''); }
+              };
+              img.onerror = function() { resolve(''); };
+              img.src = imgUrl;
             });
           }
         }
