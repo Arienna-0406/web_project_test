@@ -185,7 +185,7 @@ const Exporter = {
     w('.mo-close{position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.06);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:18px;color:#6b7280;z-index:1;} .mo-close:hover{background:rgba(0,0,0,0.12);}');
     w('.mo-lb{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:10000;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;pointer-events:none;transition:0.3s;} .mo-lb.show{opacity:1;pointer-events:auto;} .mo-lb img{max-width:92vw;max-height:92vh;border-radius:12px;object-fit:contain;}');
     w('.empty{text-align:center;color:#9ca3af;padding:20px;font-size:14px;}');
-    w('.badge-readonly{display:inline-block;background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle;}');
+    
     w('@media(max-width:600px){.grid,.sh-grid{grid-template-columns:1fr;}.gallery{column-count:2;}.hero{padding:24px 16px;}.mo-imgs{grid-template-columns:1fr 1fr;}.mo-imgs img:first-child{grid-column:span 2;grid-row:span 1;}}');
     w('</style></head><body>');
     w('<div id="bgLayer"></div>');
@@ -194,7 +194,7 @@ const Exporter = {
     // Hero
     w('<div class="hero">');
     w(c.avatar ? '<img class="avatar" src="'+c.avatar+'">' : '<div class="avatar-ph">🌟</div>');
-    w('<h1>'+safe(c.name||'偶像名字')+'<span class="badge-readonly">展示版</span></h1>');
+    w('<h1>'+safe(c.name||'偶像名字')+'</h1>');
     w('<p class="bio">'+safe(c.bio||'')+'</p>');
     if(c.social&&c.social.weibo) w('<a class="weibo-btn" href="'+safe(c.social.weibo)+'" target="_blank">👉 微博主页</a>');
     w('</div>');
