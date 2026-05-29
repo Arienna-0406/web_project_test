@@ -3,7 +3,7 @@
 // --- Card 容器 ---
 function CardContainer(props) {
   return React.createElement('div', {
-    className: 'bg-white/80 backdrop-blur-md rounded-card shadow-card p-6 transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-card-hover ' + (props.className || ''),
+    className: 'bg-white/90 backdrop-blur-md rounded-card shadow-card p-6 transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-card-hover ' + (props.className || ''),
     onClick: props.onClick
   }, props.children);
 }
@@ -86,7 +86,7 @@ function ModuleHeader(props) {
     props.showEdit && props.onEdit && React.createElement('button', {
       onClick: props.onEdit,
       className: 'px-5 py-2.5 bg-primary text-white rounded-btn text-sm font-medium hover:bg-primary-hover transition-colors'
-    }, '+ 新增')
+    }, props.btnText || '+ 新增')
   );
 }
 
@@ -97,7 +97,7 @@ function Sidebar() {
   var dispatch = ctx.dispatch;
   var tabs = ['dashboard', 'celebrity', 'news', 'gallery', 'community', 'calendar', 'shop'];
 
-  return React.createElement('aside', { className: 'w-[220px] min-w-[220px] h-screen sticky top-0 bg-white/80 backdrop-blur-md border-r border-border-light shadow-sidebar flex flex-col z-10' },
+  return React.createElement('aside', { id: 'app-sidebar', className: 'w-[220px] min-w-[220px] h-screen sticky top-0 bg-white/90 backdrop-blur-md border-r border-border-light shadow-sidebar flex flex-col z-10' },
     // Logo
     React.createElement('div', { className: 'p-6 pb-4' },
       React.createElement('h1', { className: 'text-xl font-bold text-primary tracking-tight' }, state.data.celebrity.siteName || 'StarFan Studio'),
@@ -118,7 +118,7 @@ function Sidebar() {
     // 操作按钮
     React.createElement('div', { id: 'sidebar-actions', className: 'p-3 border-t border-border-light space-y-2' },
       React.createElement('button', { onClick: function() { if (typeof SiteUI !== 'undefined') SiteUI.toggle(); }, className: 'w-full px-4 py-2 text-sm text-text-sub bg-gray-50 hover:bg-gray-100 rounded-btn transition-colors text-left' }, '切换粉丝站'),
-      React.createElement('button', { onClick: function() { if (typeof TemplateStore !== 'undefined') TemplateStore.previewStyle(); }, className: 'w-full px-4 py-2 text-sm text-text-sub bg-gray-50 hover:bg-gray-100 rounded-btn transition-colors text-left' }, '预览外观'),
+      React.createElement('button', { onClick: function() { if (typeof TemplateStore !== 'undefined') TemplateStore.showMarketPanel(); }, className: 'w-full px-4 py-2 text-sm text-text-sub bg-gray-50 hover:bg-gray-100 rounded-btn transition-colors text-left' }, '更多模板与特效'),
       React.createElement('button', { onClick: function() { if (typeof Exporter !== 'undefined') Exporter.exportReadOnly(); }, className: 'w-full px-4 py-2 text-sm bg-primary text-white hover:bg-primary-hover rounded-btn transition-colors font-medium' }, '导出展示版')
     ),
     // 底部
@@ -146,9 +146,9 @@ function RightPanel() {
     d.community.slice(-3).map(function(c) { return { text: (typeof c === 'object' ? c.text : c) ? (typeof c === 'object' ? c.text : c).slice(0,20) : '心语', time: (typeof c === 'object' ? c.time : '') }; })
   ).slice(-5).reverse();
 
-  return React.createElement('aside', { className: 'w-[280px] min-w-[280px] h-screen sticky top-0 overflow-y-auto p-5 space-y-5 border-l border-border-light bg-white/80 backdrop-blur-md' },
+  return React.createElement('aside', { id: 'app-right-panel', className: 'w-[280px] min-w-[280px] h-screen sticky top-0 overflow-y-auto p-5 space-y-5 border-l border-border-light bg-white/90 backdrop-blur-md' },
     // 数据统计
-    React.createElement('div', { className: 'bg-white/80 backdrop-blur-md rounded-card shadow-card p-5' },
+    React.createElement('div', { className: 'bg-white/90 backdrop-blur-md rounded-card shadow-card p-5' },
       React.createElement('h3', { className: 'text-sm font-semibold text-text-main mb-4' }, '数据总览'),
       React.createElement('div', { className: 'space-y-3' },
         stats.map(function(s) {
@@ -160,7 +160,7 @@ function RightPanel() {
       )
     ),
     // 最近动态
-    recentItems.length > 0 && React.createElement('div', { className: 'bg-white/80 backdrop-blur-md rounded-card shadow-card p-5' },
+    recentItems.length > 0 && React.createElement('div', { className: 'bg-white/90 backdrop-blur-md rounded-card shadow-card p-5' },
       React.createElement('h3', { className: 'text-sm font-semibold text-text-main mb-4' }, '最近动态'),
       React.createElement('div', { className: 'space-y-3' },
         recentItems.map(function(item, i) {

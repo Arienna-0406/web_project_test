@@ -58,7 +58,7 @@ function CelebrityView() {
   ];
 
   return React.createElement('div', null,
-    React.createElement(ModuleHeader, { tab: 'celebrity', showEdit: !editing, onEdit: function() { setEditing(true); } }),
+    React.createElement(ModuleHeader, { tab: 'celebrity', showEdit: !editing, onEdit: function() { setEditing(true); }, btnText: (c.name ? '编辑' : '开始设置') }),
     React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-3 gap-6' },
       // 头像 + Banner
       React.createElement('div', { className: 'lg:col-span-1' },
@@ -88,7 +88,7 @@ function CelebrityView() {
             { label: '心语', val: state.data.community.length },
             { label: '活动', val: state.data.calendar.length },
           ].map(function(s) {
-            return React.createElement('div', { key: s.label, className: 'bg-white/80 backdrop-blur-md rounded-card shadow-card p-4 text-center' },
+            return React.createElement('div', { key: s.label, className: 'bg-white/90 backdrop-blur-md rounded-card shadow-card p-4 text-center' },
               React.createElement('div', { className: 'text-2xl font-bold text-primary' }, s.val),
               React.createElement('div', { className: 'text-xs text-text-sub mt-1' }, s.label)
             );
@@ -225,7 +225,7 @@ function NewsView() {
 
   function handleAI() {
     setAiLoading(true);
-    AIService.generate('写一篇关于偶像的追忆文章，标题是"' + (form.title || '珍贵回忆') + '"', function(text, done) {
+    AIService.generate(AIService.prompts.news(form.title || '珍贵回忆', form.date), function(text, done) {
       setForm(function(f) { return Object.assign({}, f, { content: text }); });
       if (done) setAiLoading(false);
     });
@@ -398,7 +398,7 @@ function GalleryView() {
       : state.viewMode === 'list'
         ? React.createElement('div', { className: 'space-y-3' },
             items.map(function(item) {
-              return React.createElement('div', { key: item.id, className: 'flex items-center gap-4 bg-white/80 backdrop-blur-md rounded-card shadow-card p-4 group' },
+              return React.createElement('div', { key: item.id, className: 'flex items-center gap-4 bg-white/90 backdrop-blur-md rounded-card shadow-card p-4 group' },
                 batchMode && React.createElement('input', { type: 'checkbox', checked: selected.has(item.id), onChange: function() { toggleSelect(item.id); }, className: 'w-4 h-4' }),
                 React.createElement('img', { src: item.url, className: 'w-16 h-16 object-cover rounded-lg cursor-pointer', onClick: function() { setLightboxIdx(items.indexOf(item)); } }),
                 React.createElement('div', { className: 'flex-1 min-w-0' },
@@ -472,7 +472,7 @@ function CommunityView() {
 
   return React.createElement('div', null,
     React.createElement(ModuleHeader, { tab: 'community' }),
-    React.createElement('div', { className: 'bg-white/80 backdrop-blur-md rounded-card shadow-card p-4 mb-6' },
+    React.createElement('div', { className: 'bg-white/90 backdrop-blur-md rounded-card shadow-card p-4 mb-6' },
       React.createElement('div', { className: 'flex gap-3' },
         React.createElement('textarea', {
           value: text, onChange: function(e) { setText(e.target.value); },
@@ -498,7 +498,7 @@ function CommunityView() {
                 React.createElement('span', null, '心')
               ),
               React.createElement('div', { className: 'flex-1' },
-                React.createElement('div', { className: 'bg-white/80 backdrop-blur-md rounded-2xl rounded-tl-sm shadow-card p-4' },
+                React.createElement('div', { className: 'bg-white/90 backdrop-blur-md rounded-2xl rounded-tl-sm shadow-card p-4' },
                   React.createElement('p', { className: 'text-sm text-text-main leading-relaxed' }, msgText)
                 ),
                 React.createElement('div', { className: 'flex items-center gap-3 mt-1.5' },
@@ -557,7 +557,7 @@ function CalendarView() {
       days.push({ day: d, ds: ds, hasEvent: hasEvent, isSelected: isSelected, isToday: isToday });
     }
 
-    return React.createElement('div', { className: 'bg-white/80 backdrop-blur-md rounded-card shadow-card p-5' },
+    return React.createElement('div', { className: 'bg-white/90 backdrop-blur-md rounded-card shadow-card p-5' },
       React.createElement('div', { className: 'flex items-center justify-between mb-4' },
         React.createElement('button', { onClick: function() { dispatch({ type: 'SET_CAL_MONTH', date: new Date(year, month - 1) }); }, className: 'text-text-sub hover:text-text-main text-lg' }, '\u2039'),
         React.createElement('h3', { className: 'text-base font-semibold text-text-main' }, year + '年' + (month + 1) + '月'),
@@ -622,7 +622,7 @@ function CalendarView() {
                 ? React.createElement('p', { className: 'text-sm text-text-sub' }, '当天没有活动')
                 : React.createElement('div', { className: 'space-y-2' },
                     selectedDateEvents.map(function(e) {
-                      return React.createElement('div', { key: e.id, className: 'bg-white/80 backdrop-blur-md rounded-card shadow-card p-4 group' },
+                      return React.createElement('div', { key: e.id, className: 'bg-white/90 backdrop-blur-md rounded-card shadow-card p-4 group' },
                         React.createElement('div', { className: 'flex items-center justify-between' },
                           React.createElement('div', null,
                             React.createElement('h5', { className: 'font-semibold text-text-main' }, e.name),
@@ -770,6 +770,41 @@ function Dashboard() {
   var dispatch = ctx.dispatch;
   var tabs = ['celebrity', 'news', 'gallery', 'community', 'calendar', 'shop'];
 
+  // 活动倒计时计算
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var upcoming = [].concat(state.data.calendar)
+    .filter(function(e) { return e.date && new Date(e.date) >= today; })
+    .sort(function(a,b) { return new Date(a.date) - new Date(b.date); });
+
+  // 按日期分组
+  var dateGroups = [];
+  upcoming.forEach(function(e) {
+    var last = dateGroups[dateGroups.length - 1];
+    if (last && last.date === e.date) {
+      last.events.push(e);
+    } else {
+      dateGroups.push({ date: e.date, events: [e] });
+    }
+  });
+  // 取最近 3 组
+  dateGroups = dateGroups.slice(0, 3);
+
+  function daysUntil(dateStr) {
+    var d = new Date(dateStr);
+    d.setHours(0,0,0,0);
+    return Math.ceil((d - today) / 86400000);
+  }
+
+  function formatDate(dateStr) {
+    var d = new Date(dateStr);
+    return (d.getMonth()+1) + '月' + d.getDate() + '日';
+  }
+
+  function typeLabel(t) {
+    return t === '演唱会' ? '演唱会' : t === '见面会' ? '见面会' : t === '发布' ? '发布活动' : '活动';
+  }
+
   return React.createElement('div', null,
     // Celebrity Card
     React.createElement(CardContainer, { className: 'mb-6 !p-0 overflow-hidden' },
@@ -781,7 +816,7 @@ function Dashboard() {
         }),
         React.createElement('div', null,
           React.createElement('h2', { className: 'text-xl font-bold text-text-main' }, state.data.celebrity.name || '未设置偶像'),
-          React.createElement('p', { className: 'text-sm text-text-sub' }, (state.data.celebrity.bio || '').slice(0, 50) || '点击进入编辑偶像信息')
+          React.createElement('p', { className: 'text-sm text-text-sub' }, (state.data.celebrity.bio || '').slice(0, 50) || '')
         )
       ),
       React.createElement('div', { className: 'px-6 pb-4 flex gap-4' },
@@ -802,6 +837,42 @@ function Dashboard() {
     // Module Grid
     React.createElement('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4' },
       tabs.map(function(tab) { return React.createElement(ModuleCard, { key: tab, tab: tab, data: state.data }); })
+    ),
+    // 活动倒计时
+    dateGroups.length > 0 && React.createElement('div', { className: 'mt-6' },
+      React.createElement('h3', { className: 'text-base font-semibold text-text-main mb-4' }, '即将到来的活动'),
+      React.createElement('div', { className: 'space-y-3' },
+        dateGroups.map(function(group) {
+          var days = daysUntil(group.date);
+          var isToday = days === 0;
+          var isTomorrow = days === 1;
+          var label = isToday ? '就是今天！' : isTomorrow ? '明天' : '倒计时 ' + days + ' 天';
+          return React.createElement(CardContainer, { key: group.date, className: '!bg-gradient-to-r from-primary-light/50 to-white/90' },
+            React.createElement('div', { className: 'flex items-center gap-4' },
+              React.createElement('div', { className: 'text-center min-w-[60px]' },
+                React.createElement('div', { className: 'text-2xl font-bold ' + (isToday ? 'text-accent-pink' : isTomorrow ? 'text-accent-amber' : 'text-primary') }, isToday ? '今天' : isTomorrow ? '1' : String(days)),
+                React.createElement('div', { className: 'text-[10px] text-text-sub' }, isToday ? '' : isTomorrow ? '天' : '天')
+              ),
+              React.createElement('div', { className: 'flex-1' },
+                React.createElement('div', { className: 'text-xs text-text-sub' }, formatDate(group.date)),
+                React.createElement('div', { className: 'mt-1 space-y-0.5' },
+                  group.events.map(function(e, i) {
+                    return React.createElement('div', { key: i, className: 'text-sm font-medium text-text-main flex items-center gap-2' },
+                      React.createElement('span', { className: 'inline-block w-1.5 h-1.5 rounded-full bg-primary' }),
+                      e.title || typeLabel(e.type),
+                      React.createElement('span', { className: 'text-[10px] text-text-sub' }, typeLabel(e.type))
+                    );
+                  })
+                )
+              ),
+              React.createElement('button', {
+                onClick: function() { dispatch({ type: 'SET_TAB', tab: 'calendar' }); },
+                className: 'text-xs text-primary hover:underline shrink-0'
+              }, '查看日历')
+            )
+          );
+        })
+      )
     )
   );
 }

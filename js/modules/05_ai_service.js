@@ -44,9 +44,11 @@ const AIService = {
       text = '🤖 AI正在为您生成专属内容，请稍候...';
     }
     const chunks = text.match(/.{1,3}/g) || [];
+    var accumulated = '';
     for(let i=0; i<chunks.length; i++) {
+      accumulated += chunks[i];
       await new Promise(r => setTimeout(r, 30 + Math.random()*40));
-      onChunk(chunks[i], i === chunks.length-1);
+      onChunk(accumulated, i === chunks.length-1);
     }
   },
   async realGenerate(prompt, onChunk) {
@@ -63,6 +65,7 @@ const AIService = {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      var realAccumulated = '';
       while(true) {
         const {done, value} = await reader.read();
         if(done) break;
@@ -74,14 +77,16 @@ const AIService = {
             try {
               const json = JSON.parse(line.slice(6));
               const delta = json.choices?.[0]?.delta;
-              // DeepSeek 模型会返回 reasoning_content，只取 content
               const content = delta?.content || '';
-              if(content) onChunk(content, false);
+              if(content) {
+                realAccumulated += content;
+                onChunk(realAccumulated, false);
+              }
             } catch(e) {}
           }
         }
       }
-      onChunk('', true);
+      onChunk(realAccumulated, true);
     } catch(e) {
       console.error('🤖 火山方舟API失败，降级为模拟模式', e);
       onChunk('\n⚠️ AI服务暂时不可用，已切换为本地模拟。', true);

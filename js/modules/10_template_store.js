@@ -345,6 +345,166 @@ const TemplateStore = {
     document.body.classList.add('fullscreen-mode');
     window.scrollTo({top:0, behavior:'smooth'});
   },
+  // ═══════════ 更多模板与特效 — 市场面板 ═══════════
+  showMarketPanel() {
+    var self = this;
+    // 移除旧面板
+    var old = document.getElementById('marketOverlay');
+    if (old) old.remove();
+
+    // 构建模板列表
+    var tmplHtml = '';
+    this.templates.forEach(function(t) {
+      var isActive = self.selectedTemplate === t.id;
+      var isPaid = t.price === 0 || self.paidItems.indexOf(t.id) !== -1;
+      var badge = t.price === 0 ? '免费' : (isPaid ? '已购买' : '¥' + t.price.toFixed(1));
+      var badgeClass = t.price === 0 ? 'market-badge-free' : (isPaid ? 'market-badge-paid' : 'market-badge-price');
+      tmplHtml += '<div class="market-card' + (isActive ? ' active' : '') + '" data-id="' + t.id + '" data-type="template">' +
+        '<div class="market-card-icon">' + t.emoji + '</div>' +
+        '<div class="market-card-name">' + t.name + '</div>' +
+        '<div class="market-card-desc">' + t.desc + '</div>' +
+        '<span class="market-card-badge ' + badgeClass + '">' + badge + '</span>' +
+      '</div>';
+    });
+
+    // 构建特效列表
+    var fxHtml = '';
+    this.effects.forEach(function(fx) {
+      if (fx.id === 'none') return; // 跳过"无特效"
+      var isActive = self.selectedEffects.indexOf(fx.id) !== -1;
+      var isPaid = fx.price === 0 || self.paidItems.indexOf(fx.id) !== -1;
+      var badge = fx.price === 0 ? '免费' : (isPaid ? '已购买' : '¥' + fx.price.toFixed(1));
+      var badgeClass = fx.price === 0 ? 'market-badge-free' : (isPaid ? 'market-badge-paid' : 'market-badge-price');
+      fxHtml += '<div class="market-card' + (isActive ? ' active' : '') + '" data-id="' + fx.id + '" data-type="effect">' +
+        '<div class="market-card-icon">' + fx.emoji + '</div>' +
+        '<div class="market-card-name">' + fx.name + '</div>' +
+        '<div class="market-card-desc">特效动画</div>' +
+        '<span class="market-card-badge ' + badgeClass + '">' + badge + '</span>' +
+      '</div>';
+    });
+
+    var overlay = document.createElement('div');
+    overlay.id = 'marketOverlay';
+    overlay.className = 'market-overlay';
+    overlay.innerHTML = '<div class="market-dialog">' +
+      '<div class="market-header">' +
+        '<h3 class="market-title">更多模板与特效</h3>' +
+        '<p class="market-subtitle">选择心仪的模板和特效装点你的粉丝站</p>' +
+        '<button class="market-close" id="marketClose">✕</button>' +
+      '</div>' +
+      '<div class="market-body">' +
+        '<div class="market-section">' +
+          '<h4 class="market-section-title">站点模板</h4>' +
+          '<div class="market-grid">' + tmplHtml + '</div>' +
+        '</div>' +
+        '<div class="market-section">' +
+          '<h4 class="market-section-title">页面特效</h4>' +
+          '<div class="market-grid">' + fxHtml + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+    document.body.appendChild(overlay);
+
+    // 动画入场
+    requestAnimationFrame(function() { overlay.classList.add('show'); });
+
+    // 关闭按钮
+    document.getElementById('marketClose').onclick = function() {
+      overlay.classList.remove('show');
+      setTimeout(function() { overlay.remove(); }, 300);
+    };
+    // 点击背景关闭
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        overlay.classList.remove('show');
+        setTimeout(function() { overlay.remove(); }, 300);
+      }
+    });
+
+    // 绑定卡片点击
+    var cards = overlay.querySelectorAll('.market-card');
+    cards.forEach(function(card) {
+      card.onclick = function() {
+        var id = card.getAttribute('data-id');
+        var type = card.getAttribute('data-type');
+        if (type === 'template') {
+          var tmpl = self.templates.find(function(t) { return t.id === id; });
+          if (!tmpl) return;
+          // 检查是否已购买或免费
+          if (tmpl.price === 0 || self.paidItems.indexOf(id) !== -1) {
+            // 已购买/免费 → 直接切换
+            self.toggleTemplate(id);
+            // 刷新面板显示
+            overlay.classList.remove('show');
+            setTimeout(function() { overlay.remove(); }, 300);
+            setTimeout(function() { self.showMarketPanel(); }, 350);
+          } else {
+            // 未购买 → 弹窗
+            self._showMarketPurchaseDialog(tmpl, 'template', overlay);
+          }
+        } else if (type === 'effect') {
+          var fx = self.effects.find(function(e) { return e.id === id; });
+          if (!fx) return;
+          if (fx.price === 0 || self.paidItems.indexOf(id) !== -1) {
+            // 已购买/免费 → 直接切换
+            self.toggleEffect(id);
+            overlay.classList.remove('show');
+            setTimeout(function() { overlay.remove(); }, 300);
+            setTimeout(function() { self.showMarketPanel(); }, 350);
+          } else {
+            // 未购买 → 弹窗
+            self._showMarketPurchaseDialog(fx, 'effect', overlay);
+          }
+        }
+      };
+    });
+  },
+  // 商场购买确认弹窗
+  _showMarketPurchaseDialog(item, type, overlay) {
+    var self = this;
+    var oldDlg = document.getElementById('marketPurchaseOverlay');
+    if (oldDlg) oldDlg.remove();
+
+    var dlg = document.createElement('div');
+    dlg.id = 'marketPurchaseOverlay';
+    dlg.className = 'market-purchase-overlay';
+    dlg.innerHTML = '<div class="market-purchase-dialog">' +
+      '<div class="market-purchase-header"><span class="mp-icon">' + (item.emoji || '🎨') + '</span><h3>' + item.name + '</h3></div>' +
+      '<div class="market-purchase-body">' +
+        '<p>该' + (type === 'template' ? '模板' : '特效') + '需要购买后才能使用。</p>' +
+        '<div class="mp-price-row"><span class="mp-label">价格</span><span class="mp-amount">¥' + item.price.toFixed(1) + '</span></div>' +
+      '</div>' +
+      '<div class="market-purchase-footer">' +
+        '<button class="mp-btn-know" id="mpBtnKnow">知道了</button>' +
+        '<button class="mp-btn-buy" id="mpBtnBuy">去购买 ¥' + item.price.toFixed(1) + '</button>' +
+      '</div>' +
+    '</div>';
+    document.body.appendChild(dlg);
+    requestAnimationFrame(function() { dlg.classList.add('show'); });
+
+    document.getElementById('mpBtnKnow').onclick = function() {
+      dlg.classList.remove('show');
+      setTimeout(function() { dlg.remove(); }, 300);
+    };
+    document.getElementById('mpBtnBuy').onclick = function() {
+      dlg.classList.remove('show');
+      setTimeout(function() { dlg.remove(); }, 300);
+      // 构建支付项
+      var payItem = [{ id: item.id, name: item.name, price: item.price, emoji: item.emoji, type: type }];
+      self._pendingBill = payItem.map(function(u) { return { id: u.id, name: u.name, price: u.price, emoji: u.emoji, type: u.type, paid: false }; });
+      if (overlay) {
+        overlay.classList.remove('show');
+        setTimeout(function() { overlay.remove(); }, 300);
+      }
+      self.showPayModal(payItem);
+    };
+    dlg.addEventListener('click', function(e) {
+      if (e.target === dlg) {
+        dlg.classList.remove('show');
+        setTimeout(function() { dlg.remove(); }, 300);
+      }
+    });
+  },
   // 当前选中的支付方式
   _payMethod: 'wechat',
   // ---- 收款二维码配置（运营者修改这里）----
@@ -395,8 +555,8 @@ const TemplateStore = {
     var label = document.getElementById('payQrLabel');
     var svgEl = document.getElementById('payQrSvg');
     if (isWechat) {
-      qrWrap.className = 'pay-qr-wrap wechat-qr';
-      hint.className = 'pay-qr-hint wechat';
+      qrWrap.className = 'pay-qr-wrap';
+      hint.className = 'pay-qr-hint';
       hintTitle.textContent = '微信扫码支付 · ' + this._wechatName;
       confirmBtn.className = 'pay-done-wechat';
       confirmBtn.textContent = '✅ 微信已付款';
@@ -404,8 +564,8 @@ const TemplateStore = {
       icon.style.display = 'none';
       tip.style.display = '';
     } else {
-      qrWrap.className = 'pay-qr-wrap alipay-qr';
-      hint.className = 'pay-qr-hint alipay';
+      qrWrap.className = 'pay-qr-wrap';
+      hint.className = 'pay-qr-hint';
       hintTitle.textContent = '支付宝扫码支付 · ' + this._alipayName;
       confirmBtn.className = 'pay-done-alipay';
       confirmBtn.textContent = '✅ 支付宝已付款';
@@ -425,7 +585,7 @@ const TemplateStore = {
       var img = document.createElement('img');
       img.src = qrSrc;
       img.className = 'real-qr';
-      img.style.cssText = 'width:154px;height:154px;object-fit:contain;';
+      img.style.cssText = 'width:170px;height:170px;object-fit:contain;';
       qrPlaceholder.appendChild(img);
     } else {
       // 无真实二维码：显示占位 SVG
@@ -460,6 +620,12 @@ const TemplateStore = {
       });
     }
     this.save();
+    // 同步 React 状态
+    if (window._reactDispatch) {
+      pendingBill.forEach(function(item) {
+        if (!item.paid) window._reactDispatch({ type: 'PAY_ITEM', id: item.id });
+      });
+    }
     this._pendingBill = null;
     document.getElementById('payOverlay').classList.remove('show');
     // 支付成功提示

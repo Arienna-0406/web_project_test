@@ -299,38 +299,144 @@
 .tut-exit-btn.show { display: flex; }
 .tut-exit-btn:hover { background: #fff; color: #374151; box-shadow: 0 4px 18px rgba(0,0,0,0.14); }
 
-/* ===== 费用/支付弹窗 ===== */
+/* ===== 费用/支付弹窗（精装修版） ===== */
 .bill-overlay, .pay-overlay {
-  position: fixed; inset: 0;
-  z-index: 80;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(4px);
-  display: flex; align-items: center; justify-content: center;
+  position: fixed; inset: 0; z-index: 90;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center;
+  animation: fadeIn 0.25s ease;
 }
-.bill-overlay.hidden, .pay-overlay.hidden { display: none; }
-.bill-modal, .pay-modal {
-  background: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 480px;
-  width: 90%;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+.bill-overlay.show, .pay-overlay.show { display: flex; }
+.bill-dialog, .pay-dialog {
+  background: #fff; border-radius: 20px; padding: 0; overflow: hidden;
+  max-width: 460px; width: 94%;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+  animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
 }
-.bill-footer, .pay-footer {
-  display: flex; gap: 12px; margin-top: 20px;
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+/* 账单弹窗 */
+.bill-dialog-inner { padding: 28px 24px 20px; }
+.bill-header-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.bill-header-icon {
+  width: 44px; height: 44px; border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary), #9B8AF0);
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
 }
-.bill-cancel, .pay-cancel {
-  flex: 1; padding: 10px;
-  background: #f3f4f6; border: none; border-radius: 12px;
-  font-size: 14px; color: var(--text-sub); cursor: pointer;
+.bill-title { font-size: 19px; font-weight: 700; color: var(--text-main); margin: 0; }
+.bill-subtitle { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+.bill-divider { height: 1px; background: #f0f0f0; margin: 16px 0; }
+.bill-list { max-height: 240px; overflow-y: auto; }
+.bill-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; margin-bottom: 6px;
+  background: #fafbfc; border-radius: 12px; font-size: 14px;
+  transition: background 0.2s;
 }
-.bill-go, .pay-done-wechat {
-  flex: 1; padding: 10px;
-  background: var(--primary); color: #fff;
-  border: none; border-radius: 12px;
-  font-size: 14px; font-weight: 600; cursor: pointer;
+.bill-row:hover { background: #f3f4f6; }
+.bill-row.paid { background: #f0fdf4; color: #9ca3af; }
+.bill-info { display: flex; align-items: center; gap: 10px; }
+.bill-emoji { font-size: 20px; }
+.bill-paid-tag {
+  font-size: 10px; color: #16a34a; background: #dcfce7;
+  padding: 2px 8px; border-radius: 10px; font-weight: 600;
 }
-.bill-go:hover, .pay-done-wechat:hover { background: var(--primary-hover); }
+.bill-price { font-weight: 700; color: var(--text-main); font-size: 15px; }
+.bill-row.paid .bill-price { text-decoration: line-through; color: #9ca3af; }
+.bill-total-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 14px; margin: 10px 0 0;
+  background: linear-gradient(135deg, rgba(124,92,252,0.06), rgba(155,138,240,0.06));
+  border-radius: 14px; font-size: 16px; font-weight: 700;
+}
+.bill-total-row .label { color: var(--text-sub); font-size: 14px; }
+.bill-total-row .amount { color: var(--primary); font-size: 22px; }
+.bill-total-row .amount.free { color: #16a34a; }
+.bill-footer { display: flex; gap: 12px; padding: 16px 24px 24px; }
+.bill-cancel-btn {
+  flex: 1; padding: 13px; border: 1.5px solid #e5e7eb; border-radius: 14px;
+  background: #f9fafb; color: var(--text-sub); font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+}
+.bill-cancel-btn:hover { background: #f3f4f6; border-color: #d1d5db; }
+.bill-go-btn {
+  flex: 1.8; padding: 13px; border: none; border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary), #8B70F0);
+  color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; box-shadow: 0 4px 16px rgba(124,92,252,0.25);
+}
+.bill-go-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(124,92,252,0.35); }
+
+/* 支付弹窗 */
+.pay-dialog-inner { padding: 28px 24px 20px; }
+.pay-header-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.pay-header-icon {
+  width: 44px; height: 44px; border-radius: 14px;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+}
+.pay-title { font-size: 19px; font-weight: 700; color: var(--text-main); margin: 0; }
+.pay-item-list { margin-bottom: 10px; }
+.pay-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; margin-bottom: 4px;
+  background: #fafbfc; border-radius: 12px; font-size: 14px;
+}
+.pay-item-info { display: flex; align-items: center; gap: 10px; }
+.pay-item-emoji { font-size: 20px; }
+.pay-item-price { font-weight: 700; color: var(--text-main); }
+.pay-total-line {
+  font-size: 22px; font-weight: 800; color: var(--primary); text-align: center;
+  padding: 14px; background: linear-gradient(135deg, rgba(124,92,252,0.06), rgba(155,138,240,0.06));
+  border-radius: 14px; margin: 12px 0;
+}
+.pay-method-tabs { display: flex; gap: 10px; margin: 18px 0 14px; }
+.pay-method-tab {
+  flex: 1; padding: 10px; border: 2px solid #e8e8ed; border-radius: 14px;
+  background: #fff; font-size: 13px; font-weight: 500; cursor: pointer; text-align: center;
+  transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.pay-method-tab::before {
+  content: ''; width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid #ccc; flex-shrink: 0;
+}
+.pay-method-tab.active::before { border: none; }
+.pay-method-tab.wechat::before { background: #e8e8ed; }
+.pay-method-tab.wechat.active { border-color: #07c160; background: #f0fdf5; color: #059652; font-weight: 700; }
+.pay-method-tab.wechat.active::before { background: #07c160; }
+.pay-method-tab.alipay::before { background: #e8e8ed; }
+.pay-method-tab.alipay.active { border-color: #1677ff; background: #f0f7ff; color: #0d5edc; font-weight: 700; }
+.pay-method-tab.alipay.active::before { background: #1677ff; }
+.pay-qr-wrap {
+  text-align: center; padding: 20px; margin: 10px 0;
+  background: #fafbfc; border-radius: 16px;
+}
+.pay-qr-placeholder { display: inline-block; width: 170px; height: 170px; }
+.pay-qr-placeholder img.real-qr {
+  width: 170px; height: 170px; object-fit: contain; border-radius: 12px;
+}
+.pay-qr-tip {
+  font-size: 13px; color: var(--text-sub); margin-top: 10px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.pay-qr-hint { text-align: center; margin: 4px 0 8px; }
+.pay-qr-hint-title { font-size: 13px; font-weight: 600; color: var(--text-main); }
+.pay-done-wechat, .pay-done-alipay {
+  display: block; width: 100%; padding: 14px; border: none; border-radius: 14px;
+  color: #fff; font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.pay-done-wechat { background: linear-gradient(135deg, #07c160, #06ad56); }
+.pay-done-alipay { background: linear-gradient(135deg, #1677ff, #0d5edc); }
+.pay-done-wechat:hover, .pay-done-alipay:hover { transform: translateY(-1px); }
+.pay-cancel-btn {
+  display: block; width: 100%; padding: 11px; margin-top: 6px;
+  border: none; border-radius: 14px;
+  background: transparent; color: var(--text-sub); font-size: 13px; cursor: pointer;
+  transition: background 0.2s;
+}
+.pay-cancel-btn:hover { background: #f3f4f6; }
 
 /* ===== 外观选择弹窗 ===== */
 .style-purchase-overlay {
@@ -347,11 +453,201 @@
   box-shadow: 0 20px 60px rgba(0,0,0,0.2);
 }
 
-/* ===== 响应式 ===== */
-@media (max-width: 1024px) {
-  .sidebar { display: none; }
-  .right-panel { display: none; }
+/* ===== 更多模板与特效 — 商场面板 ===== */
+.market-overlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.3s;
 }
-@media (max-width: 640px) {
-  main { padding: 16px !important; }
+.market-overlay.show { opacity: 1; }
+.market-dialog {
+  background: #fff; border-radius: 20px; padding: 0;
+  max-width: 680px; width: 92%; max-height: 85vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.market-header {
+  position: sticky; top: 0; z-index: 1;
+  background: #fff; border-radius: 20px 20px 0 0;
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.market-title { font-size: 20px; font-weight: 700; color: var(--text-main); margin: 0; }
+.market-subtitle { font-size: 13px; color: var(--text-sub); margin: 4px 0 0; }
+.market-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 32px; height: 32px; border: none; border-radius: 50%;
+  background: #f5f5f5; color: #666; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.market-close:hover { background: #e0e0e0; }
+.market-body { padding: 16px 28px 24px; }
+.market-section { margin-bottom: 20px; }
+.market-section-title {
+  font-size: 14px; font-weight: 600; color: var(--text-main);
+  margin: 0 0 12px; padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-light);
+}
+.market-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr));
+  gap: 12px;
+}
+.market-card {
+  background: #fafafa; border-radius: 14px; padding: 16px;
+  cursor: pointer; position: relative;
+  transition: all 0.2s; border: 2px solid transparent;
+}
+.market-card:hover {
+  background: #fff; border-color: var(--primary-light);
+  transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,92,252,0.12);
+}
+.market-card.active {
+  background: var(--primary-light); border-color: var(--primary);
+}
+.market-card-icon { font-size: 32px; margin-bottom: 8px; }
+.market-card-name { font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 4px; }
+.market-card-desc { font-size: 11px; color: var(--text-sub); margin-bottom: 8px; }
+.market-card-badge {
+  display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 20px;
+}
+.market-badge-free { background: #e0f7e9; color: #16a34a; }
+.market-badge-paid { background: var(--primary-light); color: var(--primary); }
+.market-badge-price { background: #fff3cd; color: #d97706; }
+
+/* 商场购买确认弹窗 */
+.market-purchase-overlay {
+  position: fixed; inset: 0; z-index: 1100;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.3s;
+}
+.market-purchase-overlay.show { opacity: 1; }
+.market-purchase-dialog {
+  background: #fff; border-radius: 18px; padding: 28px;
+  max-width: 380px; width: 90%; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.market-purchase-header { margin-bottom: 16px; }
+.mp-icon { font-size: 48px; display: block; margin-bottom: 8px; }
+.market-purchase-header h3 { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 0; }
+.market-purchase-body p { font-size: 13px; color: var(--text-sub); margin: 0 0 16px; }
+.mp-price-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.mp-label { font-size: 14px; color: var(--text-sub); }
+.mp-amount { font-size: 24px; font-weight: 800; color: var(--primary); }
+.market-purchase-footer { display: flex; gap: 10px; margin-top: 20px; }
+.mp-btn-know {
+  flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 12px;
+  background: #f5f5f5; color: #666; font-size: 13px; cursor: pointer;
+  transition: background 0.2s;
+}
+.mp-btn-know:hover { background: #e5e5e5; }
+.mp-btn-buy {
+  flex: 1.5; padding: 10px; border: none; border-radius: 12px;
+  background: var(--primary); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background 0.2s;
+}
+.mp-btn-buy:hover { background: var(--primary-hover); }
+
+/* 支付成功提示动画 */
+@keyframes tipFadeIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ===== 移动端响应式系统 ===== */
+
+/* 汉堡菜单按钮 — 默认隐藏 */
+.mobile-menu-btn {
+  display: none;
+  position: fixed; top: 14px; left: 14px; z-index: 200;
+  width: 40px; height: 40px; padding: 0; border: none; border-radius: 12px;
+  background: rgba(255,255,255,0.95); box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  cursor: pointer; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+  backdrop-filter: blur(8px);
+}
+.mobile-menu-btn span {
+  display: block; width: 20px; height: 2px; border-radius: 2px;
+  background: var(--primary); transition: all 0.25s;
+}
+
+/* 移动端遮罩 */
+.mobile-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 98;
+  background: rgba(0,0,0,0.4); opacity: 0;
+  transition: opacity 0.3s;
+}
+.mobile-overlay.show { display: block; opacity: 1; }
+
+/* ═══ 平板 (<=1024px) ═══ */
+@media (max-width: 1024px) {
+  #app-right-panel { display: none !important; }
+}
+
+/* ═══ 手机 (<=768px) ═══ */
+@media (max-width: 768px) {
+  .mobile-menu-btn { display: flex; }
+
+  /* 布局改为纵向 */
+  #app-layout { flex-direction: column !important; }
+
+  /* Sidebar 改为左侧滑出抽屉 */
+  #app-sidebar {
+    position: fixed !important; top: 0; left: -280px; bottom: 0; z-index: 99 !important;
+    width: 260px !important; min-width: 260px !important; max-width: 85vw;
+    transition: left 0.3s cubic-bezier(0.34,1.2,0.64,1) !important;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15) !important;
+  }
+  #app-sidebar.mobile-open { left: 0; }
+
+  /* 主内容区全宽 */
+  #app-layout > main {
+    flex: none !important; width: 100% !important;
+    padding: 60px 14px 32px !important;
+    max-width: 100% !important;
+  }
+
+  /* 右侧面板永久隐藏 */
+  #app-right-panel { display: none !important; }
+
+  /* Dashboard 卡片网格单列 */
+  .grid-cols-3, .grid-cols-2 { grid-template-columns: 1fr !important; }
+
+  /* 偶像资料编辑表单单列 */
+  #app-layout main form { grid-template-columns: 1fr !important; }
+
+  /* 模态弹窗适配 */
+  .market-dialog { max-width: 100% !important; width: 96% !important; max-height: 90vh !important; margin: 0 auto; }
+  .market-grid { grid-template-columns: repeat(auto-fill, minmax(140px,1fr)) !important; gap: 8px !important; }
+  .market-card { padding: 12px !important; }
+  .market-card-icon { font-size: 26px !important; }
+  .market-card-name { font-size: 13px !important; }
+  .market-header { padding: 18px 16px 12px !important; }
+  .market-body { padding: 12px 14px 18px !important; }
+
+  .bill-dialog, .pay-dialog { width: 96% !important; max-width: 100% !important; }
+  .bill-dialog-inner, .pay-dialog-inner { padding: 20px 16px 16px !important; }
+  .bill-footer { padding: 12px 16px 18px !important; }
+
+  /* 站点面板 */
+  #sitePanel { width: 280px !important; max-width: 85vw !important; }
+
+  /* 教程气泡 */
+  .tut-bubble { width: 90vw !important; }
+  .tut-welcome-card { padding: 24px 20px !important; }
+
+  /* 字体调整 */
+  h2 { font-size: 20px !important; }
+  .text-2xl { font-size: 20px !important; }
+}
+
+/* ═══ 小手机 (<=480px) ═══ */
+@media (max-width: 480px) {
+  #app-layout > main { padding: 56px 10px 24px !important; }
+  .market-grid { grid-template-columns: repeat(auto-fill, minmax(120px,1fr)) !important; }
+  .market-card { padding: 10px !important; }
+  .bill-row, .pay-item { padding: 10px 12px !important; font-size: 13px !important; }
+  .bill-total-row { padding: 12px !important; }
+  .bill-total-row .amount { font-size: 18px !important; }
 }

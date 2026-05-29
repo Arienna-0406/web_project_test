@@ -109,7 +109,7 @@ function App() {
   return React.createElement(
     window.SF.AppContext.Provider,
     { value: { state: state, dispatch: dispatch } },
-    React.createElement('div', { className: 'flex min-h-screen' },
+    React.createElement('div', { id: 'app-layout', className: 'flex min-h-screen' },
       React.createElement(Sidebar),
       React.createElement('main', { className: 'flex-1 p-6 md:p-8 pb-24' + (showRightPanel ? '' : ' max-w-6xl mx-auto w-full') },
         renderContent()
