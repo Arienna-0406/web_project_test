@@ -5,6 +5,18 @@
 
 
 // ================= 6. 初始化 (Init) =================
+// 🎭 演示模式：访问 ?demo 使用独立临时数据，不影响原有数据
+// 示例：https://arienna-0406.github.io/project/?demo
+if (location.search.includes('demo')) {
+  SiteManager.PREFIX = 'starfan_demo_';
+  SiteManager.KEY_LIST = 'starfan_demo_sites';
+  SiteManager.KEY_ACTIVE = 'starfan_demo_active';
+  var _origDbName = SiteManager.dbName;
+  SiteManager.dbName = function() {
+    return 'StarFanDemoAssets_' + (this.getActive() || 'default');
+  };
+  console.log('🎭 演示模式：数据独立存储，不影响原有数据');
+}
 // 🔧 重置模式：访问 ?reset=true 清空所有数据后跳转回干净页面
 if (location.search.includes('reset=true')) {
   localStorage.removeItem(SiteManager.dataKey());
