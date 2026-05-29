@@ -377,11 +377,11 @@ body {
 .live-fx-item { position:absolute; pointer-events:none; will-change:transform,opacity; }
 
 @keyframes lfxSnow { 0%{transform:translateY(-20px) rotate(0deg)} 100%{transform:translateY(105vh) rotate(360deg)} }
-@keyframes lfxSparkle { 0%{opacity:0;transform:scale(0.5) rotate(0deg)} 100%{opacity:1;transform:scale(1.2) rotate(180deg)} }
-@keyframes lfxBubble { 0%{transform:translateY(0) scale(1);opacity:0.8} 100%{transform:translateY(-110vh) scale(0.4);opacity:0} }
+@keyframes lfxSparkle { 0%{opacity:0;transform:scale(0.5) rotate(0deg)} 100%{opacity:0.4;transform:scale(1.1) rotate(180deg)} }
+@keyframes lfxBubble { 0%{transform:translateY(0) scale(1);opacity:0.4} 100%{transform:translateY(-110vh) scale(0.4);opacity:0} }
 @keyframes lfxHeart { 0%{transform:translateY(-20px) rotate(0deg) scale(1)} 50%{transform:translateY(50vh) rotate(15deg) scale(1.1)} 100%{transform:translateY(105vh) rotate(-15deg) scale(0.6)} }
 @keyframes lfxCherry { 0%{transform:translateY(-20px) translateX(0) rotate(0deg)} 25%{transform:translateY(25vh) translateX(30px) rotate(90deg)} 50%{transform:translateY(50vh) translateX(-20px) rotate(180deg)} 75%{transform:translateY(75vh) translateX(25px) rotate(270deg)} 100%{transform:translateY(105vh) translateX(0) rotate(360deg)} }
-@keyframes lfxMusic { 0%{transform:translateY(0) rotate(0deg);opacity:0} 10%{opacity:0.9} 90%{opacity:0.3} 100%{transform:translateY(-110vh) rotate(360deg);opacity:0} }
+@keyframes lfxMusic { 0%{transform:translateY(0) rotate(0deg);opacity:0} 10%{opacity:0.4} 90%{opacity:0.15} 100%{transform:translateY(-110vh) rotate(360deg);opacity:0} }
 
 /* 🌐 预览区内容 */
 .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-lg); }

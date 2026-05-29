@@ -78,20 +78,18 @@ const LivePreview = {
       this.decoStyleEl.textContent = '@keyframes decoFloat{0%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-8px) rotate(3deg)}50%{transform:translateY(-3px) rotate(-2deg)}75%{transform:translateY(-10px) rotate(2deg)}100%{transform:translateY(0) rotate(0deg)}}.theme-deco-float{animation-name:decoFloat}';
     }
   },
-  // 应用特效预览
+  // 应用特效预览（叠加模式，不清除已有特效）
   applyEffect(fxId) {
-    // 先清除旧特效
-    this.clearEffect();
     if (!fxId || fxId === 'none') return;
     var layer = document.getElementById('liveFxLayer');
     if (!layer) return;
     var config = {
-      'snow':    { emoji:'❄️', count:40, size:[8,20], anim:'lfxSnow', dur:[3,8], axis:'y', fromTop:true },
-      'sparkle': { emoji:'✨', count:25, size:[10,26], anim:'lfxSparkle', dur:[1.5,3.5], axis:'pulse', pos:'random' },
-      'bubbles': { emoji:'🫧', count:20, size:[12,32], anim:'lfxBubble', dur:[4,10], axis:'y-up', shape:'circle' },
-      'hearts':  { emoji:'💕❤️💖💗💘', count:20, size:[14,28], anim:'lfxHeart', dur:[4,8], axis:'y', fromTop:true },
-      'cherry':  { emoji:'🌸✿❀', count:30, size:[12,26], anim:'lfxCherry', dur:[5,10], axis:'y', fromTop:true },
-      'music':   { emoji:'🎵🎶🎼♪', count:15, size:[18,32], anim:'lfxMusic', dur:[3,7], axis:'y-up' }
+      'snow':    { emoji:'❄️', count:30, size:[8,18], anim:'lfxSnow', dur:[8,18], axis:'y', fromTop:true },
+      'sparkle': { emoji:'✨', count:20, size:[10,24], anim:'lfxSparkle', dur:[4,9], axis:'pulse', pos:'random' },
+      'bubbles': { emoji:'🫧', count:15, size:[12,28], anim:'lfxBubble', dur:[10,22], axis:'y-up', shape:'circle' },
+      'hearts':  { emoji:'💕❤️💖💗💘', count:15, size:[14,24], anim:'lfxHeart', dur:[8,18], axis:'y', fromTop:true },
+      'cherry':  { emoji:'🌸✿❀', count:22, size:[12,24], anim:'lfxCherry', dur:[10,22], axis:'y', fromTop:true },
+      'music':   { emoji:'🎵🎶🎼♪', count:12, size:[16,28], anim:'lfxMusic', dur:[7,16], axis:'y-up' }
     };
     var cfg = config[fxId];
     if (!cfg) return;
@@ -105,12 +103,11 @@ const LivePreview = {
       var delay = Math.random() * dur;
       var emoji = emojis[Math.floor(Math.random() * emojis.length)];
       if (cfg.shape === 'circle') {
-        // 泡泡用 div 画圆
         el.style.width = size + 'px';
         el.style.height = size + 'px';
         el.style.borderRadius = '50%';
-        el.style.background = 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(173,216,230,0.3))';
-        el.style.border = '1px solid rgba(255,255,255,0.5)';
+        el.style.background = 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), rgba(173,216,230,0.15))';
+        el.style.border = '1px solid rgba(255,255,255,0.25)';
         el.style.bottom = '-30px';
         el.style.left = Math.random() * 100 + '%';
       } else {
@@ -131,7 +128,7 @@ const LivePreview = {
       el.style.animation = cfg.anim + ' ' + dur.toFixed(1) + 's ease-in-out infinite';
       el.style.animationDelay = delay.toFixed(1) + 's';
       if (cfg.axis === 'pulse') el.style.opacity = '0';
-      else el.style.opacity = '0.8';
+      else el.style.opacity = '0.4';
       layer.appendChild(el);
     }
   },
@@ -141,13 +138,16 @@ const LivePreview = {
     if (layer) layer.innerHTML = '';
     this.currentEffect = null;
   },
-  // 刷新全部（模板+特效）
+  // 刷新全部（模板 + 所有特效同时叠加）
   refresh() {
     this.applyTemplate(TemplateStore.selectedTemplate);
-    // 只预览第一个选中的特效
+    // 清除旧特效，再叠加所有选中特效
+    this.clearEffect();
     var effects = TemplateStore.selectedEffects || [];
-    var fxId = effects.length === 1 && effects[0] === 'none' ? '' :
-               (effects.length > 0 ? effects[effects.length - 1] : '');
-    this.applyEffect(fxId);
+    if (effects.length === 1 && effects[0] === 'none') return;
+    var self = this;
+    effects.forEach(function(fxId) {
+      if (fxId !== 'none') self.applyEffect(fxId);
+    });
   }
 };
