@@ -268,12 +268,12 @@ const Render = {
     let c1="#a8d8ff", c2="#ffd700";
     // 将 hex 转为 rgba，alpha ~0.6，使背景图透出
     const toRgba = (hex, alpha) => { const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${alpha})`; };
-    if(!text) { document.body.style.background = `linear-gradient(135deg, ${toRgba(c1,0.6)}, ${toRgba(c2,0.55)})`; return; }
+    if(!text) { document.body.style.background = `linear-gradient(135deg, ${toRgba(c1,0.35)}, ${toRgba(c2,0.35)})`; return; }
     const parts = text.split('+').map(s => s.trim());
     const matchColor = (str) => { if(!str) return null; for(let k in map) if(str===k) return map[k]; for(let k in map) if(str.includes(k)) return map[k]; return null; };
     const m1 = matchColor(parts[0]); const m2 = matchColor(parts[1]);
     if(m1) c1=m1; if(m2) c2=m2;
-    document.body.style.background = `linear-gradient(135deg, ${toRgba(c1,0.6)}, ${toRgba(c2,0.55)})`;
+    document.body.style.background = `linear-gradient(135deg, ${toRgba(c1,0.35)}, ${toRgba(c2,0.35)})`;
   },
   bindInputs(tab) {
     if(tab==='celebrity') {
