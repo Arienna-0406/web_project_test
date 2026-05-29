@@ -308,6 +308,7 @@ const TemplateStore = {
         '<div class="sp-item-list">' + itemsHtml + '</div>' +
         '<p style="font-size:13px;color:var(--primary);font-weight:700;">合计：¥' + total.toFixed(1) + '</p>' +
       '</div>' +
+      '<div class="bill-easter-egg"><div class="bill-easter-egg-text">其实支付多少都行，因为看不到，一个笨蛋本科生不想搞那么麻烦，想躺平 😌</div></div>' +
       '<div class="style-purchase-footer">' +
         '<button class="sp-btn-know" id="spBtnKnow">知道了</button>' +
         '<button class="sp-btn-buy" id="spBtnBuy">立即购买 ¥' + total.toFixed(1) + '</button>' +

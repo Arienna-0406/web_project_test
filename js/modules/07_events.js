@@ -54,7 +54,7 @@ const Events = {
     }
     draft.loading = true; draft.text = '';
     Render.renderAIPanel();
-    await AIService.generate(prompt, (chunk, isDone) => { draft.text += chunk; if(isDone) draft.loading = false; Render.renderAIPanel(); });
+    await AIService.generate(prompt, (chunk, isDone) => { draft.text = chunk; if(isDone) draft.loading = false; Render.renderAIPanel(); });
   },
   // 为单张照片 AI 生成图注
   async triggerAICaption(galleryId) {
@@ -67,7 +67,7 @@ const Events = {
     const prompt = '请为一张偶像活动照片生成一句简短唯美的图注，8-12字，风格应援/纪实，只输出一句话，不要编号和解释。';
     draft.loading = true; draft.text = ''; draft.context = 'AI 生成图注中...';
     Render.renderAIPanel();
-    await AIService.generate(prompt, (chunk, isDone) => { draft.text += chunk; if(isDone) draft.loading = false; Render.renderAIPanel(); });
+    await AIService.generate(prompt, (chunk, isDone) => { draft.text = chunk; if(isDone) draft.loading = false; Render.renderAIPanel(); });
   },
   acceptAI() {
     const draft = AppState.aiDraft; const tab = AppState.currentTab;
