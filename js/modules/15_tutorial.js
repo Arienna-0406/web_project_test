@@ -53,14 +53,14 @@ const Tutorial = {
       icon: '📦', title: '核心功能按钮',
       step: '7 / 8',
       body: '侧边栏底部有<b>三个</b>重要按钮：\n\n🔄 <b>切换粉丝站</b>：管理多个粉丝站，一键切换~\n\n🎨 <b>预览外观</b>：选好模板和特效后点这里实时预览\n\n📦 <b>导出展示版</b>：打包成独立 HTML 发给朋友！',
-      selector: '#sidebar-actions',
+      selector: '#mainActionBar',
       arrow: 'right', bubblePos: 'below'
     },
     {
       icon: '🚀', title: '开始使用',
       step: '8 / 8',
       body: '所有模块都<b>内置了编辑器</b>，点击进入后直接编辑，无需额外打开！\n\n左侧导航随时切换六个模块，右侧面板展示数据统计。\n\n✨ 从<b>偶像资料</b>开始，打造你的专属粉丝站吧！',
-      selector: 'aside',
+      selector: '#siteGuide',
       arrow: 'right', bubblePos: 'below'
     }
   ],
