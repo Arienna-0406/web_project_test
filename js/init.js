@@ -5,7 +5,7 @@
 
 
 // ================= 6. 初始化 (Init) =================
-// 🎭 演示模式：访问 ?demo 使用独立临时数据，不影响原有数据
+// 🎭 演示模式：访问 ?demo 使用独立临时数据，每次进入自动重置
 // 示例：https://arienna-0406.github.io/project/?demo
 if (location.search.includes('demo')) {
   SiteManager.PREFIX = 'starfan_demo_';
@@ -15,7 +15,19 @@ if (location.search.includes('demo')) {
   SiteManager.dbName = function() {
     return 'StarFanDemoAssets_' + (this.getActive() || 'default');
   };
-  console.log('🎭 演示模式：数据独立存储，不影响原有数据');
+  // 清空所有演示数据（站点/数据/教程标记等），确保每次都从头开始
+  var _keysToRemove = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key && key.indexOf('starfan_demo_') === 0) {
+      _keysToRemove.push(key);
+    }
+  }
+  for (var j = 0; j < _keysToRemove.length; j++) {
+    localStorage.removeItem(_keysToRemove[j]);
+  }
+  try { indexedDB.deleteDatabase('StarFanDemoAssets_default'); } catch(e) {}
+  console.log('🎭 演示模式：数据已重置（清除了 ' + _keysToRemove.length + ' 条记录），从头开始体验');
 }
 // 🔧 重置模式：访问 ?reset=true 清空所有数据后跳转回干净页面
 if (location.search.includes('reset=true')) {
