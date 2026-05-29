@@ -10,58 +10,58 @@ const Tutorial = {
     {
       icon: '🌟', title: '偶像资料',
       step: '1 / 8',
-      body: '点击这个卡片可以预览<b>偶像资料</b>板块。\n\n在这里你可以填写偶像名字、上传头像、设置简介、配置社交链接，还可以让 AI 一键生成欢迎文案！',
-      selector: '#siteGuide .guide-item:nth-child(1)',
-      arrow: 'up', bubblePos: 'below'
+      body: '点击左侧栏的<b>偶像资料</b>。\n\n在这里填写偶像名字、上传头像、设置简介和配色，还可以让 AI 一键生成欢迎文案！',
+      selector: '#nav-celebrity',
+      arrow: 'right', bubblePos: 'below'
     },
     {
       icon: '📖', title: '追忆时光',
       step: '2 / 8',
       body: '这里是<b>追忆时光</b>板块。\n\n记录你与偶像之间的每一次心动瞬间：写下标题、正文，还能上传封面 + 最多 9 张照片，打造小红书风格的记忆卡片！',
-      selector: '#siteGuide .guide-item:nth-child(2)',
-      arrow: 'up', bubblePos: 'below'
+      selector: '#nav-news',
+      arrow: 'right', bubblePos: 'below'
     },
     {
       icon: '🖼', title: '照片画廊',
       step: '3 / 8',
-      body: '这里是<b>照片画廊</b>板块。\n\n批量上传你收藏的偶像照片，系统会自动排列成瀑布流布局，还支持给每张图生成 AI 图注✨',
-      selector: '#siteGuide .guide-item:nth-child(3)',
-      arrow: 'up', bubblePos: 'below'
+      body: '这里是<b>照片画廊</b>板块。\n\n批量上传你收藏的偶像照片，支持网格/列表/聚焦三种视图、灯箱预览、批量管理，还能生成 AI 图注 ✨',
+      selector: '#nav-gallery',
+      arrow: 'right', bubblePos: 'below'
     },
     {
       icon: '💌', title: '粉丝心语',
       step: '4 / 8',
-      body: '这里是<b>粉丝心语</b>板块。\n\n写下你对偶像的心里话，每条心语都会自动盖上时间戳，像一本有温度的心情日记 💕',
-      selector: '#siteGuide .guide-item:nth-child(4)',
-      arrow: 'up', bubblePos: 'below'
+      body: '这里是<b>粉丝心语</b>板块。\n\n写下你对偶像的心里话，对话气泡样式 + 快捷发布栏，每条心语都会自动盖上时间戳 💕',
+      selector: '#nav-community',
+      arrow: 'right', bubblePos: 'below'
     },
     {
       icon: '📅', title: '活动日历',
       step: '5 / 8',
-      body: '这里是<b>活动日历</b>板块。\n\n在日历上标记重要日期：演唱会、见面会、生日，让每一个与偶像有关的日子都被好好记住 🗓',
-      selector: '#siteGuide .guide-item:nth-child(5)',
-      arrow: 'up', bubblePos: 'below'
+      body: '这里是<b>活动日历</b>板块。\n\n迷你月历 + 时间轴双视图，标记演唱会、见面会、生日等重要日期，还有报名/提醒开关 🗓',
+      selector: '#nav-calendar',
+      arrow: 'right', bubblePos: 'below'
     },
     {
       icon: '💝', title: '周边收藏',
       step: '6 / 8',
-      body: '这里是<b>周边收藏</b>板块。\n\n展示你珍藏的周边好物：专辑、手幅、徽章……把你的宝贝小柜子搬上粉丝站吧！',
-      selector: '#siteGuide .guide-item:nth-child(6)',
-      arrow: 'up', bubblePos: 'below'
+      body: '这里是<b>周边收藏</b>板块。\n\n展示你珍藏的周边好物：专辑、手幅、徽章……支持分类筛选，把你的宝贝小柜子搬上粉丝站吧！',
+      selector: '#nav-shop',
+      arrow: 'right', bubblePos: 'below'
     },
     {
-      icon: '📦', title: '顶部功能按钮',
+      icon: '📦', title: '核心功能按钮',
       step: '7 / 8',
-      body: '顶部有<b>三个</b>重要按钮：\n\n🔄 <b>切换粉丝站</b>：管理多个粉丝站，一键切换不同偶像~\n\n📦 <b>导出展示版</b>：把你的粉丝站打包成独立 HTML 文件发给朋友！\n\n👁 <b>预览外观</b>：选好模板和特效后点这里实时预览效果~',
-      selector: '#mainActionBar',
-      arrow: 'up', bubblePos: 'below'
+      body: '侧边栏底部有<b>三个</b>重要按钮：\n\n🔄 <b>切换粉丝站</b>：管理多个粉丝站，一键切换~\n\n🎨 <b>预览外观</b>：选好模板和特效后点这里实时预览\n\n📦 <b>导出展示版</b>：打包成独立 HTML 发给朋友！',
+      selector: '#sidebar-actions',
+      arrow: 'right', bubblePos: 'below'
     },
     {
-      icon: '⚙️', title: '编辑控制台',
+      icon: '🚀', title: '开始使用',
       step: '8 / 8',
-      body: '右下角这个<b>紫色小球</b>就是编辑控制台的入口。\n\n在这里填写偶像信息、上传照片、写心语，所有编辑功能都在这里！\n\n🚀 开始使用吧~',
-      selector: '.editor-toggle',
-      arrow: 'down', bubblePos: 'above'
+      body: '所有模块都<b>内置了编辑器</b>，点击进入后直接编辑，无需额外打开！\n\n左侧导航随时切换六个模块，右侧面板展示数据统计。\n\n✨ 从<b>偶像资料</b>开始，打造你的专属粉丝站吧！',
+      selector: 'aside',
+      arrow: 'right', bubblePos: 'below'
     }
   ],
   init() {

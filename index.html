@@ -1,7 +1,3 @@
-<!-- 
-  📦 StarFan Studio v2.5 | 内部开发注释
-  💡 更新的内容设置在 UpdateNotifier 模块，每次发布新版本时改：CURRENT / TITLE / CHANGES
--->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -10,48 +6,87 @@
 <title>StarFan Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#7C5CFC',
+        'primary-hover': '#6A4DE0',
+        'primary-light': '#E8DEF8',
+        'primary-bg': '#F8F7FF',
+        'text-main': '#111827',
+        'text-sub': '#6B7280',
+        'border-light': '#E5E7EB',
+        'border-hover': '#D1D5DB',
+        accent: {
+          pink: '#F472B6', amber: '#F59E0B', sky: '#38BDF8',
+          purple: '#A78BFA', green: '#34D399', rose: '#FB7185'
+        }
+      },
+      fontFamily: {
+        sans: ['Inter', 'Noto Sans SC', 'system-ui', 'sans-serif'],
+      },
+      borderRadius: {
+        'card': '16px',
+        'btn': '12px',
+        'full': '9999px',
+      },
+      spacing: {
+        '18': '72px',
+      },
+      boxShadow: {
+        'card': '0 2px 8px rgba(0,0,0,0.04)',
+        'card-hover': '0 8px 30px rgba(0,0,0,0.10)',
+        'sidebar': '2px 0 12px rgba(0,0,0,0.03)',
+      },
+      transitionTimingFunction: {
+        'spring': 'cubic-bezier(0.34,1.56,0.64,1)',
+      }
+    }
+  }
+}
+</script>
 </head>
-<body>
-<div id="bgImageLayer"></div>
-<canvas id="bgCanvas"></canvas>
-<!-- 实时特效预览层 -->
-<div class="live-fx-layer" id="liveFxLayer"></div>
-<!-- 主题装饰图案层 -->
-<div class="theme-deco-layer" id="themeDecoLayer"></div>
-<!-- 新手教程：欢迎弹窗（第0步） -->
+<body class="m-0 font-sans text-text-main leading-relaxed overflow-x-hidden min-h-screen">
+
+<!-- 背景图层（保持 BackgroundFX 兼容） -->
+<div id="bgImageLayer" class="fixed inset-0 -z-30 bg-cover bg-center bg-no-repeat opacity-[0.06]" style="background-image:url('背景图/ChatGPT Image 2026年5月28日 10_30_57.png')"></div>
+<canvas id="bgCanvas" class="fixed inset-0 -z-20 pointer-events-none"></canvas>
+
+<!-- 教程界面（不在 React 内，由 Tutorial 纯 JS 模块管理） -->
 <div class="tut-welcome" id="tutWelcome">
   <div class="tut-welcome-card">
     <div class="tut-welcome-hero">
-      <span class="tut-welcome-icon">🎉</span>
-      <h2>欢迎来到 StarFan Studio</h2>
-      <p>为你的偶像打造一个专属的精美粉丝站 ✨</p>
+      <div class="tut-welcome-icon">🎨</div>
+      <h2>欢迎使用 StarFan Studio</h2>
+      <p>爱豆回忆录生成器</p>
     </div>
     <div class="tut-welcome-body">
-      <p>接下来将带你快速认识页面上的各个功能区域，只需 1 分钟~</p>
+      <p>想打造一个专属粉丝站？<br>只需 <b>3 分钟</b>，跟着指引一路点过去~</p>
       <div class="tut-welcome-list">
-        <div class="tut-welcome-item"><span class="wi-icon">🗂</span><div class="wi-text"><b>6 大内容板块</b><span>资料、追忆、画廊、心语、日历、周边</span></div></div>
-        <div class="tut-welcome-item"><span class="wi-icon">📦</span><div class="wi-text"><b>顶部功能按钮</b><span>切换粉丝站、导出展示版、预览外观</span></div></div>
-        <div class="tut-welcome-item"><span class="wi-icon">⚙️</span><div class="wi-text"><b>编辑控制台入口</b><span>右下角紫色小球</span></div></div>
+        <div class="tut-welcome-item"><span class="wi-icon">🌟</span><div class="wi-text"><b>偶像资料</b><span>头像、名字、简介</span></div></div>
+        <div class="tut-welcome-item"><span class="wi-icon">📖</span><div class="wi-text"><b>追忆时光</b><span>记录心动瞬间</span></div></div>
+        <div class="tut-welcome-item"><span class="wi-icon">🖼</span><div class="wi-text"><b>照片画廊</b><span>珍藏影像</span></div></div>
+        <div class="tut-welcome-item"><span class="wi-icon">💌</span><div class="wi-text"><b>粉丝心语</b><span>写下心里话</span></div></div>
       </div>
     </div>
     <div class="tut-welcome-footer">
-      <button style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;padding:4px 8px;width:auto;margin:0;" onclick="Tutorial.close()">跳过教程</button>
-      <button class="tut-btn-next" onclick="Tutorial.next()"><span>开始引导</span><span style="font-size:15px;">→</span></button>
+      <button class="tut-btn-skip" onclick="Tutorial.close()">跳过教程</button>
+      <button class="tut-btn-next" onclick="Tutorial.next()"><span>开始引导</span><span style="font-size:14px;">→</span></button>
     </div>
   </div>
 </div>
-<!-- 新手教程：遮罩层（步骤1-8） -->
 <div class="tut-mask" id="tutMask">
   <div class="tut-mask-top" id="tutMaskTop"></div>
   <div class="tut-mask-bottom" id="tutMaskBottom"></div>
   <div class="tut-mask-left" id="tutMaskLeft"></div>
   <div class="tut-mask-right" id="tutMaskRight"></div>
 </div>
-<!-- 高亮边框 -->
 <div class="tut-highlight-ring" id="tutRing"></div>
-<!-- 气泡说明卡 -->
 <div class="tut-bubble" id="tutBubble">
   <div class="tut-bubble-head">
     <span class="tut-bubble-icon" id="tutBubbleIcon"></span>
@@ -64,191 +99,1374 @@
     <button class="tut-btn-next" id="tutBtnNext" onclick="Tutorial.next()"><span>下一步</span><span style="font-size:14px;">→</span></button>
   </div>
 </div>
-<!-- 右上角跳出按钮 -->
 <button class="tut-exit-btn" id="tutExitBtn" onclick="Tutorial.close()">✕ 跳出教程</button>
-<!-- 操作栏 -->
-<div class="action-bar" id="mainActionBar">
-  <button class="switch-site-btn" onclick="SiteUI.toggle()">切换粉丝站</button>
-<button class="export-btn" onclick="Exporter.exportReadOnly()">导出展示版</button>
-<button class="preview-btn" onclick="TemplateStore.previewStyle()">预览外观</button>
-</div>
-</div>
-<!-- 站点列表面板 -->
-<div class="site-list-panel" id="sitePanel"></div>
-<!-- 更新通知弹窗 -->
-<div class="update-notice" id="updateNotice"></div>
-<!-- 费用清单弹窗（导出前） -->
-<div class="bill-overlay" id="billOverlay">
-  <div class="bill-modal">
-    <div class="bill-header">
-      <h3>导出费用清单</h3>
-      <p>请确认以下费用后前往支付</p>
+
+<!-- React 挂载点 -->
+<div id="root"></div>
+
+<!-- 兼容旧模块的隐藏容器 -->
+<div id="editorContent" style="display:none"></div>
+
+<!-- ═══════════ 数据层模块（保持不变） ═══════════ -->
+<script src="js/modules/00_site_manager.js"></script>
+<script src="js/modules/01_site_ui.js"></script>
+<script src="js/modules/02_update_notifier.js"></script>
+<!-- 站点初始化（替代原 init.js 的站点创建/迁移逻辑） -->
+<script>
+// ?reset=true → 清空当前站点数据
+if (location.search.includes('reset=true')) {
+  localStorage.removeItem(SiteManager.dataKey());
+  try { indexedDB.deleteDatabase(SiteManager.dbName()); } catch(e) {}
+  localStorage.removeItem(SiteManager.optsKey());
+  localStorage.removeItem(SiteManager.PREFIX + (SiteManager.getActive() || 'default') + '_tutorial_done');
+  localStorage.removeItem(SiteManager.PREFIX + (SiteManager.getActive() || 'default') + '_last_version');
+  console.log('🧹 当前站点数据已全部清零！');
+  history.replaceState(null, '', location.pathname);
+}
+// 自动创建默认站点
+window._isNewUser = false;
+if (SiteManager.getAll().length === 0) {
+  var _hasOldData = localStorage.getItem('starfan_data') || localStorage.getItem('starfan_tutorial_done');
+  SiteManager.create('我的第一个粉丝站');
+  if (_hasOldData) {
+    var _oldData = localStorage.getItem('starfan_data');
+    if (_oldData) { localStorage.setItem(SiteManager.dataKey(), _oldData); localStorage.removeItem('starfan_data'); }
+    var _oldOpts = localStorage.getItem('starfan_template_opts');
+    if (_oldOpts) { localStorage.setItem(SiteManager.optsKey(), _oldOpts); localStorage.removeItem('starfan_template_opts'); }
+    var _oldTut = localStorage.getItem('starfan_tutorial_done');
+    if (_oldTut) { localStorage.setItem(SiteManager.PREFIX + (SiteManager.getActive()||'default') + '_tutorial_done', _oldTut); localStorage.removeItem('starfan_tutorial_done'); }
+    _isNewUser = false;
+  } else {
+    _isNewUser = true;
+  }
+} else {
+  var _globalTut = localStorage.getItem('starfan_tutorial_done');
+  if (_globalTut) {
+    var _sites = SiteManager.getAll();
+    for (var _si = 0; _si < _sites.length; _si++) {
+      var _sk = SiteManager.PREFIX + _sites[_si].id + '_tutorial_done';
+      if (!localStorage.getItem(_sk)) localStorage.setItem(_sk, _globalTut);
+    }
+    localStorage.removeItem('starfan_tutorial_done');
+  }
+}
+// 页面关闭前自动保存
+window.addEventListener('beforeunload', function() {
+  if (window._reactState && typeof AppState !== 'undefined') {
+    AppState.data = window._reactState.data;
+    AppState.save();
+  }
+});
+</script>
+<script src="js/modules/03_asset_db.js"></script>
+<script src="js/modules/04_app_state.js"></script>
+<script src="js/modules/05_ai_service.js"></script>
+<script src="js/modules/08_calendar.js"></script>
+<script src="js/modules/09_shop.js"></script>
+<!-- Render / Events 兼容层：React 接管了 UI，但 TemplateStore/LivePreview/Exporter 仍需这些全局对象 -->
+<script>
+// Render 兼容层 — 提供 TemplateStore.previewStyle() 所需的接口
+window.Render = {
+  preview(tab) {
+    // React 管理所有渲染，这里只确保数据同步
+    if (window._reactDispatch) {
+      window._reactDispatch({ type: 'SET_TAB', tab: tab || (window._reactState?.activeTab || 'celebrity') });
+    }
+  },
+  editor(tab) { /* React 管理编辑器 */ },
+  renderTemplateEditor() { /* React 管理模板编辑 */ },
+  renderAIPanel() { /* React 管理 AI 面板 */ },
+  applyTheme(text) {
+    // 保留原版主题应用逻辑（通过 body background 显示 Canvas 背景特效）
+    const map = {"蓝":"#4a90e2","淡蓝":"#a8d8ff","天蓝":"#87ceeb","粉":"#ff9ecb","淡粉":"#ffd1dc","紫":"#b388ff","黄":"#ffd700","金":"#ffd700","红":"#ff4757","绿":"#2ed573","橙":"#ffa502","灰":"#a4b0be","白":"#ffffff","黑":"#222222"};
+    let c1="#a8d8ff", c2="#ffd700";
+    const toRgba = (hex, a) => { const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})`; };
+    if(text) { const parts=text.split('+').map(s=>s.trim()); const m1=parts[0]&&Object.keys(map).find(k=>text.includes(k)); const m2=parts[1]&&Object.keys(map).find(k=>text.includes(k)); if(m1)c1=map[m1]; if(m2)c2=map[m2]; }
+    document.body.style.background=`linear-gradient(135deg, ${toRgba(c1,0.65)}, ${toRgba(c2,0.65)})`;
+    document.body.style.backgroundAttachment='fixed';
+  }
+};
+// Events 兼容层 — 提供追忆弹窗等功能
+window.Events = {
+  closeMemoir() {
+    document.getElementById('memoirOverlay')?.classList.add('hidden');
+  },
+  switchTab(tab) {
+    if (window._reactDispatch) window._reactDispatch({ type: 'SET_TAB', tab });
+  },
+  toggleEditor() { /* React 管理编辑面板 */ }
+};
+// 全局变量
+window.editingNewsId = null;
+</script>
+<script src="js/modules/10_template_store.js"></script>
+<script src="js/modules/11_live_preview.js"></script>
+<script src="js/modules/12_exporter.js"></script>
+<script src="js/modules/13_background_fx.js"></script>
+<script src="js/modules/15_tutorial.js"></script>
+<script src="js/modules/16_drag_button.js"></script>
+
+<!-- React CDN -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useReducer, useRef, useCallback, useMemo } = React;
+
+// ═══════════ 全局 Context & Reducer ═══════════
+const AppContext = React.createContext(null);
+
+const initialState = {
+  activeTab: 'dashboard',
+  data: {
+    celebrity: { siteName: '', name: '', colors: '淡蓝+金色', bio: '', avatar: '', social: { weibo: '' }, bgType: 'stars' },
+    news: [], gallery: [], community: [], calendar: [], shop: []
+  },
+  paidItems: [],
+  selectedTemplate: 'default',
+  selectedEffects: [],
+  modal: null,           // 'memoir' | 'lightbox' | 'bill' | 'pay' | 'style' | 'site'
+  modalData: null,
+  viewMode: 'grid',      // gallery: grid | list | focus
+  calMonth: new Date(),
+  calSelected: null,
+  editingNews: null,
+  newsCover: null,
+  editingShop: null,
+  shopImage: null,
+  isPreview: false,
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'SET_TAB': return { ...state, activeTab: action.tab };
+    case 'LOAD_DATA': return { ...state, data: action.data };
+    case 'UPDATE_CELEBRITY': return { ...state, data: { ...state.data, celebrity: { ...state.data.celebrity, ...action.payload } } };
+    case 'SET_CELEBRITY':
+      return { ...state, data: { ...state.data, celebrity: action.payload } };
+    case 'ADD_NEWS':
+      return { ...state, data: { ...state.data, news: [...state.data.news, action.item] } };
+    case 'UPDATE_NEWS':
+      return { ...state, data: { ...state.data, news: state.data.news.map(n => n.id === action.item.id ? action.item : n) } };
+    case 'DELETE_NEWS':
+      return { ...state, data: { ...state.data, news: state.data.news.filter(n => n.id !== action.id) } };
+    case 'SET_GALLERY':
+      return { ...state, data: { ...state.data, gallery: action.list } };
+    case 'DELETE_GALLERY':
+      return { ...state, data: { ...state.data, gallery: state.data.gallery.filter(g => g.id !== action.id) } };
+    case 'UPDATE_GALLERY_CAPTION':
+      return { ...state, data: { ...state.data, gallery: state.data.gallery.map(g => g.id === action.id ? { ...g, caption: action.caption } : g) } };
+    case 'ADD_COMMENT':
+      return { ...state, data: { ...state.data, community: [...state.data.community, action.item] } };
+    case 'DELETE_COMMENT':
+      return { ...state, data: { ...state.data, community: state.data.community.filter((_, i) => i !== action.idx) } };
+    case 'SET_CALENDAR':
+      return { ...state, data: { ...state.data, calendar: action.list } };
+    case 'ADD_CALENDAR':
+      return { ...state, data: { ...state.data, calendar: [...state.data.calendar, action.item] } };
+    case 'DELETE_CALENDAR':
+      return { ...state, data: { ...state.data, calendar: state.data.calendar.filter(e => e.id !== action.id) } };
+    case 'TOGGLE_REGISTER':
+      return { ...state, data: { ...state.data, calendar: state.data.calendar.map(e => e.id === action.id ? { ...e, registered: !e.registered } : e) } };
+    case 'SET_SHOP':
+      return { ...state, data: { ...state.data, shop: action.list } };
+    case 'ADD_SHOP':
+      return { ...state, data: { ...state.data, shop: [...state.data.shop, action.item] } };
+    case 'DELETE_SHOP':
+      return { ...state, data: { ...state.data, shop: state.data.shop.filter(s => s.id !== action.id) } };
+    case 'SET_PAID':
+      return { ...state, paidItems: action.list };
+    case 'PAY_ITEM':
+      return { ...state, paidItems: [...state.paidItems, action.id] };
+    case 'SET_TEMPLATE':
+      return { ...state, selectedTemplate: action.id };
+    case 'TOGGLE_EFFECT':
+      const eid = action.id;
+      const fx = state.selectedEffects.includes(eid) ? state.selectedEffects.filter(e => e !== eid) : [...state.selectedEffects, eid];
+      return { ...state, selectedEffects: fx };
+    case 'SET_MODAL':
+      return { ...state, modal: action.modal, modalData: action.data || null };
+    case 'SET_VIEW_MODE':
+      return { ...state, viewMode: action.mode };
+    case 'SET_CAL_MONTH':
+      return { ...state, calMonth: action.date };
+    case 'SET_CAL_SELECTED':
+      return { ...state, calSelected: action.date };
+    case 'SET_EDITING_NEWS':
+      return { ...state, editingNews: action.item, newsCover: null };
+    case 'SET_SHOP_EDIT':
+      return { ...state, editingShop: action.item, shopImage: null };
+    case 'SET_IS_PREVIEW':
+      return { ...state, isPreview: action.val };
+    case 'SET_DATA':
+      return { ...state, data: action.data };
+    default: return state;
+  }
+}
+
+// ═══════════ 工具函数 ═══════════
+const moduleColors = {
+  celebrity: 'accent-pink', news: 'accent-amber', gallery: 'accent-sky',
+  community: 'accent-purple', calendar: 'accent-green', shop: 'accent-rose'
+};
+const moduleIcons = { celebrity: '🌟', news: '📖', gallery: '🖼', community: '💌', calendar: '📅', shop: '🛍' };
+const moduleTitles = { celebrity: '偶像资料', news: '追忆时光', gallery: '照片画廊', community: '粉丝心语', calendar: '活动日历', shop: '周边收藏' };
+const moduleDescs = { celebrity: '名字、头像、简介', news: '记录每一次心动', gallery: '珍藏影像瞬间', community: '记录每一份心情', calendar: '演唱会与见面会', shop: '我的周边小柜' };
+const catLabels = { '周边': '周边', '专辑': '专辑', '服饰': '服饰', '配饰': '配饰' };
+
+// ═══════════ 组件 ═══════════
+
+// --- Card 容器 ---
+function CardContainer({ children, className, onClick, tab }) {
+  return (
+    <div
+      className={`bg-white rounded-card shadow-card p-6 transition-all duration-300 cursor-pointer
+        hover:-translate-y-1 hover:shadow-card-hover ${className || ''}`}
+      onClick={onClick}
+    >
+      {children}
     </div>
-    <div class="bill-body" id="billBody"></div>
-    <div class="bill-easter-egg">
-      <div class="bill-easter-egg-text">其实支付多少都行，因为看不到，一个笨蛋本科生不想搞那么麻烦，想躺平 😌</div>
-    </div>
-    <div class="bill-footer">
-      <button class="bill-cancel" onclick="TemplateStore.cancelBill()">取消</button>
-      <button class="bill-go" id="billGoBtn" onclick="TemplateStore.goToPay()">去支付</button>
-    </div>
-  </div>
-</div>
-<!-- 支付弹窗（微信/支付宝） -->
-<div class="pay-overlay" id="payOverlay">
-  <div class="pay-modal" id="payModal">
-    <!-- 头部 -->
-    <div class="pay-header">
-      <button class="pay-header-close" onclick="TemplateStore.cancelPay()" title="关闭">✕</button>
-      <h3>解锁精美外观</h3>
-      <p>选择支付方式，完成后点击"我已付款"</p>
-    </div>
-    <!-- 商品清单 -->
-    <div class="pay-body">
-      <div class="pay-item-list" id="payItemList"></div>
-      <div class="pay-total-row">
-        <span class="label">合计金额</span>
-        <span class="amount" id="payTotalAmount">¥0</span>
+  );
+}
+
+// --- 空状态 ---
+function EmptyState({ icon, title, desc, action, onAction }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="w-20 h-20 rounded-full bg-primary-light flex items-center justify-center mb-4">
+        <span className="text-3xl">{icon}</span>
       </div>
+      <h3 className="text-lg font-semibold text-text-main mb-2">{title}</h3>
+      <p className="text-sm text-text-sub mb-6 max-w-xs">{desc}</p>
+      {action && (
+        <button onClick={onAction} className="px-6 py-2.5 bg-primary text-white rounded-btn font-medium hover:bg-primary-hover transition-colors">
+          {action}
+        </button>
+      )}
     </div>
-    <!-- 支付方式 Tab -->
-    <div class="pay-method-tabs">
-      <div class="pay-method-tab wechat active" id="payTabWechat" onclick="TemplateStore.switchPayMethod('wechat')">
-        <span class="pm-icon"></span>
-        <span class="pm-label">微信支付</span>
-      </div>
-      <div class="pay-method-tab alipay" id="payTabAlipay" onclick="TemplateStore.switchPayMethod('alipay')">
-        <span class="pm-icon"></span>
-        <span class="pm-label">支付宝</span>
-      </div>
-    </div>
-    <!-- 二维码区域 -->
-    <div class="pay-qr-section">
-      <div class="pay-qr-wrap" id="payQrWrap">
-        <!-- QR 码图片，运营者替换为真实二维码 -->
-        <div class="pay-qr-placeholder" id="payQrPlaceholder">
-          <div class="qr-icon" id="payQrIcon"></div>
-          <svg id="payQrSvg" width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" style="display:none;">
-            <!-- 微信二维码占位图案 -->
-            <rect width="140" height="140" fill="#fff"/>
-            <rect x="8" y="8" width="50" height="50" rx="6" fill="none" stroke="#07c160" stroke-width="4"/>
-            <rect x="18" y="18" width="30" height="30" rx="2" fill="#07c160"/>
-            <rect x="82" y="8" width="50" height="50" rx="6" fill="none" stroke="#07c160" stroke-width="4"/>
-            <rect x="92" y="18" width="30" height="30" rx="2" fill="#07c160"/>
-            <rect x="8" y="82" width="50" height="50" rx="6" fill="none" stroke="#07c160" stroke-width="4"/>
-            <rect x="18" y="92" width="30" height="30" rx="2" fill="#07c160"/>
-            <rect x="82" y="82" width="10" height="10" fill="#07c160"/>
-            <rect x="96" y="82" width="10" height="10" fill="#07c160"/>
-            <rect x="110" y="82" width="10" height="10" fill="#07c160"/>
-            <rect x="82" y="96" width="10" height="10" fill="#07c160"/>
-            <rect x="110" y="96" width="10" height="10" fill="#07c160"/>
-            <rect x="82" y="110" width="10" height="10" fill="#07c160"/>
-            <rect x="96" y="110" width="10" height="10" fill="#07c160"/>
-            <rect x="110" y="110" width="10" height="10" fill="#07c160"/>
-            <rect x="70" y="8" width="8" height="8" fill="#07c160"/>
-            <rect x="60" y="20" width="8" height="8" fill="#07c160"/>
-            <rect x="70" y="30" width="8" height="8" fill="#07c160"/>
-            <rect x="60" y="60" width="8" height="8" fill="#07c160"/>
-            <rect x="70" y="60" width="8" height="8" fill="#07c160"/>
-            <rect x="60" y="70" width="8" height="8" fill="#07c160"/>
-            <rect x="8" y="60" width="8" height="8" fill="#07c160"/>
-            <rect x="20" y="60" width="8" height="8" fill="#07c160"/>
-            <rect x="30" y="60" width="8" height="8" fill="#07c160"/>
-            <rect x="40" y="60" width="8" height="8" fill="#07c160"/>
-            <rect x="8" y="70" width="8" height="8" fill="#07c160"/>
-            <rect x="30" y="70" width="8" height="8" fill="#07c160"/>
-            <rect x="50" y="70" width="8" height="8" fill="#07c160"/>
-          </svg>
-          <div class="qr-tip" id="payQrTip">请将此处替换为<br>您的<b id="payQrLabel">微信</b>收款二维码</div>
+  );
+}
+
+// --- 模块卡片（Dashboard 网格用） ---
+function ModuleCard({ tab, data }) {
+  const { dispatch } = useContext(AppContext);
+  const color = moduleColors[tab];
+
+  const getPreview = () => {
+    switch (tab) {
+      case 'celebrity':
+        if (data.celebrity.name) return <span className="text-sm font-semibold text-text-main">{data.celebrity.name}</span>;
+        return <span className="text-sm text-text-sub italic">点击编辑偶像信息 ✨</span>;
+      case 'news':
+        return data.news.length
+          ? <span className="inline-block text-xs font-semibold text-primary bg-primary-light px-3 py-1 rounded-full">{data.news.length} 条追忆</span>
+          : <span className="text-sm text-text-sub italic">还没有追忆记录 📝</span>;
+      case 'gallery':
+        return data.gallery.length
+          ? <div className="flex gap-1.5 mt-1">{data.gallery.slice(0,4).map((g,i) => <img key={i} src={g.url} className="w-10 h-10 rounded-lg object-cover border-2 border-white shadow-sm" />)}<span className="text-xs text-text-sub self-center ml-1">+{data.gallery.length}</span></div>
+          : <span className="text-sm text-text-sub italic">还没有照片 🖼</span>;
+      case 'community':
+        return data.community.length
+          ? <span className="inline-block text-xs font-semibold text-primary bg-primary-light px-3 py-1 rounded-full">{data.community.length} 条心语</span>
+          : <span className="text-sm text-text-sub italic">还没有心语 💬</span>;
+      case 'calendar':
+        const up = data.calendar.filter(e => e.date >= new Date().toISOString().slice(0,10)).length;
+        return data.calendar.length
+          ? <span className="text-xs text-text-sub">{data.calendar.length} 个活动{up ? `（${up} 场待举办）` : ''}</span>
+          : <span className="text-sm text-text-sub italic">还没有活动安排 📅</span>;
+      case 'shop':
+        return data.shop.length
+          ? <span className="inline-block text-xs font-semibold text-primary bg-primary-light px-3 py-1 rounded-full">{data.shop.length} 件收藏</span>
+          : <span className="text-sm text-text-sub italic">还没有周边收藏 🛍</span>;
+    }
+  };
+
+  return (
+    <CardContainer onClick={() => dispatch({ type: 'SET_TAB', tab })} className="group">
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-2xl">{moduleIcons[tab]}</span>
+        <div>
+          <div className="font-semibold text-base text-text-main">{moduleTitles[tab]}</div>
+          <div className="text-xs text-text-sub">{moduleDescs[tab]}</div>
         </div>
       </div>
-      <div class="pay-qr-hint wechat" id="payQrHint">
-        <b id="payQrHintTitle">微信扫码支付</b>
-        使用微信扫描二维码<br>完成支付后点击下方按钮
+      <div className="min-h-[32px]">{getPreview()}</div>
+    </CardContainer>
+  );
+}
+
+// --- Sidebar ---
+function Sidebar() {
+  const { state, dispatch } = useContext(AppContext);
+  const tabs = ['dashboard', 'celebrity', 'news', 'gallery', 'community', 'calendar', 'shop'];
+
+  return (
+    <aside className="w-[220px] min-w-[220px] h-screen sticky top-0 bg-white border-r border-border-light shadow-sidebar flex flex-col z-10">
+      {/* Logo */}
+      <div className="p-6 pb-4">
+        <h1 className="text-xl font-bold text-primary tracking-tight">{state.data.celebrity.siteName || 'StarFan Studio'}</h1>
+        <p className="text-xs text-text-sub mt-1">爱豆回忆录生成器</p>
+      </div>
+
+      {/* 导航 */}
+      <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
+        {tabs.map(tab => (
+          <button
+            id={'nav-' + tab}
+            key={tab}
+            onClick={() => dispatch({ type: 'SET_TAB', tab })}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-btn text-sm font-medium transition-all duration-200
+              ${state.activeTab === tab
+                ? 'bg-primary-light text-primary font-semibold'
+                : 'text-text-sub hover:bg-gray-50 hover:text-text-main'}`}
+          >
+            <span className="text-lg">{tab === 'dashboard' ? '🏠' : moduleIcons[tab]}</span>
+            <span>{tab === 'dashboard' ? '仪表盘' : moduleTitles[tab]}</span>
+          </button>
+        ))}
+      </nav>
+
+      {/* 操作按钮 */}
+      <div id="sidebar-actions" className="p-3 border-t border-border-light space-y-2">
+        <button onClick={() => SiteUI?.toggle()} className="w-full px-4 py-2 text-sm text-text-sub bg-gray-50 hover:bg-gray-100 rounded-btn transition-colors text-left">
+          🔄 切换粉丝站
+        </button>
+        <button onClick={() => TemplateStore?.previewStyle()} className="w-full px-4 py-2 text-sm text-text-sub bg-gray-50 hover:bg-gray-100 rounded-btn transition-colors text-left">
+          🎨 预览外观
+        </button>
+        <button onClick={() => Exporter?.exportReadOnly()} className="w-full px-4 py-2 text-sm bg-primary text-white hover:bg-primary-hover rounded-btn transition-colors font-medium">
+          📦 导出展示版
+        </button>
+      </div>
+
+      {/* 底部 */}
+      <div className="p-4 text-center">
+        <p className="text-[10px] text-text-sub">用 StarFan Studio 记录偶像的每一个精彩瞬间</p>
+      </div>
+    </aside>
+  );
+}
+
+// --- RightPanel (Dashboard 仪表盘右侧) ---
+function RightPanel() {
+  const { state } = useContext(AppContext);
+  const d = state.data;
+
+  const stats = [
+    { label: '追忆记录', value: d.news.length, icon: '📖' },
+    { label: '珍藏照片', value: d.gallery.length, icon: '🖼' },
+    { label: '粉丝心语', value: d.community.length, icon: '💌' },
+    { label: '活动安排', value: d.calendar.length, icon: '📅' },
+    { label: '周边收藏', value: d.shop.length, icon: '🛍' },
+  ];
+
+  const recentItems = [
+    ...d.news.slice(-3).map(n => ({ text: n.title || '追忆', time: n.date, icon: '📖' })),
+    ...d.community.slice(-3).map(c => ({ text: (typeof c === 'object' ? c.text : c)?.slice(0,20) || '心语', time: (typeof c === 'object' ? c.time : ''), icon: '💌' })),
+  ].slice(-5).reverse();
+
+  return (
+    <aside className="w-[280px] min-w-[280px] h-screen sticky top-0 overflow-y-auto p-5 space-y-5 border-l border-border-light bg-white/60 backdrop-blur-sm">
+      {/* 数据统计 */}
+      <div className="bg-white rounded-card shadow-card p-5">
+        <h3 className="text-sm font-semibold text-text-main mb-4">📊 数据总览</h3>
+        <div className="space-y-3">
+          {stats.map(s => (
+            <div key={s.label} className="flex items-center justify-between">
+              <span className="text-sm text-text-sub">{s.icon} {s.label}</span>
+              <span className="text-sm font-semibold text-primary bg-primary-light px-2.5 py-0.5 rounded-full">{s.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 最近动态 */}
+      {recentItems.length > 0 && (
+        <div className="bg-white rounded-card shadow-card p-5">
+          <h3 className="text-sm font-semibold text-text-main mb-4">🕐 最近动态</h3>
+          <div className="space-y-3">
+            {recentItems.map((item, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <span className="text-sm mt-0.5">{item.icon}</span>
+                <div>
+                  <p className="text-xs text-text-main leading-relaxed">{item.text}</p>
+                  {item.time && <p className="text-[10px] text-text-sub">{item.time}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* AI 助手 */}
+      <div className="bg-gradient-to-br from-primary-light to-white rounded-card shadow-card p-5">
+        <h3 className="text-sm font-semibold text-text-main mb-2">🤖 AI 助手</h3>
+        <p className="text-xs text-text-sub mb-3">试试让我帮你写偶像简介、生成图注~</p>
+        <button
+          onClick={() => { /* trigger AI */ }}
+          className="w-full px-4 py-2 text-sm bg-primary text-white rounded-btn hover:bg-primary-hover transition-colors font-medium"
+        >
+          开始使用 AI ✨
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+// --- 模块页头 ---
+function ModuleHeader({ tab, showEdit, onEdit }) {
+  return (
+    <div className="flex items-center justify-between mb-6">
+      <div>
+        <h2 className="text-2xl font-bold text-text-main">{moduleIcons[tab]} {moduleTitles[tab]}</h2>
+        <p className="text-sm text-text-sub mt-1">{moduleDescs[tab]}</p>
+      </div>
+      {showEdit && onEdit && (
+        <button onClick={onEdit} className="px-5 py-2.5 bg-primary text-white rounded-btn text-sm font-medium hover:bg-primary-hover transition-colors">
+          + 新增
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ═══════════ 各大模块视图 ═══════════
+
+// --- CelebrityView ---
+function CelebrityView() {
+  const { state, dispatch } = useContext(AppContext);
+  const c = state.data.celebrity;
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({ siteName: c.siteName, name: c.name, colors: c.colors, bio: c.bio, weibo: c.social?.weibo || '' });
+  const avatarRef = useRef(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiText, setAiText] = useState('');
+
+  useEffect(() => { setForm({ siteName: c.siteName, name: c.name, colors: c.colors, bio: c.bio, weibo: c.social?.weibo || '' }); }, [c]);
+
+  const handleAvatar = (e) => {
+    const file = e.target.files?.[0];
+    if (!file || file.size > 50*1024*1024) return alert('图片不能超过 50MB');
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const base64 = ev.target.result;
+      await AssetDB.save('avatar', base64);
+      dispatch({ type: 'UPDATE_CELEBRITY', payload: { avatar: base64 } });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSave = () => {
+    dispatch({ type: 'SET_CELEBRITY', payload: { ...c, siteName: form.siteName, name: form.name, colors: form.colors, bio: form.bio, social: { weibo: form.weibo } } });
+    setEditing(false);
+  };
+
+  const handleAI = async () => {
+    if (!form.name) return;
+    setAiLoading(true); setAiText('');
+    await AIService.generate(AIService.prompts.bio(form.name), (text, done) => {
+      setAiText(text);
+      if (done) { setForm(f => ({ ...f, bio: text })); setAiLoading(false); }
+    });
+  };
+
+  const bgTypes = [
+    { id: 'stars', label: '闪烁星空', emoji: '✨' },
+    { id: 'moon', label: '梦幻月影', emoji: '🌙' },
+    { id: 'particles', label: '浮动粒子', emoji: '💫' },
+  ];
+
+  return (
+    <div>
+      <ModuleHeader tab="celebrity" showEdit={!editing} onEdit={() => setEditing(true)} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* 头像 + Banner */}
+        <div className="lg:col-span-1">
+          <CardContainer>
+            <div className="text-center">
+              <div className="relative w-32 h-32 mx-auto mb-4">
+                <img
+                  src={c.avatar || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23E8DEF8" width="100" height="100" rx="50"/><text x="50" y="55" text-anchor="middle" fill="%237C5CFC" font-size="40">★</text></svg>'}
+                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                  alt="avatar"
+                />
+                {editing && (
+                  <button onClick={() => avatarRef.current?.click()} className="absolute bottom-0 right-0 w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center text-sm shadow-md hover:bg-primary-hover transition-colors">
+                    📷
+                  </button>
+                )}
+              </div>
+              <input ref={avatarRef} type="file" accept="image/*" onChange={handleAvatar} className="hidden" />
+              {editing ? (
+                <input value={form.name} onChange={e => setForm({...form, name:e.target.value})} placeholder="偶像名字" className="text-center text-lg font-bold border-b-2 border-primary outline-none w-full bg-transparent py-1" />
+              ) : (
+                <h3 className="text-xl font-bold text-text-main">{c.name || '未命名'}</h3>
+              )}
+            </div>
+          </CardContainer>
+
+          {/* 数据浮标 */}
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            {[
+              { label: '追忆', val: state.data.news.length },
+              { label: '照片', val: state.data.gallery.length },
+              { label: '心语', val: state.data.community.length },
+              { label: '活动', val: state.data.calendar.length },
+            ].map(s => (
+              <div key={s.label} className="bg-white rounded-card shadow-card p-4 text-center">
+                <div className="text-2xl font-bold text-primary">{s.val}</div>
+                <div className="text-xs text-text-sub mt-1">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 编辑区 */}
+        <div className="lg:col-span-2 space-y-4">
+          <CardContainer>
+            <div className="space-y-4">
+              {editing ? (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-text-sub mb-1">站点名称</label>
+                    <input value={form.siteName} onChange={e => setForm({...form, siteName:e.target.value})} placeholder="给你的粉丝站起个名字" className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-sub mb-1">主色调</label>
+                    <input value={form.colors} onChange={e => setForm({...form, colors:e.target.value})} placeholder="如：淡蓝+金色" className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-sub mb-1">动态背景</label>
+                    <div className="flex gap-2">
+                      {bgTypes.map(bg => (
+                        <button key={bg.id} onClick={() => { dispatch({ type: 'UPDATE_CELEBRITY', payload: { bgType: bg.id } }); BackgroundFX?.setType(bg.id); }}
+                          className={`px-4 py-2 rounded-btn text-sm font-medium transition-all ${c.bgType === bg.id ? 'bg-primary text-white' : 'bg-gray-100 text-text-sub hover:bg-gray-200'}`}>
+                          {bg.emoji} {bg.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-sub mb-1">个人简介</label>
+                    <textarea value={form.bio} onChange={e => setForm({...form, bio:e.target.value})} rows={4} placeholder="写下偶像的简介..." className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors resize-none" />
+                    <div className="flex gap-2 mt-2">
+                      <button onClick={handleAI} disabled={aiLoading} className="px-4 py-2 text-sm bg-gradient-to-r from-purple-400 to-primary text-white rounded-btn font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+                        {aiLoading ? '🤖 生成中...' : '🤖 AI 生成简介'}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-sub mb-1">微博链接</label>
+                    <input value={form.weibo} onChange={e => setForm({...form, weibo:e.target.value})} placeholder="https://weibo.com/..." className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" />
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button onClick={handleSave} className="px-6 py-2.5 bg-primary text-white rounded-btn font-medium hover:bg-primary-hover transition-colors">保存</button>
+                    <button onClick={() => setEditing(false)} className="px-6 py-2.5 bg-gray-100 text-text-sub rounded-btn font-medium hover:bg-gray-200 transition-colors">取消</button>
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <div className="mb-4">
+                    <span className="text-xs text-text-sub">主色调</span>
+                    <span className="ml-2 px-3 py-1 bg-primary-light text-primary rounded-full text-sm font-medium">{c.colors || '未设置'}</span>
+                  </div>
+                  <div>
+                    <span className="text-xs text-text-sub">简介</span>
+                    <p className="mt-2 text-text-main leading-relaxed whitespace-pre-wrap">{c.bio || '还没有简介，点击编辑按钮添加 ✨'}</p>
+                  </div>
+                  {c.social?.weibo && (
+                    <div className="mt-4">
+                      <a href={c.social.weibo} target="_blank" className="text-sm text-primary hover:underline">🔗 {c.social.weibo}</a>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </CardContainer>
+        </div>
       </div>
     </div>
-    <div class="pay-paid-tip">⚠️ 点击"我已付款"视为确认交易完成，虚拟商品不支持退款</div>
-    <!-- 底部按钮 -->
-    <div class="pay-footer">
-      <button class="pay-cancel" onclick="TemplateStore.cancelPay()">取消</button>
-      <button class="pay-done-wechat" id="payConfirmBtn" onclick="TemplateStore.confirmPay()">✅ 我已付款</button>
-    </div>
-  </div>
-</div>
-<div class="layout">
-  <!-- 主站预览区（默认全屏） -->
-  <div class="preview" id="previewArea">
-    <div class="site-hero-title" id="siteHeroTitle">StarFan Studio 爱豆回忆录</div>
-    <div id="previewTitle"></div>
-    <div id="siteGuide" class="site-guide">
-      <div class="guide-item" onclick="Events.switchTab('celebrity')"><span class="guide-icon"></span><span class="guide-text"><b>偶像资料</b><small>名字、头像、简介</small></span></div>
-      <div class="guide-item" onclick="Events.switchTab('news')"><span class="guide-icon"></span><span class="guide-text"><b>追忆时光</b><small>记录每一次心动</small></span></div>
-      <div class="guide-item" onclick="Events.switchTab('gallery')"><span class="guide-icon"></span><span class="guide-text"><b>照片画廊</b><small>珍藏影像瞬间</small></span></div>
-      <div class="guide-item" onclick="Events.switchTab('community')"><span class="guide-icon"></span><span class="guide-text"><b>粉丝心语</b><small>记录每一份心情</small></span></div>
-      <div class="guide-item" onclick="Events.switchTab('calendar')"><span class="guide-icon"></span><span class="guide-text"><b>活动日历</b><small>演唱会与见面会</small></span></div>
-      <div class="guide-item" onclick="Events.switchTab('shop')"><span class="guide-icon"></span><span class="guide-text"><b>周边收藏</b><small>我的周边小柜</small></span></div>
-    </div>
-    <div id="previewContent"></div>
-  </div>
-  <!-- 侧滑编辑抽屉 -->
-  <div class="panel" id="editorPanel">
-    <h3 style="margin-top:0;">编辑控制台</h3>
-    <div class="tabs" id="editorTabs">
-      <button class="tab-btn active" data-tab="celebrity">资料</button>
-      <button class="tab-btn" data-tab="news">追忆</button>
-      <button class="tab-btn" data-tab="gallery">画廊</button>
-      <button class="tab-btn" data-tab="community">心语</button>
-      <button class="tab-btn" data-tab="calendar">日历</button>
-      <button class="tab-btn" data-tab="shop">收藏</button>
-      <button class="tab-btn" data-tab="template" style="position:relative;">外观</button>
-    </div>
-    <div id="editorContent"></div>
-  </div>
-  
-  <!-- 遮罩层 -->
-  <div class="overlay" id="overlay" onclick="Events.toggleEditor()"></div>
-</div>
-<!-- 底部信息栏（仅版权行） -->
-<div class="site-footer" id="siteFooter">
-  <div class="site-footer-copy">用 StarFan Studio 记录偶像的每一个精彩瞬间 | 仅供粉丝交流使用</div>
-</div>
-<!-- 追忆详情弹窗 -->
-<div class="memoir-overlay" id="memoirOverlay" onclick="if(event.target===this)Events.closeMemoir()">
-  <div class="memoir-modal" style="position:relative;">
-    <button class="memoir-close" onclick="Events.closeMemoir()">✕</button>
-    <div class="memoir-header">
-      <h3 id="memoirTitle"></h3>
-      <div class="memoir-meta" id="memoirMeta"></div>
-    </div>
-    <div class="memoir-body" id="memoirBody"></div>
-  </div>
-</div>
-<!-- 追忆图片灯箱 -->
-<div class="memoir-img-lightbox" id="memoirLightbox" onclick="this.classList.remove('show')">
-  <img id="memoirLightboxImg" src="">
-</div>
-<!-- 悬浮编辑开关 -->
-<button class="editor-toggle" title="打开/关闭编辑面板（可拖拽）">编辑</button>
-<button class="exit-preview" onclick="Exporter.togglePreview()">← 返回编辑器</button>
-<button class="export-edit-toggle" onclick="document.body.classList.toggle('edit-mode')">✏️ 编辑模式</button>
+  );
+}
 
-  <script src="js/modules/00_site_manager.js"></script>
-  <script src="js/modules/01_site_ui.js"></script>
-  <script src="js/modules/02_update_notifier.js"></script>
-  <script src="js/modules/03_asset_db.js"></script>
-  <script src="js/modules/04_app_state.js"></script>
-  <script src="js/modules/05_ai_service.js"></script>
-  <script src="js/modules/06_render.js"></script>
-  <script src="js/modules/07_events.js"></script>
-  <script src="js/modules/08_calendar.js"></script>
-  <script src="js/modules/09_shop.js"></script>
-  <script src="js/modules/10_template_store.js"></script>
-  <script src="js/modules/11_live_preview.js"></script>
-  <script src="js/modules/12_exporter.js"></script>
-  <script src="js/modules/13_background_fx.js"></script>
-  <script src="js/modules/14_inline_editor.js"></script>
-  <script src="js/modules/15_tutorial.js"></script>
-  <script src="js/modules/16_drag_button.js"></script>
-  <script src="js/init.js"></script>
+// --- NewsView ---
+function NewsView() {
+  const { state, dispatch } = useContext(AppContext);
+  const [showEditor, setShowEditor] = useState(false);
+  const [form, setForm] = useState({ title: '', date: new Date().toISOString().slice(0,10), content: '' });
+  const [coverDataUrl, setCoverDataUrl] = useState(null);
+  const [extraImages, setExtraImages] = useState([]);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [detailItem, setDetailItem] = useState(null);
+
+  const handleSave = async () => {
+    if (!form.title && !form.content) return alert('请填写标题或内容');
+    const id = 'n' + Date.now().toString(36);
+    const item = { id, title: form.title, date: form.date, content: form.content, cover: '', images: [] };
+    // 封面图存 IndexedDB
+    if (coverDataUrl) {
+      await AssetDB.save('news_' + id, coverDataUrl);
+      item.cover = coverDataUrl;
+    }
+    // 额外图片
+    if (extraImages.length) {
+      for (let i = 0; i < extraImages.length; i++) {
+        const niId = 'ni_' + Date.now().toString(36) + i;
+        await AssetDB.save(niId, extraImages[i]);
+        item.images.push(niId);
+      }
+    }
+    dispatch({ type: 'ADD_NEWS', item });
+    setShowEditor(false); setForm({ title: '', date: new Date().toISOString().slice(0,10), content: '' }); setCoverDataUrl(null); setExtraImages([]);
+  };
+
+  const handleCoverUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file || file.size > 50*1024*1024) return;
+    const reader = new FileReader();
+    reader.onload = ev => setCoverDataUrl(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleExtraUpload = (e) => {
+    const files = Array.from(e.target.files || []).filter(f => f.size <= 50*1024*1024);
+    files.forEach(f => { const r = new FileReader(); r.onload = ev => setExtraImages(prev => [...prev, ev.target.result]); r.readAsDataURL(f); });
+  };
+
+  const handleAI = async () => {
+    setAiLoading(true);
+    await AIService.generate(`写一篇关于偶像的追忆文章，标题是"${form.title || '珍贵回忆'}"`, (text, done) => {
+      setForm(f => ({ ...f, content: text }));
+      if (done) setAiLoading(false);
+    });
+  };
+
+  const handleDelete = (id) => { AssetDB.delete('news_' + id); dispatch({ type: 'DELETE_NEWS', id }); };
+
+  if (detailItem) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <button onClick={() => setDetailItem(null)} className="mb-4 text-sm text-primary hover:underline">← 返回列表</button>
+        <CardContainer>
+          {detailItem.cover && <img src={detailItem.cover} className="w-full h-48 object-cover rounded-lg mb-4" />}
+          <h2 className="text-xl font-bold text-text-main mb-2">{detailItem.title}</h2>
+          <p className="text-xs text-text-sub mb-4">{detailItem.date}</p>
+          <p className="text-text-main leading-relaxed whitespace-pre-wrap">{detailItem.content}</p>
+          {detailItem.images?.length > 0 && (
+            <div className="mt-4 columns-2 gap-3">
+              {detailItem.images.map((niId, i) => (
+                <img key={i} src={niId.startsWith('ni_') ? '' : niId} className="w-full rounded-lg mb-3 object-cover" alt=""
+                  onError={async (e) => { if (niId.startsWith('ni_')) { const d = await AssetDB.load(niId); if (d) e.target.src = d; } }} />
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2 mt-4 pt-4 border-t border-border-light">
+            <button onClick={() => setDetailItem(null)} className="text-sm text-text-sub hover:text-text-main">关闭</button>
+            <button onClick={() => { setForm(detailItem); setShowEditor(true); setDetailItem(null); }} className="text-sm text-primary">编辑</button>
+            <button onClick={() => { handleDelete(detailItem.id); setDetailItem(null); }} className="text-sm text-red-400">删除</button>
+          </div>
+        </CardContainer>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <ModuleHeader tab="news" showEdit onEdit={() => setShowEditor(true)} />
+
+      {/* 新增/编辑弹窗 */}
+      {showEditor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={e => e.target === e.currentTarget && setShowEditor(false)}>
+          <div className="bg-white rounded-card shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-text-main mb-4">{form.id ? '编辑追忆' : '新增追忆'}</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-text-sub mb-1">标题</label>
+                <input value={form.title} onChange={e => setForm({...form, title:e.target.value})} placeholder="追忆标题" className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-sub mb-1">日期</label>
+                <input type="date" value={form.date} onChange={e => setForm({...form, date:e.target.value})} className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-sub mb-1">封面图片</label>
+                <input type="file" accept="image/*" onChange={handleCoverUpload} className="w-full text-sm" />
+                {coverDataUrl && <img src={coverDataUrl} className="mt-2 w-full h-32 object-cover rounded-lg" />}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-sub mb-1">额外图片（最多9张）</label>
+                <input type="file" accept="image/*" multiple onChange={handleExtraUpload} className="w-full text-sm" />
+                {extraImages.length > 0 && (
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    {extraImages.map((img, i) => <img key={i} src={img} className="w-16 h-16 object-cover rounded-lg" />)}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-sub mb-1">内容</label>
+                <textarea value={form.content} onChange={e => setForm({...form, content:e.target.value})} rows={5} placeholder="写下你的追忆..." className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none" />
+                <button onClick={handleAI} disabled={aiLoading} className="mt-2 px-4 py-1.5 text-xs bg-primary-light text-primary rounded-full hover:bg-primary/20 transition-colors">
+                  {aiLoading ? '🤖 生成中...' : '🤖 AI 辅助写作'}
+                </button>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={handleSave} className="flex-1 py-2.5 bg-primary text-white rounded-btn font-medium hover:bg-primary-hover transition-colors">保存</button>
+              <button onClick={() => setShowEditor(false)} className="flex-1 py-2.5 bg-gray-100 text-text-sub rounded-btn font-medium hover:bg-gray-200 transition-colors">取消</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 追忆列表 - Masonry */}
+      {state.data.news.length === 0 ? (
+        <EmptyState icon="📖" title="还没有追忆记录" desc="记录下你和偶像之间最珍贵的每一个瞬间" action="写第一条追忆" onAction={() => setShowEditor(true)} />
+      ) : (
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+          {[...state.data.news].reverse().map(item => (
+            <CardContainer key={item.id} onClick={() => setDetailItem(item)} className="break-inside-avoid group">
+              {item.cover && <img src={item.cover} className="w-full h-40 object-cover rounded-lg mb-3" />}
+              <p className="text-xs text-text-sub mb-1">{item.date}</p>
+              <h4 className="text-base font-semibold text-text-main mb-2">{item.title || '无标题'}</h4>
+              <p className="text-sm text-text-sub line-clamp-3">{item.content?.slice(0, 100)}</p>
+              <div className="flex gap-2 mt-3 pt-3 border-t border-border-light opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={e => { e.stopPropagation(); setDetailItem(item); }} className="text-xs text-primary hover:underline">查看</button>
+                <button onClick={e => { e.stopPropagation(); setForm(item); setShowEditor(true); }} className="text-xs text-text-sub hover:text-text-main">编辑</button>
+                <button onClick={e => { e.stopPropagation(); handleDelete(item.id); }} className="text-xs text-red-400 hover:text-red-500">删除</button>
+              </div>
+            </CardContainer>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- GalleryView ---
+function GalleryView() {
+  const { state, dispatch } = useContext(AppContext);
+  const [lightboxIdx, setLightboxIdx] = useState(null);
+  const [batchMode, setBatchMode] = useState(false);
+  const [selected, setSelected] = useState(new Set());
+
+  const handleUpload = (e) => {
+    const files = Array.from(e.target.files || []).filter(f => f.size <= 50*1024*1024);
+    const newList = [...state.data.gallery];
+    files.forEach(f => {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const id = 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+        await AssetDB.save('gallery_' + id, ev.target.result);
+        newList.push({ id, caption: '', url: ev.target.result });
+        dispatch({ type: 'SET_GALLERY', list: [...newList] });
+      };
+      reader.readAsDataURL(f);
+    });
+  };
+
+  const handleDelete = (id) => { AssetDB.delete('gallery_' + id); dispatch({ type: 'DELETE_GALLERY', id }); };
+  const handleBatchDelete = () => { selected.forEach(id => handleDelete(id)); setSelected(new Set()); setBatchMode(false); };
+
+  const toggleSelect = (id) => {
+    const next = new Set(selected);
+    next.has(id) ? next.delete(id) : next.add(id);
+    setSelected(next);
+  };
+
+  const items = state.data.gallery;
+
+  return (
+    <div>
+      <ModuleHeader tab="gallery" showEdit onEdit={() => document.getElementById('galleryUploadInput')?.click()} />
+      <input id="galleryUploadInput" type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
+
+      {/* 视图切换 + 批管理 */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex gap-1 bg-gray-100 rounded-btn p-1">
+          {['grid', 'list', 'focus'].map(mode => (
+            <button key={mode} onClick={() => dispatch({ type: 'SET_VIEW_MODE', mode })}
+              className={`px-4 py-1.5 rounded-btn text-xs font-medium transition-colors ${state.viewMode === mode ? 'bg-white shadow-sm text-text-main' : 'text-text-sub hover:text-text-main'}`}>
+              {mode === 'grid' ? '▦ 网格' : mode === 'list' ? '☰ 列表' : '◉ 聚焦'}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          {items.length > 0 && (
+            <button onClick={() => { setBatchMode(!batchMode); setSelected(new Set()); }}
+              className={`px-3 py-1.5 text-xs rounded-btn font-medium transition-colors ${batchMode ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-text-sub hover:bg-gray-200'}`}>
+              {batchMode ? '取消' : '批量管理'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {batchMode && selected.size > 0 && (
+        <div className="flex items-center gap-3 mb-4 px-4 py-2 bg-red-50 rounded-btn text-sm">
+          <span className="text-red-500">已选 {selected.size} 张</span>
+          <button onClick={handleBatchDelete} className="text-red-500 font-semibold hover:underline">删除选中</button>
+        </div>
+      )}
+
+      {items.length === 0 ? (
+        <EmptyState icon="🖼" title="还没有照片" desc="上传偶像的精彩瞬间到画廊" action="上传照片" onAction={() => document.getElementById('galleryUploadInput')?.click()} />
+      ) : state.viewMode === 'list' ? (
+        /* 列表视图 */
+        <div className="space-y-3">
+          {items.map(item => (
+            <div key={item.id} className="flex items-center gap-4 bg-white rounded-card shadow-card p-4 group">
+              {batchMode && <input type="checkbox" checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} className="w-4 h-4" />}
+              <img src={item.url} className="w-16 h-16 object-cover rounded-lg cursor-pointer" onClick={() => setLightboxIdx(items.indexOf(item))} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-text-main truncate">{item.caption || '未命名'}</p>
+              </div>
+              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={() => setLightboxIdx(items.indexOf(item))} className="text-xs text-primary">查看</button>
+                <button onClick={() => handleDelete(item.id)} className="text-xs text-red-400">删除</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : state.viewMode === 'focus' ? (
+        /* 聚焦视图 */
+        <div className="max-w-2xl mx-auto space-y-6">
+          {items.map((item, i) => (
+            <CardContainer key={item.id} className="text-center">
+              <img src={item.url} className="w-full max-h-[500px] object-contain rounded-lg mb-4 cursor-pointer" onClick={() => setLightboxIdx(i)} />
+              <p className="text-sm text-text-sub">{item.caption || '未命名'}</p>
+            </CardContainer>
+          ))}
+        </div>
+      ) : (
+        /* 网格视图 - CSS Columns 瀑布流 */
+        <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 space-y-3">
+          {items.map((item, i) => (
+            <div key={item.id} className="break-inside-avoid relative group cursor-pointer" onClick={() => batchMode ? toggleSelect(item.id) : setLightboxIdx(i)}>
+              <img src={item.url} className="w-full rounded-lg object-cover" loading="lazy" />
+              {batchMode && (
+                <div className={`absolute top-2 right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center ${selected.has(item.id) ? 'bg-primary border-primary text-white' : 'bg-white/80 border-white'}`}>
+                  {selected.has(item.id) && '✓'}
+                </div>
+              )}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 rounded-lg transition-all flex items-end p-3 opacity-0 group-hover:opacity-100">
+                <p className="text-white text-xs truncate">{item.caption || '未命名'}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Lightbox */}
+      {lightboxIdx !== null && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center" onClick={() => setLightboxIdx(null)}>
+          <button onClick={() => setLightboxIdx(null)} className="absolute top-4 right-4 text-white text-2xl hover:opacity-70 z-10">✕</button>
+          <button onClick={e => { e.stopPropagation(); setLightboxIdx(lightboxIdx > 0 ? lightboxIdx - 1 : items.length - 1); }}
+            className="absolute left-4 text-white text-3xl hover:opacity-70 z-10">‹</button>
+          <img src={items[lightboxIdx]?.url} className="max-w-[90vw] max-h-[85vh] object-contain" onClick={e => e.stopPropagation()} />
+          <button onClick={e => { e.stopPropagation(); setLightboxIdx(lightboxIdx < items.length - 1 ? lightboxIdx + 1 : 0); }}
+            className="absolute right-4 text-white text-3xl hover:opacity-70 z-10">›</button>
+          <div className="absolute bottom-6 text-white text-sm">{lightboxIdx + 1} / {items.length}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- CommunityView ---
+function CommunityView() {
+  const { state, dispatch } = useContext(AppContext);
+  const [text, setText] = useState('');
+
+  const handleSend = () => {
+    if (!text.trim()) return;
+    const now = new Date();
+    const time = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    dispatch({ type: 'ADD_COMMENT', item: { text: text.trim(), time } });
+    setText('');
+  };
+
+  const handleDelete = (idx) => dispatch({ type: 'DELETE_COMMENT', idx });
+
+  const items = state.data.community;
+
+  return (
+    <div>
+      <ModuleHeader tab="community" />
+
+      {/* 发布栏 */}
+      <div className="bg-white rounded-card shadow-card p-4 mb-6">
+        <div className="flex gap-3">
+          <textarea
+            value={text} onChange={e => setText(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+            placeholder="写下你想对偶像说的话..."
+            rows={2}
+            className="flex-1 px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none"
+          />
+          <button onClick={handleSend} disabled={!text.trim()}
+            className="self-end px-6 py-2.5 bg-primary text-white rounded-btn font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            发送 💌
+          </button>
+        </div>
+      </div>
+
+      {items.length === 0 ? (
+        <EmptyState icon="💌" title="还没有心语" desc="写下你对偶像的爱意，记录每一份心动" />
+      ) : (
+        <div className="max-w-2xl space-y-4">
+          {[...items].reverse().map((item, i) => {
+            const text = typeof item === 'object' ? item.text : item;
+            const time = typeof item === 'object' ? item.time : '';
+            const origIdx = items.length - 1 - i;
+            return (
+              <div key={i} className="flex gap-3 group">
+                <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center text-lg flex-shrink-0">💜</div>
+                <div className="flex-1">
+                  <div className="bg-white rounded-2xl rounded-tl-sm shadow-card p-4">
+                    <p className="text-sm text-text-main leading-relaxed">{text}</p>
+                  </div>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <span className="text-xs text-text-sub">{time}</span>
+                    <button onClick={() => handleDelete(origIdx)}
+                      className="text-xs text-red-300 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500">删除</button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- CalendarView ---
+function CalendarView() {
+  const { state, dispatch } = useContext(AppContext);
+  const [showEditor, setShowEditor] = useState(false);
+  const [form, setForm] = useState({ name: '', date: new Date().toISOString().slice(0,10), venue: '', desc: '', type: 'concert' });
+  const [viewMode, setViewMode] = useState('calendar'); // calendar | timeline
+
+  const handleSave = () => {
+    if (!form.name) return;
+    const id = 'ev' + Date.now().toString(36);
+    dispatch({ type: 'ADD_CALENDAR', item: { id, ...form, registered: false } });
+    setShowEditor(false); setForm({ name: '', date: new Date().toISOString().slice(0,10), venue: '', desc: '', type: 'concert' });
+  };
+
+  const handleDelete = (id) => dispatch({ type: 'DELETE_CALENDAR', id });
+  const handleToggleRegister = (id) => dispatch({ type: 'TOGGLE_REGISTER', id });
+
+  const typeLabels = { concert: '🎵 演唱会', 'fan-meet': '🤝 见面会', release: '💿 发布', other: '📌 其他' };
+
+  const events = state.data.calendar;
+  const calDate = state.calMonth;
+  const year = calDate.getFullYear();
+  const month = calDate.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 0).getDay();
+
+  const selectedDateEvents = state.calSelected
+    ? events.filter(e => e.date === state.calSelected)
+    : [];
+
+  const timelineEvents = [...events].sort((a, b) => a.date.localeCompare(b.date));
+
+  // 迷你日历
+  const MiniCalendar = () => {
+    const days = [];
+    for (let i = 0; i < firstDay; i++) days.push(null);
+    for (let d = 1; d <= daysInMonth; d++) {
+      const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const hasEvent = events.some(e => e.date === ds);
+      const isSelected = state.calSelected === ds;
+      const isToday = ds === new Date().toISOString().slice(0,10);
+      days.push({ day: d, ds, hasEvent, isSelected, isToday });
+    }
+
+    return (
+      <div className="bg-white rounded-card shadow-card p-5">
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={() => dispatch({ type: 'SET_CAL_MONTH', date: new Date(year, month - 1) })} className="text-text-sub hover:text-text-main text-lg">‹</button>
+          <h3 className="text-base font-semibold text-text-main">{year}年{month + 1}月</h3>
+          <button onClick={() => dispatch({ type: 'SET_CAL_MONTH', date: new Date(year, month + 1) })} className="text-text-sub hover:text-text-main text-lg">›</button>
+        </div>
+        <div className="grid grid-cols-7 gap-1 text-center text-xs text-text-sub mb-2">
+          {['日','一','二','三','四','五','六'].map(d => <div key={d}>{d}</div>)}
+        </div>
+        <div className="grid grid-cols-7 gap-1">
+          {days.map((d, i) => (
+            <div key={i} onClick={() => d && dispatch({ type: 'SET_CAL_SELECTED', date: d.ds })}
+              className={`aspect-square flex items-center justify-center text-sm rounded-lg cursor-pointer transition-all
+                ${!d ? '' : d.isSelected ? 'bg-primary text-white font-semibold' : d.isToday ? 'bg-primary-light text-primary font-semibold' : 'hover:bg-gray-100 text-text-main'}
+                ${d?.hasEvent ? 'font-semibold' : ''}`}>
+              {d?.day || ''}
+              {d?.hasEvent && !d.isSelected && <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary"></span>}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      <ModuleHeader tab="calendar" showEdit onEdit={() => setShowEditor(true)} />
+
+      {/* 新增弹窗 */}
+      {showEditor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={e => e.target === e.currentTarget && setShowEditor(false)}>
+          <div className="bg-white rounded-card shadow-2xl w-full max-w-md mx-4 p-6">
+            <h3 className="text-lg font-bold text-text-main mb-4">新增活动</h3>
+            <div className="space-y-3">
+              <input value={form.name} onChange={e => setForm({...form, name:e.target.value})} placeholder="活动名称" className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary outline-none" />
+              <input type="date" value={form.date} onChange={e => setForm({...form, date:e.target.value})} className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary outline-none" />
+              <input value={form.venue} onChange={e => setForm({...form, venue:e.target.value})} placeholder="地点" className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary outline-none" />
+              <textarea value={form.desc} onChange={e => setForm({...form, desc:e.target.value})} rows={2} placeholder="描述" className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary outline-none resize-none" />
+              <select value={form.type} onChange={e => setForm({...form, type:e.target.value})} className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary outline-none bg-white">
+                {Object.entries(typeLabels).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
+              </select>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={handleSave} className="flex-1 py-2.5 bg-primary text-white rounded-btn font-medium hover:bg-primary-hover">保存</button>
+              <button onClick={() => setShowEditor(false)} className="flex-1 py-2.5 bg-gray-100 text-text-sub rounded-btn font-medium hover:bg-gray-200">取消</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {events.length === 0 ? (
+        <EmptyState icon="📅" title="还没有活动安排" desc="记录偶像的演唱会、见面会等重要日程" action="添加活动" onAction={() => setShowEditor(true)} />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* 迷你日历 */}
+          <div className="lg:col-span-1"><MiniCalendar /></div>
+
+          {/* 视图切换 + 事件列表 */}
+          <div className="lg:col-span-2">
+            <div className="flex gap-1 mb-4">
+              {['calendar', 'timeline'].map(m => (
+                <button key={m} onClick={() => { setViewMode(m); if (m === 'calendar') dispatch({ type: 'SET_CAL_SELECTED', date: null }); }}
+                  className={`px-4 py-1.5 rounded-btn text-xs font-medium transition-colors ${viewMode === m ? 'bg-primary text-white' : 'bg-gray-100 text-text-sub hover:bg-gray-200'}`}>
+                  {m === 'calendar' ? '📅 按日期' : '📋 时间轴'}
+                </button>
+              ))}
+            </div>
+
+            {viewMode === 'calendar' && state.calSelected && (
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-text-main mb-2">{state.calSelected} 的活动</h4>
+                {selectedDateEvents.length === 0 ? (
+                  <p className="text-sm text-text-sub">当天没有活动</p>
+                ) : (
+                  <div className="space-y-2">
+                    {selectedDateEvents.map(e => (
+                      <div key={e.id} className="bg-white rounded-card shadow-card p-4 group">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-semibold text-text-main">{e.name}</h5>
+                            <p className="text-xs text-text-sub mt-1">{e.venue}{e.desc ? ' · ' + e.desc : ''}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => handleToggleRegister(e.id)}
+                              className={`text-xs px-3 py-1 rounded-full font-medium ${e.registered ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-text-sub'}`}>
+                              {e.registered ? '✓ 已报名' : '报名'}
+                            </button>
+                            <button onClick={() => handleDelete(e.id)} className="text-xs text-red-300 opacity-0 group-hover:opacity-100 hover:text-red-500">删除</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {viewMode === 'timeline' && (
+              <div className="relative pl-8 border-l-2 border-primary-light space-y-6">
+                {timelineEvents.map((e, i) => (
+                  <div key={e.id} className="relative group">
+                    <div className="absolute -left-[25px] w-3 h-3 rounded-full bg-primary border-2 border-white" />
+                    <CardContainer onClick={null}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-text-sub">{e.date}</span>
+                        <span className="text-xs px-2 py-0.5 bg-primary-light text-primary rounded-full">{typeLabels[e.type] || e.type}</span>
+                      </div>
+                      <h5 className="font-semibold text-text-main">{e.name}</h5>
+                      <p className="text-xs text-text-sub mt-1">{e.venue}{e.desc ? ' · ' + e.desc : ''}</p>
+                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border-light">
+                        <button onClick={() => handleToggleRegister(e.id)}
+                          className={`text-xs px-3 py-1 rounded-full font-medium ${e.registered ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-text-sub hover:bg-gray-200'}`}>
+                          {e.registered ? '✓ 已报名' : '📝 报名'}
+                        </button>
+                        <button onClick={() => handleDelete(e.id)} className="text-xs text-red-300 opacity-0 group-hover:opacity-100 hover:text-red-500">删除</button>
+                      </div>
+                    </CardContainer>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- ShopView ---
+function ShopView() {
+  const { state, dispatch } = useContext(AppContext);
+  const [showEditor, setShowEditor] = useState(false);
+  const [form, setForm] = useState({ name: '', emoji: '', cat: '周边', desc: '' });
+  const [imageDataUrl, setImageDataUrl] = useState(null);
+  const [filterCat, setFilterCat] = useState('全部');
+
+  const handleSave = async () => {
+    if (!form.name) return;
+    const id = 'sp' + Date.now().toString(36);
+    const item = { id, ...form, image: '' };
+    if (imageDataUrl) { await AssetDB.save('shop_' + id, imageDataUrl); item.image = imageDataUrl; }
+    dispatch({ type: 'ADD_SHOP', item });
+    setShowEditor(false); setForm({ name: '', emoji: '', cat: '周边', desc: '' }); setImageDataUrl(null);
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file || file.size > 50*1024*1024) return;
+    const reader = new FileReader();
+    reader.onload = ev => setImageDataUrl(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleDelete = (id) => { AssetDB.delete('shop_' + id); dispatch({ type: 'DELETE_SHOP', id }); };
+
+  const cats = ['全部', '周边', '专辑', '服饰', '配饰'];
+  const filtered = filterCat === '全部' ? state.data.shop : state.data.shop.filter(s => s.cat === filterCat);
+
+  return (
+    <div>
+      <ModuleHeader tab="shop" showEdit onEdit={() => setShowEditor(true)} />
+
+      {showEditor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={e => e.target === e.currentTarget && setShowEditor(false)}>
+          <div className="bg-white rounded-card shadow-2xl w-full max-w-md mx-4 p-6">
+            <h3 className="text-lg font-bold text-text-main mb-4">添加收藏</h3>
+            <div className="space-y-3">
+              <input value={form.name} onChange={e => setForm({...form, name:e.target.value})} placeholder="收藏名称" className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary outline-none" />
+              <input value={form.emoji} onChange={e => setForm({...form, emoji:e.target.value})} placeholder="emoji 图标（如 💿）" className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary outline-none" />
+              <select value={form.cat} onChange={e => setForm({...form, cat:e.target.value})} className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary outline-none bg-white">
+                {['周边','专辑','服饰','配饰'].map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <textarea value={form.desc} onChange={e => setForm({...form, desc:e.target.value})} rows={2} placeholder="心得备注" className="w-full px-4 py-2.5 border border-border-light rounded-btn text-sm focus:border-primary outline-none resize-none" />
+              <input type="file" accept="image/*" onChange={handleImageUpload} className="w-full text-sm" />
+              {imageDataUrl && <img src={imageDataUrl} className="w-full h-32 object-cover rounded-lg" />}
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button onClick={handleSave} className="flex-1 py-2.5 bg-primary text-white rounded-btn font-medium hover:bg-primary-hover">保存</button>
+              <button onClick={() => setShowEditor(false)} className="flex-1 py-2.5 bg-gray-100 text-text-sub rounded-btn font-medium hover:bg-gray-200">取消</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 分类筛选 */}
+      {state.data.shop.length > 0 && (
+        <div className="flex gap-2 mb-4 flex-wrap">
+          {cats.map(c => (
+            <button key={c} onClick={() => setFilterCat(c)}
+              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors ${filterCat === c ? 'bg-primary text-white' : 'bg-gray-100 text-text-sub hover:bg-gray-200'}`}>
+              {c}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {state.data.shop.length === 0 ? (
+        <EmptyState icon="🛍" title="还没有周边收藏" desc="记录你收藏的偶像周边，打造专属小柜" action="添加收藏" onAction={() => setShowEditor(true)} />
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filtered.map(item => (
+            <CardContainer key={item.id} onClick={null} className="group text-center">
+              <div className="w-full h-36 bg-gray-50 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                {item.image ? (
+                  <img src={item.image} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-4xl">{item.emoji || '📦'}</span>
+                )}
+              </div>
+              <h5 className="font-semibold text-sm text-text-main">{item.name}</h5>
+              <p className="text-xs text-text-sub mt-1">{item.desc?.slice(0, 20)}</p>
+              <span className="text-[10px] px-2 py-0.5 bg-primary-light text-primary rounded-full mt-2 inline-block">{item.cat}</span>
+              <button onClick={() => handleDelete(item.id)} className="block mx-auto mt-2 text-xs text-red-300 opacity-0 group-hover:opacity-100 hover:text-red-500">删除</button>
+            </CardContainer>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- Dashboard ---
+function Dashboard() {
+  const { state, dispatch } = useContext(AppContext);
+  const tabs = ['celebrity', 'news', 'gallery', 'community', 'calendar', 'shop'];
+
+  return (
+    <div>
+      {/* Celebrity Card */}
+      <CardContainer className="mb-6 !p-0 overflow-hidden">
+        <div className="h-24 bg-gradient-to-r from-primary to-purple-400" />
+        <div className="px-6 pb-6 -mt-10 flex items-end gap-4">
+          <img
+            src={state.data.celebrity.avatar || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23E8DEF8" width="100" height="100" rx="50"/><text x="50" y="55" text-anchor="middle" fill="%237C5CFC" font-size="40">★</text></svg>'}
+            className="w-20 h-20 rounded-full border-4 border-white shadow-md object-cover"
+          />
+          <div>
+            <h2 className="text-xl font-bold text-text-main">{state.data.celebrity.name || '未设置偶像'}</h2>
+            <p className="text-sm text-text-sub">{state.data.celebrity.bio?.slice(0, 50) || '点击进入编辑偶像信息'}</p>
+          </div>
+        </div>
+        <div className="px-6 pb-4 flex gap-4">
+          {[
+            { label: '追忆', val: state.data.news.length },
+            { label: '照片', val: state.data.gallery.length },
+            { label: '心语', val: state.data.community.length },
+            { label: '活动', val: state.data.calendar.length },
+            { label: '收藏', val: state.data.shop.length },
+          ].map(s => (
+            <div key={s.label} className="text-center">
+              <div className="text-lg font-bold text-primary">{s.val}</div>
+              <div className="text-[10px] text-text-sub">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </CardContainer>
+
+      {/* Module Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {tabs.map(tab => <ModuleCard key={tab} tab={tab} data={state.data} />)}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════ App 主组件 ═══════════
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const [loaded, setLoaded] = useState(false);
+
+  // 初始化：加载数据
+  useEffect(() => {
+    (async () => {
+      await AppState.init();
+      dispatch({ type: 'LOAD_DATA', data: AppState.data });
+
+      // 恢复模板/特效/付费状态
+      const opts = JSON.parse(localStorage.getItem(SiteManager.optsKey()) || '{}');
+      if (opts.template) dispatch({ type: 'SET_TEMPLATE', id: opts.template });
+      if (opts.effects) opts.effects.forEach(e => dispatch({ type: 'TOGGLE_EFFECT', id: e }));
+      if (opts.paid) dispatch({ type: 'SET_PAID', list: opts.paid });
+
+      // 背景特效
+      BackgroundFX.init();
+      BackgroundFX.setType(AppState.data.celebrity.bgType || 'stars');
+
+      // 模板初始化
+      TemplateStore.init();
+
+      // 更新通知
+      UpdateNotifier.init();
+
+      // 教程
+      if (window._isNewUser) { setTimeout(function() { try { Tutorial.init(); } catch(e) { console.warn('教程初始化失败:', e); } }, 500); }
+
+      setLoaded(true);
+
+      // 自动保存：修改数据后同步到 localStorage
+      window._reactState = state;
+    })();
+  }, []);
+
+  // 数据变更时自动保存
+  useEffect(() => {
+    if (!loaded) return;
+    AppState.data = state.data;
+    AppState.currentTab = state.activeTab;
+    AppState.save();
+
+    // 保存模板选项
+    const opts = {
+      template: state.selectedTemplate,
+      effects: state.selectedEffects,
+      paid: state.paidItems
+    };
+    localStorage.setItem(SiteManager.optsKey(), JSON.stringify(opts));
+    TemplateStore.selectedTemplate = state.selectedTemplate;
+    TemplateStore.selectedEffects = state.selectedEffects;
+    TemplateStore.paidItems = state.paidItems;
+    TemplateStore.save();
+  }, [state.data, state.selectedTemplate, state.selectedEffects, state.paidItems, loaded]);
+
+  // 导出全局状态给外部模块
+  useEffect(() => { window._reactState = state; window._reactDispatch = dispatch; }, [state]);
+
+  if (!loaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-4xl mb-4 animate-bounce">🌟</div>
+          <p className="text-text-sub">StarFan Studio 加载中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const showRightPanel = state.activeTab === 'dashboard';
+
+  const renderContent = () => {
+    switch (state.activeTab) {
+      case 'dashboard': return <Dashboard />;
+      case 'celebrity': return <CelebrityView />;
+      case 'news': return <NewsView />;
+      case 'gallery': return <GalleryView />;
+      case 'community': return <CommunityView />;
+      case 'calendar': return <CalendarView />;
+      case 'shop': return <ShopView />;
+      default: return <Dashboard />;
+    }
+  };
+
+  return (
+    <AppContext.Provider value={{ state, dispatch }}>
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <main className={`flex-1 p-6 md:p-8 pb-24 ${showRightPanel ? '' : 'max-w-6xl mx-auto w-full'}`}>
+          {renderContent()}
+        </main>
+        {showRightPanel && <RightPanel />}
+      </div>
+
+      {/* 站点列表面板（复用原 SiteUI） */}
+      <div id="sitePanel" className="hidden"></div>
+      {/* 更新通知弹窗 */}
+      <div id="updateNotice" className="hidden"></div>
+      {/* 追忆详情弹窗（复用原版） */}
+      <div className="memoir-overlay hidden" id="memoirOverlay" onClick={e => { if(e.target===e.currentTarget) Events?.closeMemoir?.() }}>
+        <div className="memoir-modal" style={{position:'relative'}}>
+          <button className="memoir-close" onClick={() => Events?.closeMemoir?.()}>✕</button>
+          <div className="memoir-header"><h3 id="memoirTitle"></h3><div className="memoir-meta" id="memoirMeta"></div></div>
+          <div className="memoir-body" id="memoirBody"></div>
+        </div>
+      </div>
+      <div className="memoir-img-lightbox hidden" id="memoirLightbox" onClick={e => e.currentTarget.classList.remove('show')}>
+        <img id="memoirLightboxImg" src="" />
+      </div>
+    </AppContext.Provider>
+  );
+}
+
+// 挂载
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
 </body>
 </html>
