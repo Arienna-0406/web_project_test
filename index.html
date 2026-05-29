@@ -101,8 +101,16 @@ tailwind.config = {
 </div>
 <button class="tut-exit-btn" id="tutExitBtn" onclick="Tutorial.close()">✕ 跳出教程</button>
 
-<!-- React 挂载点 -->
-<div id="root"></div>
+<!-- React 挂载点 — loading 内容会在 React 挂载后被替换 -->
+<div id="root">
+  <div id="root-loading" style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
+    <div style="text-align:center;">
+      <div style="font-size:40px;margin-bottom:16px;">🌟</div>
+      <p style="color:#6B7280;">StarFan Studio 加载中...</p>
+      <p id="root-error" style="color:#ef4444;font-size:12px;margin-top:8px;display:none;"></p>
+    </div>
+  </div>
+</div>
 
 <!-- 兼容旧模块的隐藏容器 -->
 <div id="editorContent" style="display:none"></div>
@@ -206,10 +214,10 @@ window.editingNewsId = null;
 <script src="js/modules/15_tutorial.js"></script>
 <script src="js/modules/16_drag_button.js"></script>
 
-<!-- React CDN -->
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<!-- React CDN — 注意：GitHub Pages 部署时，crossorigin 必须设值或省略 -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
 
 <script type="text/babel">
 const { useState, useEffect, useReducer, useRef, useCallback, useMemo } = React;
@@ -1354,36 +1362,46 @@ function Dashboard() {
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [loaded, setLoaded] = useState(false);
+  const [initError, setInitError] = useState(null);
 
   // 初始化：加载数据
   useEffect(() => {
     (async () => {
-      await AppState.init();
-      dispatch({ type: 'LOAD_DATA', data: AppState.data });
+      try {
+        await AppState.init();
+        dispatch({ type: 'LOAD_DATA', data: AppState.data });
 
-      // 恢复模板/特效/付费状态
-      const opts = JSON.parse(localStorage.getItem(SiteManager.optsKey()) || '{}');
-      if (opts.template) dispatch({ type: 'SET_TEMPLATE', id: opts.template });
-      if (opts.effects) opts.effects.forEach(e => dispatch({ type: 'TOGGLE_EFFECT', id: e }));
-      if (opts.paid) dispatch({ type: 'SET_PAID', list: opts.paid });
+        // 恢复模板/特效/付费状态
+        const opts = JSON.parse(localStorage.getItem(SiteManager.optsKey()) || '{}');
+        if (opts.template) dispatch({ type: 'SET_TEMPLATE', id: opts.template });
+        if (opts.effects) opts.effects.forEach(e => dispatch({ type: 'TOGGLE_EFFECT', id: e }));
+        if (opts.paid) dispatch({ type: 'SET_PAID', list: opts.paid });
 
-      // 背景特效
-      BackgroundFX.init();
-      BackgroundFX.setType(AppState.data.celebrity.bgType || 'stars');
+        // 背景特效
+        if (typeof BackgroundFX !== 'undefined') {
+          BackgroundFX.init();
+          BackgroundFX.setType(AppState.data.celebrity.bgType || 'stars');
+        }
 
-      // 模板初始化
-      TemplateStore.init();
+        // 模板初始化
+        if (typeof TemplateStore !== 'undefined') TemplateStore.init();
 
-      // 更新通知
-      UpdateNotifier.init();
+        // 更新通知
+        if (typeof UpdateNotifier !== 'undefined') UpdateNotifier.init();
 
-      // 教程
-      if (window._isNewUser) { setTimeout(function() { try { Tutorial.init(); } catch(e) { console.warn('教程初始化失败:', e); } }, 500); }
+        // 教程
+        if (window._isNewUser) {
+          setTimeout(function() {
+            try { if (typeof Tutorial !== 'undefined') Tutorial.init(); }
+            catch(e) { console.warn('教程初始化失败:', e); }
+          }, 500);
+        }
 
-      setLoaded(true);
-
-      // 自动保存：修改数据后同步到 localStorage
-      window._reactState = state;
+        setLoaded(true);
+      } catch (err) {
+        console.error('初始化失败:', err);
+        setInitError(err && err.message ? err.message : '应用初始化失败，请刷新重试');
+      }
     })();
   }, []);
 
@@ -1416,6 +1434,15 @@ function App() {
         <div className="text-center">
           <div className="text-4xl mb-4 animate-bounce">🌟</div>
           <p className="text-text-sub">StarFan Studio 加载中...</p>
+          {initError && (
+            <div className="mt-4 p-4 bg-red-50 rounded-card max-w-sm mx-auto">
+              <p className="text-sm text-red-500 font-medium">⚠️ 初始化出错</p>
+              <p className="text-xs text-red-400 mt-1">{initError}</p>
+              <button onClick={() => location.reload()} className="mt-3 px-4 py-2 bg-red-500 text-white rounded-btn text-xs font-medium hover:bg-red-600">
+                刷新重试
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -1467,6 +1494,31 @@ function App() {
 
 // 挂载
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<!-- ═══════════ 安全兜底：检测 React 是否成功挂载 ═══════════ -->
+<script>
+(function() {
+  var start = Date.now();
+  var check = setInterval(function() {
+    var root = document.getElementById('root');
+    var loading = document.getElementById('root-loading');
+    // 如果 root 被 React 接管，loading div 应该已被替换掉
+    if (root && !root.querySelector('#root-loading')) {
+      clearInterval(check); // React 正常挂载
+      return;
+    }
+    // 10 秒超时
+    if (Date.now() - start > 10000) {
+      clearInterval(check);
+      var err = document.getElementById('root-error');
+      if (err) {
+        err.style.display = 'block';
+        err.innerHTML = '页面加载超时。可能原因：<br>① CDN 资源被拦截，请检查网络<br>② 浏览器控制台 (F12 → Console) 查看详细报错<br>③ 尝试刷新或清除缓存后重试';
+      }
+    }
+  }, 500);
+})();
 </script>
 </body>
 </html>
