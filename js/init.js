@@ -106,4 +106,21 @@ window.addEventListener('DOMContentLoaded', async () => {
     AppState.save();
   });
   // 不在页面加载时自动应用模板/特效，由用户手动点击"预览外观"触发
+
+  // 🔔 微信内置浏览器检测：提示用户在浏览器中打开以保存数据
+  (function() {
+    var ua = navigator.userAgent || '';
+    var isWechat = /MicroMessenger/i.test(ua);
+    if (isWechat) {
+      // 显示顶部提示条
+      var bar = document.createElement('div');
+      bar.id = 'wechat-tip-bar';
+      bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#ff9800;color:#fff;font-size:13px;font-weight:600;text-align:center;padding:10px 40px 10px 16px;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+      bar.innerHTML = '⚠️ 检测到微信浏览器：数据可能无法保存！请点击右上角 <b>「...」→「在浏览器中打开」</b> 以正常使用。<span onclick="this.parentNode.style.display=\'none\'" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:18px;cursor:pointer;font-weight:400;">×</span>';
+      document.body.appendChild(bar);
+      // 调整 body 顶部 padding，避免遮住内容
+      document.body.style.paddingTop = (parseInt(document.body.style.paddingTop||'0') + 46) + 'px';
+      console.warn('⚠️ 微信内置浏览器：localStorage/IndexedDB 可能被沙箱隔离，建议引导用户在浏览器中打开');
+    }
+  })();
 });

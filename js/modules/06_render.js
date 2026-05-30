@@ -43,8 +43,9 @@ const Render = {
           <div class="item-list" id="newsEditorList"></div>`; break;
       case 'gallery':
         html = `
-          <div class="form-group"><label>批量上传照片</label><input type="file" id="gallery_files" accept="image/*" multiple></div>
+          <div class="form-group"><label>批量上传照片</label><input type="file" id="gallery_files" accept="image/*" multiple onchange="Events.uploadGallery()"></div>
           <p style="font-size:12px;color:#888;margin:0 0 10px;">支持多选，单张≤50MB。上传后可在下方点击 🤖 为单张照片 AI 生成图注。</p>
+          <button onclick="Events.uploadGallery()" style="width:100%;margin-bottom:10px;">📤 上传照片</button>
           <div class="item-list" id="galleryEditorList"></div>`; break;
       case 'community':
         html = `
